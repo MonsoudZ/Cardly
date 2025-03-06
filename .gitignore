@@ -1,0 +1,20 @@
+# Ignore system files
+.DS_Store
+
+# Ignore Rails temp files
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+
+# Ignore compiled assets
+/public/assets/*
+/public/packs/*
+/public/packs-test/*
+/storage/*
+/node_modules/*
+/yarn-error.log
+.byebug_history
+
+# Ignore secrets (DO NOT PUSH CREDENTIALS)
+config/master.key
