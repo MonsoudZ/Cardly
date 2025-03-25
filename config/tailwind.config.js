@@ -1,8 +1,10 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ['./force-include.html'],
-  safelist: ['text-red-600', 'text-4xl'],
-  
+  content: [
+    './app/views/**/*.{html.erb,erb}', // <--- this includes partials like shared/_header.html.erb
+    './app/helpers/**/*.rb',
+    './app/javascript/**/*.{js,jsx,ts,tsx}',
+  ],  
   theme: {
     extend: {},
   },

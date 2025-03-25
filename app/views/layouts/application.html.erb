@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="turbo-cache-control" content="no-cache">
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
 
@@ -14,43 +15,19 @@
   <link rel="icon" href="/icon.png" type="image/png">
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/icon.png">
-    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
-  <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
-  <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
+  <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+  <%= javascript_include_tag "application", type: "module", "data-turbo-track": "reload" %>
 </head>
 
 <body class="h-full">
   <div class="min-h-screen flex flex-col">
-    <header class="bg-white shadow-sm">
-      <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16 items-center">
-          <%= link_to "Cardly", root_path, class: "text-xl font-bold text-indigo-600" %>
-          <div class="hidden sm:flex sm:items-center">
-            <div class="flex space-x-8">
-              <%= link_to "Features", "#", class: "px-3 text-gray-500 hover:text-gray-700" %>
-              <%= link_to "How it Works", "#", class: "px-3 text-gray-500 hover:text-gray-700" %>
-              <%= link_to "Blog", "#", class: "px-3 text-gray-500 hover:text-gray-700" %>
-              <%= link_to "About", "#", class: "px-3 text-gray-500 hover:text-gray-700" %>
-              <%= link_to "Pricing", "#", class: "px-3 text-gray-500 hover:text-gray-700" %>
-            </div>
-            <div class="flex items-center ml-8 space-x-4">
-              <%= link_to "Sign In", new_user_session_path, class: "text-gray-500 hover:text-gray-700" %>
-              <%= link_to "Sign Up", new_user_registration_path, class: "ml-4 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700" %>
-            </div>
-          </div>
-        </div>
-      </nav>
-    </header>
+    <%= render "shared/header" %>
 
-    <main class="flex-1 flex items-center justify-center py-8">
+    <main class="flex-1">
       <%= yield %>
     </main>
 
-    <footer class="mt-auto bg-white border-t border-gray-200">
-      <div class="max-w-7xl mx-auto py-4 px-4">
-        <p class="text-sm text-gray-500">&copy; <%= Time.current.year %> Cardly. All rights reserved.</p>
-      </div>
-    </footer>
+    <%= render "shared/footer" %>
   </div>
 </body>
 </html>

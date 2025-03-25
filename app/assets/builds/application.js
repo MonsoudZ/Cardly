@@ -8747,6 +8747,29 @@
   var application = Application.start();
   application.debug = false;
   window.Stimulus = application;
+
+  // app/javascript/controllers/dropdown_controller.js
+  var dropdown_controller_default = class extends Controller {
+    connect() {
+      document.addEventListener("click", this.closeOnClickOutside.bind(this));
+    }
+    disconnect() {
+      document.removeEventListener("click", this.closeOnClickOutside.bind(this));
+    }
+    toggle(event) {
+      event.stopPropagation();
+      this.menuTarget.classList.toggle("hidden");
+    }
+    closeOnClickOutside(event) {
+      if (!this.element.contains(event.target)) {
+        this.menuTarget.classList.add("hidden");
+      }
+    }
+  };
+  __publicField(dropdown_controller_default, "targets", ["menu"]);
+
+  // app/javascript/controllers/index.js
+  application.register("dropdown", dropdown_controller_default);
 })();
 /*! Bundled license information:
 

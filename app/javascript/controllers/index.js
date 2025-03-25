@@ -7,3 +7,7 @@ import { application } from "./application"
 //application.register("hello", HelloController)
 
 // Add more controllers as needed
+
+// Import and register all your controllers from here
+import DropdownController from "./dropdown_controller"
+application.register("dropdown", DropdownController)

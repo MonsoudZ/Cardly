@@ -1,6 +1,41 @@
-<h1 class="text-4xl font-bold text-red-600">Tailwind check</h1>
-<footer class="mt-auto bg-orange-500 border-t border-gray-200">
-  <div class="max-w-7xl mx-auto py-4 px-4">
-    <p class="text-sm text-blue-500">&copy; <%= Time.current.year %> Cardly. All rights reserved.</p>
+<footer class="mt-auto bg-rose-50 border-t border-rose-100">
+  <div class="max-w-7xl mx-auto py-8 px-4">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div>
+        <h3 class="text-sm font-semibold text-gray-900 tracking-wider uppercase">Company</h3>
+        <ul class="mt-4 space-y-4">
+          <li><%= link_to "About", "#", class: "text-gray-600 hover:text-rose-600" %></li>
+          <li><%= link_to "Blog", "#", class: "text-gray-600 hover:text-rose-600" %></li>
+          <li><%= link_to "Careers", "#", class: "text-gray-600 hover:text-rose-600" %></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="text-sm font-semibold text-gray-900 tracking-wider uppercase">Support</h3>
+        <ul class="mt-4 space-y-4">
+          <li><%= link_to "Help Center", "#", class: "text-gray-600 hover:text-rose-600" %></li>
+          <li><%= link_to "Contact", "#", class: "text-gray-600 hover:text-rose-600" %></li>
+          <li><%= link_to "Privacy", "#", class: "text-gray-600 hover:text-rose-600" %></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="text-sm font-semibold text-gray-900 tracking-wider uppercase">Features</h3>
+        <ul class="mt-4 space-y-4">
+          <li><%= link_to "Value Tracking", "#", class: "text-gray-600 hover:text-rose-600" %></li>
+          <li><%= link_to "Community", "#", class: "text-gray-600 hover:text-rose-600" %></li>
+          <li><%= link_to "Analytics", "#", class: "text-gray-600 hover:text-rose-600" %></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="text-sm font-semibold text-gray-900 tracking-wider uppercase">Connect</h3>
+        <ul class="mt-4 space-y-4">
+          <li><%= link_to "Twitter", "#", class: "text-gray-600 hover:text-rose-600" %></li>
+          <li><%= link_to "Discord", "#", class: "text-gray-600 hover:text-rose-600" %></li>
+          <li><%= link_to "Instagram", "#", class: "text-gray-600 hover:text-rose-600" %></li>
+        </ul>
+      </div>
+    </div>
+    <div class="mt-8 pt-8 border-t border-rose-200">
+      <p class="text-sm text-gray-600">&copy; <%= Time.current.year %> Cardly. All rights reserved.</p>
+    </div>
   </div>
 </footer> 

@@ -1,1 +1,221 @@
-<h1 class="text-red-600 text-4xl">🔥 TAILWIND TEST</h1>
+<!-- Hero Section -->
+<div class="relative isolate overflow-hidden bg-gradient-to-b from-rose-50 to-white w-full">
+  <div class="w-full px-6 pt-10 pb-24">
+    <div class="w-full max-w-none text-center">
+      <div class="mb-8">
+        <a href="#" class="inline-flex space-x-6">
+          <span class="rounded-full bg-rose-600/10 px-3 py-1 text-sm font-semibold leading-6 text-rose-600 ring-1 ring-inset ring-rose-600/10">What's new</span>
+          <span class="inline-flex items-center space-x-2 text-sm font-medium leading-6 text-gray-600">
+            <span>Just shipped v1.0</span>
+          </span>
+        </a>
+      </div>
+      <h1 class="text-5xl font-bold tracking-tight text-gray-900 sm:text-7xl">Manage your cards with ease</h1>
+      <p class="mt-8 text-xl leading-8 text-gray-600 max-w-4xl mx-auto">
+        Streamline your card collection, track values, and connect with other collectors. The ultimate platform for card enthusiasts.
+      </p>
+      <div class="mt-10 flex items-center justify-center gap-x-6">
+        <%= link_to "Get started", new_user_registration_path, class: "rounded-md bg-rose-600 px-6 py-3 text-lg font-semibold text-white shadow-sm hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600" %>
+        <a href="#features" class="text-lg font-semibold leading-6 text-gray-900">Learn more <span aria-hidden="true">→</span></a>
+      </div>
+    </div>
+    <div class="mt-20 w-full">
+      <div class="relative rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10">
+        <img src="https://placehold.co/2400x800" alt="App screenshot" class="w-full rounded-md shadow-2xl ring-1 ring-gray-900/10">
+      </div>
+    </div>
+  </div>
+  <div class="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-rose-200 to-transparent"></div>
+</div>
+
+<!-- Stats Section -->
+<div class="relative isolate overflow-hidden w-full py-32 bg-white">
+  <div class="w-full px-6">
+    <div class="w-full text-center mb-20">
+      <h2 class="text-5xl font-bold tracking-tight text-gray-900">Trusted by collectors worldwide</h2>
+      <p class="mt-8 text-xl leading-8 text-gray-600 max-w-4xl mx-auto">Join thousands of collectors who trust us to manage their valuable collections</p>
+    </div>
+    <div class="w-full max-w-7xl mx-auto grid grid-cols-1 gap-16">
+      <div class="flex flex-col items-center rounded-2xl bg-rose-50 p-12 shadow-lg ring-1 ring-rose-200">
+        <dt class="text-xl leading-7 text-gray-600">Active Users</dt>
+        <dd class="mt-6 text-7xl font-semibold tracking-tight text-rose-600">50k+</dd>
+      </div>
+      <div class="flex flex-col items-center rounded-2xl bg-rose-50 p-12 shadow-lg ring-1 ring-rose-200">
+        <dt class="text-xl leading-7 text-gray-600">Cards Tracked</dt>
+        <dd class="mt-6 text-7xl font-semibold tracking-tight text-rose-600">2M+</dd>
+      </div>
+      <div class="flex flex-col items-center rounded-2xl bg-rose-50 p-12 shadow-lg ring-1 ring-rose-200">
+        <dt class="text-xl leading-7 text-gray-600">Collection Value</dt>
+        <dd class="mt-6 text-7xl font-semibold tracking-tight text-rose-600">$100M+</dd>
+      </div>
+    </div>
+  </div>
+  <div class="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-rose-200 to-transparent"></div>
+</div>
+
+<!-- How it Works Section -->
+<div class="relative isolate overflow-hidden w-full py-32 bg-rose-50">
+  <div class="w-full px-6">
+    <div class="w-full text-center mb-20">
+      <h2 class="text-5xl font-bold tracking-tight text-gray-900">How it Works</h2>
+      <p class="mt-8 text-xl leading-8 text-gray-600 max-w-4xl mx-auto">Get started with Cardly in three simple steps</p>
+    </div>
+    <div class="w-full max-w-7xl mx-auto">
+      <dl class="space-y-20">
+        <div class="flex flex-col items-center text-center">
+          <div class="rounded-2xl bg-rose-600/10 p-8 ring-1 ring-inset ring-rose-600/10">
+            <span class="text-7xl font-bold text-rose-600">1</span>
+          </div>
+          <dt class="mt-8 text-2xl font-semibold leading-7 text-gray-900">Create Your Account</dt>
+          <dd class="mt-4 text-xl leading-7 text-gray-600 max-w-2xl">Sign up for free and set up your collector profile</dd>
+        </div>
+        <div class="relative">
+          <div class="absolute inset-0 flex items-center" aria-hidden="true">
+            <div class="w-full border-t-2 border-rose-200"></div>
+          </div>
+          <div class="relative flex justify-center">
+            <span class="bg-rose-50 px-4">
+              <svg class="h-8 w-8 text-rose-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z" clip-rule="evenodd" />
+              </svg>
+            </span>
+          </div>
+        </div>
+        <div class="flex flex-col items-center text-center">
+          <div class="rounded-2xl bg-rose-600/10 p-8 ring-1 ring-inset ring-rose-600/10">
+            <span class="text-7xl font-bold text-rose-600">2</span>
+          </div>
+          <dt class="mt-8 text-2xl font-semibold leading-7 text-gray-900">Add Your Cards</dt>
+          <dd class="mt-4 text-xl leading-7 text-gray-600 max-w-2xl">Import or manually add cards to your collection</dd>
+        </div>
+        <div class="relative">
+          <div class="absolute inset-0 flex items-center" aria-hidden="true">
+            <div class="w-full border-t-2 border-rose-200"></div>
+          </div>
+          <div class="relative flex justify-center">
+            <span class="bg-rose-50 px-4">
+              <svg class="h-8 w-8 text-rose-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z" clip-rule="evenodd" />
+              </svg>
+            </span>
+          </div>
+        </div>
+        <div class="flex flex-col items-center text-center">
+          <div class="rounded-2xl bg-rose-600/10 p-8 ring-1 ring-inset ring-rose-600/10">
+            <span class="text-7xl font-bold text-rose-600">3</span>
+          </div>
+          <dt class="mt-8 text-2xl font-semibold leading-7 text-gray-900">Track & Connect</dt>
+          <dd class="mt-4 text-xl leading-7 text-gray-600 max-w-2xl">Monitor values and engage with the community</dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+  <div class="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-rose-200 to-transparent"></div>
+</div>
+
+<!-- Features Section -->
+<div id="features" class="relative isolate overflow-hidden w-full py-32 bg-white">
+  <div class="w-full px-6">
+    <div class="w-full text-center mb-20">
+      <h2 class="text-5xl font-bold tracking-tight text-gray-900">Everything you need</h2>
+      <p class="mt-8 text-xl leading-8 text-gray-600 max-w-4xl mx-auto">From tracking values to connecting with other collectors, we've got you covered.</p>
+    </div>
+    <div class="w-full max-w-7xl mx-auto">
+      <dl class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-16">
+        <div class="flex flex-col items-center text-center">
+          <div class="rounded-2xl bg-rose-600/10 p-8 ring-1 ring-inset ring-rose-600/10">
+            <svg class="h-16 w-16 text-rose-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
+            </svg>
+          </div>
+          <dt class="mt-8 text-2xl font-semibold text-gray-900">Value Tracking</dt>
+          <dd class="mt-4 text-xl leading-7 text-gray-600">Keep track of your collection's value in real-time with market data integration.</dd>
+        </div>
+        <div class="flex flex-col items-center text-center">
+          <div class="rounded-2xl bg-rose-600/10 p-8 ring-1 ring-inset ring-rose-600/10">
+            <svg class="h-16 w-16 text-rose-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+            </svg>
+          </div>
+          <dt class="mt-8 text-2xl font-semibold text-gray-900">Community Features</dt>
+          <dd class="mt-4 text-xl leading-7 text-gray-600">Connect with other collectors, share your collection, and discover new opportunities.</dd>
+        </div>
+        <div class="flex flex-col items-center text-center">
+          <div class="rounded-2xl bg-rose-600/10 p-8 ring-1 ring-inset ring-rose-600/10">
+            <svg class="h-16 w-16 text-rose-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+            </svg>
+          </div>
+          <dt class="mt-8 text-2xl font-semibold text-gray-900">Smart Analytics</dt>
+          <dd class="mt-4 text-xl leading-7 text-gray-600">Get insights into your collection's performance and market trends.</dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+  <div class="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-rose-200 to-transparent"></div>
+</div>
+
+<!-- Testimonials Section -->
+<div class="relative isolate overflow-hidden w-full py-32 bg-rose-50">
+  <div class="w-full px-6">
+    <div class="w-full text-center mb-20">
+      <h2 class="text-5xl font-bold tracking-tight text-gray-900">What Our Users Say</h2>
+      <p class="mt-8 text-xl leading-8 text-gray-600 max-w-4xl mx-auto">Hear from collectors who have transformed their hobby with Cardly</p>
+    </div>
+    <div class="w-full max-w-7xl mx-auto space-y-16">
+      <div class="flex flex-col justify-between rounded-2xl bg-white p-12 shadow-lg ring-1 ring-rose-200">
+        <div>
+          <div class="flex items-center gap-x-8">
+            <img src="https://placehold.co/100" alt="" class="h-20 w-20 rounded-full bg-rose-50">
+            <div>
+              <h3 class="text-2xl font-semibold leading-7 tracking-tight text-gray-900">Sarah Chen</h3>
+              <p class="text-lg leading-6 text-rose-600">Pokemon Collector</p>
+            </div>
+          </div>
+          <p class="mt-8 text-xl leading-7 text-gray-600">"Cardly has revolutionized how I manage my Pokemon card collection. The real-time value tracking is incredible!"</p>
+        </div>
+      </div>
+      <div class="flex flex-col justify-between rounded-2xl bg-white p-12 shadow-lg ring-1 ring-rose-200">
+        <div>
+          <div class="flex items-center gap-x-8">
+            <img src="https://placehold.co/100" alt="" class="h-20 w-20 rounded-full bg-rose-50">
+            <div>
+              <h3 class="text-2xl font-semibold leading-7 tracking-tight text-gray-900">Michael Rodriguez</h3>
+              <p class="text-lg leading-6 text-rose-600">Sports Card Enthusiast</p>
+            </div>
+          </div>
+          <p class="mt-8 text-xl leading-7 text-gray-600">"The community features have helped me connect with other collectors and find rare cards I've been searching for."</p>
+        </div>
+      </div>
+      <div class="flex flex-col justify-between rounded-2xl bg-white p-12 shadow-lg ring-1 ring-rose-200">
+        <div>
+          <div class="flex items-center gap-x-8">
+            <img src="https://placehold.co/100" alt="" class="h-20 w-20 rounded-full bg-rose-50">
+            <div>
+              <h3 class="text-2xl font-semibold leading-7 tracking-tight text-gray-900">Emily Thompson</h3>
+              <p class="text-lg leading-6 text-rose-600">MTG Player</p>
+            </div>
+          </div>
+          <p class="mt-8 text-xl leading-7 text-gray-600">"As a Magic: The Gathering player, the market insights have been invaluable for timing my purchases and sales."</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-rose-200 to-transparent"></div>
+</div>
+
+<!-- CTA Section -->
+<div class="relative isolate overflow-hidden w-full py-32 bg-white">
+  <div class="w-full px-6">
+    <div class="w-full text-center">
+      <h2 class="text-5xl font-bold tracking-tight text-gray-900">Ready to start your journey?</h2>
+      <p class="mt-8 text-xl leading-8 text-gray-600 max-w-4xl mx-auto">Join thousands of collectors who trust Cardly to manage their valuable collections.</p>
+      <div class="mt-12 flex items-center justify-center gap-x-6">
+        <%= link_to "Get started", new_user_registration_path, class: "rounded-md bg-rose-600 px-6 py-3 text-lg font-semibold text-white shadow-sm hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600" %>
+        <a href="#features" class="text-lg font-semibold leading-6 text-gray-900">Learn more <span aria-hidden="true">→</span></a>
+      </div>
+    </div>
+  </div>
+  <div class="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-rose-200 to-transparent"></div>
+</div>
+
