@@ -4,10 +4,10 @@
       <div class="sm:flex sm:items-center sm:justify-between">
         <div class="sm:flex sm:items-center">
           <div class="sm:flex-shrink-0">
-            <img class="h-24 w-24 rounded-full" src="https://placehold.co/96" alt="Profile picture" />
+            <img class="h-24 w-24 rounded-full object-cover" src="<%= @user.avatar.presence || 'https://placehold.co/96?text=' + (@user.name.presence&.first || @user.email.first).upcase %>" alt="Profile picture" />
           </div>
           <div class="mt-4 sm:ml-4 sm:mt-0">
-            <h1 class="text-xl font-semibold text-gray-900"><%= @user.email %></h1>
+            <h1 class="text-xl font-semibold text-gray-900"><%= @user.name.presence || @user.email %></h1>
             <p class="mt-1 text-sm text-gray-600">Member since <%= @user.created_at.strftime("%B %Y") %></p>
           </div>
         </div>
@@ -18,21 +18,35 @@
 
       <div class="mt-6 border-t border-gray-100">
         <dl class="divide-y divide-gray-100">
+          <% if @user.name.present? %>
+          <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+            <dt class="text-sm font-medium leading-6 text-gray-900">Name</dt>
+            <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0"><%= @user.name %></dd>
+          </div>
+          <% end %>
           <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
             <dt class="text-sm font-medium leading-6 text-gray-900">Email</dt>
             <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0"><%= @user.email %></dd>
           </div>
           <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-            <dt class="text-sm font-medium leading-6 text-gray-900">Wallet Balance</dt>
-            <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">$0.00</dd>
+            <dt class="text-sm font-medium leading-6 text-gray-900">Collection Value</dt>
+            <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0"><%= number_to_currency(@user.total_collection_value) %></dd>
           </div>
           <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-            <dt class="text-sm font-medium leading-6 text-gray-900">Cards Listed</dt>
-            <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">0</dd>
+            <dt class="text-sm font-medium leading-6 text-gray-900">Total Cards</dt>
+            <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0"><%= @user.total_cards_count %></dd>
           </div>
           <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-            <dt class="text-sm font-medium leading-6 text-gray-900">Successful Trades</dt>
-            <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">0</dd>
+            <dt class="text-sm font-medium leading-6 text-gray-900">Collections</dt>
+            <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0"><%= @user.collections.count %></dd>
+          </div>
+          <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+            <dt class="text-sm font-medium leading-6 text-gray-900">Cards for Trade</dt>
+            <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0"><%= @user.items_for_trade.count %></dd>
+          </div>
+          <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+            <dt class="text-sm font-medium leading-6 text-gray-900">Cards for Sale</dt>
+            <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0"><%= @user.items_for_sale.count %></dd>
           </div>
         </dl>
       </div>
