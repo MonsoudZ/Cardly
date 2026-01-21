@@ -29,16 +29,24 @@
             <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0"><%= @user.email %></dd>
           </div>
           <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-            <dt class="text-sm font-medium leading-6 text-gray-900">Wallet Balance</dt>
-            <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">$0.00</dd>
+            <dt class="text-sm font-medium leading-6 text-gray-900">Collection Value</dt>
+            <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0"><%= number_to_currency(@user.total_collection_value) %></dd>
           </div>
           <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-            <dt class="text-sm font-medium leading-6 text-gray-900">Cards Listed</dt>
-            <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">0</dd>
+            <dt class="text-sm font-medium leading-6 text-gray-900">Total Cards</dt>
+            <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0"><%= @user.total_cards_count %></dd>
           </div>
           <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-            <dt class="text-sm font-medium leading-6 text-gray-900">Successful Trades</dt>
-            <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">0</dd>
+            <dt class="text-sm font-medium leading-6 text-gray-900">Collections</dt>
+            <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0"><%= @user.collections.count %></dd>
+          </div>
+          <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+            <dt class="text-sm font-medium leading-6 text-gray-900">Cards for Trade</dt>
+            <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0"><%= @user.items_for_trade.count %></dd>
+          </div>
+          <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+            <dt class="text-sm font-medium leading-6 text-gray-900">Cards for Sale</dt>
+            <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0"><%= @user.items_for_sale.count %></dd>
           </div>
         </dl>
       </div>
