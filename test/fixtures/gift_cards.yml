@@ -1,0 +1,71 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+amazon_card:
+  user: one
+  brand: amazon
+  balance: 75.50
+  original_value: 100.00
+  card_number: "1234567890123456"
+  pin: "1234"
+  expiration_date: <%= 1.year.from_now.to_date %>
+  barcode_data: "1234567890123456"
+  notes: "Birthday gift"
+  status: active
+  acquired_date: <%= 30.days.ago.to_date %>
+  acquired_from: gift
+
+starbucks_card:
+  user: one
+  brand: starbucks
+  balance: 25.00
+  original_value: 25.00
+  card_number: "9876543210987654"
+  pin: "5678"
+  expiration_date:
+  barcode_data:
+  notes:
+  status: active
+  acquired_date: <%= 60.days.ago.to_date %>
+  acquired_from: purchased
+
+used_card:
+  user: one
+  brand: target
+  balance: 0.00
+  original_value: 50.00
+  card_number: "5555444433332222"
+  pin: "9012"
+  expiration_date: <%= 6.months.from_now.to_date %>
+  barcode_data:
+  notes: "Used up"
+  status: used
+  acquired_date: <%= 90.days.ago.to_date %>
+  acquired_from: purchased
+
+expiring_card:
+  user: two
+  brand: amazon
+  balance: 30.00
+  original_value: 50.00
+  card_number: "1111222233334444"
+  pin: "3456"
+  expiration_date: <%= 15.days.from_now.to_date %>
+  barcode_data:
+  notes: "Expiring soon"
+  status: active
+  acquired_date: <%= 180.days.ago.to_date %>
+  acquired_from: gift
+
+listed_card:
+  user: two
+  brand: starbucks
+  balance: 100.00
+  original_value: 100.00
+  card_number: "7777888899990000"
+  pin:
+  expiration_date:
+  barcode_data:
+  notes: "Listed for sale"
+  status: listed
+  acquired_date: <%= 45.days.ago.to_date %>
+  acquired_from: gift

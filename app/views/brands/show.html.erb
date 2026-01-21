@@ -1,0 +1,91 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Back Link -->
+  <div class="mb-6">
+    <%= link_to brands_path, class: "inline-flex items-center text-gray-600 hover:text-rose-600" do %>
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+      All Brands
+    <% end %>
+  </div>
+
+  <!-- Brand Header -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+    <div class="flex items-center space-x-6">
+      <img src="<%= @brand.display_logo %>" alt="<%= @brand.name %>" class="w-24 h-16 object-contain rounded-lg bg-gray-50 p-2">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900"><%= @brand.name %></h1>
+        <div class="flex items-center mt-2 space-x-4">
+          <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+            <%= @brand.category&.titleize %>
+          </span>
+          <% if @brand.website_url.present? %>
+            <%= link_to @brand.website_url, target: "_blank", rel: "noopener", class: "text-rose-600 hover:text-rose-500 text-sm" do %>
+              Visit Website
+              <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+              </svg>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Listings for this brand -->
+  <div class="mb-6">
+    <h2 class="text-xl font-semibold text-gray-900">Available <%= @brand.name %> Gift Cards</h2>
+    <p class="text-gray-600">Browse gift cards for sale or trade from other users.</p>
+  </div>
+
+  <% if @listings.any? %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% @listings.each do |listing| %>
+        <%= link_to listing_path(listing), class: "block" do %>
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition">
+            <div class="p-4">
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center space-x-3">
+                  <img src="<%= listing.brand_display_logo %>" alt="<%= listing.brand_name %>" class="w-12 h-8 object-contain">
+                  <div>
+                    <h3 class="font-medium text-gray-900"><%= listing.brand_name %></h3>
+                    <p class="text-sm text-gray-500">by <%= listing.user.display_name %></p>
+                  </div>
+                </div>
+                <% if listing.sale? %>
+                  <span class="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded">For Sale</span>
+                <% else %>
+                  <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded">For Trade</span>
+                <% end %>
+              </div>
+
+              <div class="flex justify-between items-end">
+                <div>
+                  <p class="text-sm text-gray-500">Card Value</p>
+                  <p class="text-lg font-semibold text-gray-900"><%= number_to_currency(listing.balance) %></p>
+                </div>
+                <% if listing.sale? %>
+                  <div class="text-right">
+                    <p class="text-sm text-gray-500">Asking Price</p>
+                    <p class="text-lg font-bold text-rose-600"><%= number_to_currency(listing.asking_price) %></p>
+                    <% if listing.discount_percentage.present? && listing.discount_percentage > 0 %>
+                      <p class="text-xs text-green-600">Save <%= listing.discount_percentage %>%</p>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="text-center py-16 bg-gray-50 rounded-xl">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900">No listings available</h3>
+      <p class="mt-1 text-sm text-gray-500">There are currently no <%= @brand.name %> gift cards for sale or trade.</p>
+    </div>
+  <% end %>
+</div>

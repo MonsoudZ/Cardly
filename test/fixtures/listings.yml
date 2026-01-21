@@ -1,0 +1,21 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+sale_listing:
+  gift_card: listed_card
+  user: two
+  listing_type: sale
+  asking_price: 90.00
+  discount_percent: 10.00
+  trade_preferences:
+  status: active
+  description: "Great gift card, never used!"
+
+trade_listing:
+  gift_card: expiring_card
+  user: two
+  listing_type: trade
+  asking_price:
+  discount_percent:
+  trade_preferences: "Looking for Amazon or Target gift cards"
+  status: active
+  description: "Want to trade for retail gift cards"

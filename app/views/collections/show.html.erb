@@ -38,7 +38,17 @@
   </div>
 
   <div class="mt-8">
-    <h2 class="text-lg font-semibold text-gray-900">Cards in Collection</h2>
+    <div class="sm:flex sm:items-center sm:justify-between">
+      <h2 class="text-lg font-semibold text-gray-900">Cards in Collection</h2>
+      <% if @collection.user == current_user %>
+        <%= link_to new_collection_collection_item_path(@collection), class: "mt-2 sm:mt-0 inline-flex items-center rounded-md bg-rose-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-rose-500" do %>
+          <svg class="-ml-0.5 mr-1.5 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+          </svg>
+          Add Card
+        <% end %>
+      <% end %>
+    </div>
     <% if @collection_items.any? %>
       <div class="mt-4 overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
         <table class="min-w-full divide-y divide-gray-300">
@@ -50,6 +60,11 @@
               <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Qty</th>
               <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Value</th>
               <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
+              <% if @collection.user == current_user %>
+                <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                  <span class="sr-only">Actions</span>
+                </th>
+              <% end %>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200 bg-white">
@@ -72,6 +87,12 @@
                     <span class="text-gray-400">-</span>
                   <% end %>
                 </td>
+                <% if @collection.user == current_user %>
+                  <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                    <%= link_to "Edit", edit_collection_collection_item_path(@collection, item), class: "text-rose-600 hover:text-rose-900 mr-3" %>
+                    <%= button_to "Remove", collection_collection_item_path(@collection, item), method: :delete, data: { turbo_confirm: "Remove this card from the collection?" }, class: "text-red-600 hover:text-red-900" %>
+                  </td>
+                <% end %>
               </tr>
             <% end %>
           </tbody>
@@ -79,7 +100,21 @@
       </div>
     <% else %>
       <div class="mt-4 text-center py-12 bg-white rounded-lg shadow">
-        <p class="text-sm text-gray-500">No cards in this collection yet.</p>
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+        </svg>
+        <h3 class="mt-2 text-sm font-semibold text-gray-900">No cards yet</h3>
+        <p class="mt-1 text-sm text-gray-500">Get started by adding cards to this collection.</p>
+        <% if @collection.user == current_user %>
+          <div class="mt-6">
+            <%= link_to new_collection_collection_item_path(@collection), class: "inline-flex items-center rounded-md bg-rose-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-rose-500" do %>
+              <svg class="-ml-0.5 mr-1.5 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+              </svg>
+              Add Card
+            <% end %>
+          </div>
+        <% end %>
       </div>
     <% end %>
   </div>
