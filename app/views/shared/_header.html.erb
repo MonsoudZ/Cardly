@@ -5,8 +5,9 @@
       <div class="hidden sm:flex sm:items-center">
         <div class="flex space-x-8">
           <%= link_to "Marketplace", marketplace_path, class: "px-3 text-gray-600 hover:text-rose-600" %>
+          <%= link_to "Brands", brands_path, class: "px-3 text-gray-600 hover:text-rose-600" %>
           <% if user_signed_in? %>
-            <%= link_to "My Collections", collections_path, class: "px-3 text-gray-600 hover:text-rose-600" %>
+            <%= link_to "My Wallet", wallet_path, class: "px-3 text-gray-600 hover:text-rose-600" %>
           <% end %>
         </div>
         <div class="flex items-center ml-8 space-x-4">

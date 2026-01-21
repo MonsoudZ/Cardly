@@ -6,19 +6,19 @@ class MarketplaceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "should filter by card_type" do
-    get marketplace_url, params: { card_type: "pokemon" }
+  test "should get sales" do
+    get marketplace_sales_url
     assert_response :success
   end
 
-  test "should display items for sale" do
-    get marketplace_url
+  test "should get trades" do
+    get marketplace_trades_url
     assert_response :success
-    # The page should load successfully even with no items
   end
 
-  test "should display items for trade" do
+  test "should display listings" do
     get marketplace_url
     assert_response :success
+    assert_select "h1", "Marketplace"
   end
 end

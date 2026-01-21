@@ -1,0 +1,38 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900">Gift Cards For Sale</h1>
+    <p class="mt-2 text-gray-600">Purchase discounted gift cards from other users.</p>
+  </div>
+
+  <!-- Marketplace Tabs -->
+  <div class="border-b border-gray-200 mb-8">
+    <nav class="-mb-px flex space-x-8">
+      <%= link_to marketplace_path, class: "pb-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" do %>
+        All Listings
+      <% end %>
+      <%= link_to marketplace_sales_path, class: "pb-4 px-1 border-b-2 font-medium text-sm border-rose-500 text-rose-600" do %>
+        For Sale
+        <span class="ml-2 py-0.5 px-2.5 rounded-full text-xs font-medium bg-rose-100 text-rose-600"><%= @listings.count %></span>
+      <% end %>
+      <%= link_to marketplace_trades_path, class: "pb-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" do %>
+        For Trade
+      <% end %>
+    </nav>
+  </div>
+
+  <% if @listings.any? %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% @listings.each do |listing| %>
+        <%= render "marketplace/listing_card", listing: listing %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="text-center py-16 bg-gray-50 rounded-xl">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900">No cards for sale</h3>
+      <p class="mt-1 text-sm text-gray-500">Check back later for gift cards available for purchase.</p>
+    </div>
+  <% end %>
+</div>

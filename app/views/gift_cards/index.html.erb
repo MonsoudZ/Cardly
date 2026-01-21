@@ -1,0 +1,78 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="flex justify-between items-center mb-8">
+    <h1 class="text-3xl font-bold text-gray-900">My Gift Cards</h1>
+    <%= link_to new_gift_card_path, class: "inline-flex items-center px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-500 transition" do %>
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+      </svg>
+      Add Gift Card
+    <% end %>
+  </div>
+
+  <% if @gift_cards.any? %>
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Brand</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expires</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @gift_cards.each do |card| %>
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <img class="h-10 w-16 object-contain" src="<%= card.brand_display_logo %>" alt="<%= card.brand_name %>">
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-gray-900"><%= card.brand_name %></div>
+                    <div class="text-sm text-gray-500"><%= card.masked_card_number %></div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900"><%= number_to_currency(card.balance) %></div>
+                <div class="text-sm text-gray-500">of <%= number_to_currency(card.original_value) %></div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <% if card.expired? %>
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Expired</span>
+                <% elsif card.expiring_soon? %>
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-amber-100 text-amber-800">Expiring Soon</span>
+                <% elsif card.listed? %>
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">Listed</span>
+                <% elsif card.used? %>
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Used</span>
+                <% else %>
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+                <% end %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <%= card.expiration_date&.strftime("%b %d, %Y") || "No expiration" %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <%= link_to "View", gift_card_path(card), class: "text-rose-600 hover:text-rose-900" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="text-center py-16 bg-gray-50 rounded-xl">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900">No gift cards yet</h3>
+      <p class="mt-1 text-sm text-gray-500">Add your first gift card to get started.</p>
+      <div class="mt-6">
+        <%= link_to new_gift_card_path, class: "inline-flex items-center px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-500" do %>
+          Add Gift Card
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

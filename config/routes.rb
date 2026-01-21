@@ -4,28 +4,38 @@ Rails.application.routes.draw do
   # Profile routes
   resource :profile, only: [ :show, :edit, :update ]
 
-  # Collection routes
-  resources :collections do
-    resources :collection_items, only: [ :new, :create, :edit, :update, :destroy ]
+  # Wallet - user's gift cards
+  resource :wallet, only: [ :show ]
+
+  # Gift cards management
+  resources :gift_cards do
+    member do
+      post :list_for_sale
+      post :list_for_trade
+    end
   end
 
-  # Marketplace - browse items for sale/trade
-  get "marketplace", to: "marketplace#index"
+  # Listings management
+  resources :listings, only: [ :show, :edit, :update, :destroy ] do
+    member do
+      post :cancel
+    end
+  end
 
-  # Cards catalog
-  resources :cards, only: [ :index, :show ]
+  # Marketplace - browse listings
+  get "marketplace", to: "marketplace#index"
+  get "marketplace/sales", to: "marketplace#sales", as: :marketplace_sales
+  get "marketplace/trades", to: "marketplace#trades", as: :marketplace_trades
+
+  # Brands catalog
+  resources :brands, only: [ :index, :show ]
 
   root "home#index"
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
+  # Health check
   get "up" => "rails/health#show", as: :rails_health_check
 
-  # Render dynamic PWA files from app/views/pwa/*
+  # PWA
   get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
   get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-
-  # Defines the root path route ("/")
-  # root "posts#index"
 end

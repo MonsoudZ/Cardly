@@ -1,0 +1,36 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900">Gift Card Brands</h1>
+    <p class="mt-2 text-gray-600">Browse gift cards by brand to find great deals.</p>
+  </div>
+
+  <!-- Category Filter -->
+  <div class="mb-8 flex flex-wrap gap-2">
+    <%= link_to "All", brands_path, class: "px-4 py-2 rounded-full text-sm font-medium #{params[:category].blank? ? 'bg-rose-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}" %>
+    <% Brand::CATEGORIES.each do |category| %>
+      <%= link_to category.titleize, brands_path(category: category), class: "px-4 py-2 rounded-full text-sm font-medium #{params[:category] == category ? 'bg-rose-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}" %>
+    <% end %>
+  </div>
+
+  <% if @brands.any? %>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+      <% @brands.each do |brand| %>
+        <%= link_to brand_path(brand), class: "block group" do %>
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 text-center hover:shadow-md hover:border-rose-200 transition">
+            <img src="<%= brand.display_logo %>" alt="<%= brand.name %>" class="w-20 h-12 mx-auto object-contain mb-4">
+            <h3 class="font-medium text-gray-900 group-hover:text-rose-600 truncate"><%= brand.name %></h3>
+            <p class="text-sm text-gray-500 mt-1"><%= brand.category&.titleize %></p>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="text-center py-16 bg-gray-50 rounded-xl">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900">No brands found</h3>
+      <p class="mt-1 text-sm text-gray-500">Check back later for new brands.</p>
+    </div>
+  <% end %>
+</div>

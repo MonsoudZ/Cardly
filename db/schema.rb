@@ -10,56 +10,62 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_21_190517) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_21_215955) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
-  create_table "cards", force: :cascade do |t|
-    t.string "card_number"
-    t.string "card_type", null: false
+  create_table "brands", force: :cascade do |t|
+    t.boolean "active", default: true, null: false
+    t.string "category", default: "retail"
     t.datetime "created_at", null: false
-    t.text "description"
-    t.decimal "estimated_value", precision: 10, scale: 2
-    t.string "image_url"
+    t.string "logo_url"
     t.string "name", null: false
-    t.string "rarity"
-    t.string "set_name"
     t.datetime "updated_at", null: false
-    t.index ["card_type", "set_name", "card_number"], name: "index_cards_on_type_set_number", unique: true
-    t.index ["card_type"], name: "index_cards_on_card_type"
-    t.index ["rarity"], name: "index_cards_on_rarity"
-    t.index ["set_name"], name: "index_cards_on_set_name"
+    t.string "website_url"
+    t.index ["active"], name: "index_brands_on_active"
+    t.index ["category"], name: "index_brands_on_category"
+    t.index ["name"], name: "index_brands_on_name", unique: true
   end
 
-  create_table "collection_items", force: :cascade do |t|
+  create_table "gift_cards", force: :cascade do |t|
     t.date "acquired_date"
-    t.decimal "acquired_price", precision: 10, scale: 2
-    t.decimal "asking_price", precision: 10, scale: 2
-    t.bigint "card_id", null: false
-    t.bigint "collection_id", null: false
-    t.string "condition", default: "good"
+    t.string "acquired_from", default: "purchased"
+    t.decimal "balance", precision: 10, scale: 2, default: "0.0", null: false
+    t.string "barcode_data"
+    t.bigint "brand_id", null: false
+    t.string "card_number"
     t.datetime "created_at", null: false
-    t.boolean "for_sale", default: false, null: false
-    t.boolean "for_trade", default: false, null: false
+    t.date "expiration_date"
     t.text "notes"
-    t.integer "quantity", default: 1, null: false
-    t.datetime "updated_at", null: false
-    t.index ["card_id"], name: "index_collection_items_on_card_id"
-    t.index ["collection_id", "card_id"], name: "index_collection_items_on_collection_id_and_card_id", unique: true
-    t.index ["collection_id"], name: "index_collection_items_on_collection_id"
-    t.index ["for_sale"], name: "index_collection_items_on_for_sale"
-    t.index ["for_trade"], name: "index_collection_items_on_for_trade"
-  end
-
-  create_table "collections", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.text "description"
-    t.string "name", null: false
-    t.boolean "public", default: false, null: false
+    t.decimal "original_value", precision: 10, scale: 2, null: false
+    t.string "pin"
+    t.string "status", default: "active", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
-    t.index ["user_id", "name"], name: "index_collections_on_user_id_and_name", unique: true
-    t.index ["user_id"], name: "index_collections_on_user_id"
+    t.index ["brand_id"], name: "index_gift_cards_on_brand_id"
+    t.index ["expiration_date"], name: "index_gift_cards_on_expiration_date"
+    t.index ["status"], name: "index_gift_cards_on_status"
+    t.index ["user_id", "status"], name: "index_gift_cards_on_user_id_and_status"
+    t.index ["user_id"], name: "index_gift_cards_on_user_id"
+  end
+
+  create_table "listings", force: :cascade do |t|
+    t.decimal "asking_price", precision: 10, scale: 2
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.decimal "discount_percent", precision: 5, scale: 2
+    t.bigint "gift_card_id", null: false
+    t.string "listing_type", default: "sale", null: false
+    t.string "status", default: "active", null: false
+    t.text "trade_preferences"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["gift_card_id"], name: "index_listings_on_active_gift_card", unique: true, where: "((status)::text = 'active'::text)"
+    t.index ["gift_card_id"], name: "index_listings_on_gift_card_id"
+    t.index ["listing_type"], name: "index_listings_on_listing_type"
+    t.index ["status", "listing_type"], name: "index_listings_on_status_and_listing_type"
+    t.index ["status"], name: "index_listings_on_status"
+    t.index ["user_id"], name: "index_listings_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -76,7 +82,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_21_190517) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
-  add_foreign_key "collection_items", "cards"
-  add_foreign_key "collection_items", "collections"
-  add_foreign_key "collections", "users"
+  add_foreign_key "gift_cards", "brands"
+  add_foreign_key "gift_cards", "users"
+  add_foreign_key "listings", "gift_cards"
+  add_foreign_key "listings", "users"
 end

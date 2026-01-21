@@ -4,27 +4,34 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
-  has_many :collections, dependent: :destroy
-  has_many :collection_items, through: :collections
-  has_many :cards, through: :collection_items
+  has_many :gift_cards, dependent: :destroy
+  has_many :listings, dependent: :destroy
 
-  def total_collection_value
-    collection_items.joins(:card).sum('cards.estimated_value * collection_items.quantity')
+  def wallet_balance
+    gift_cards.active.with_balance.sum(:balance)
   end
 
   def total_cards_count
-    collection_items.sum(:quantity)
+    gift_cards.count
   end
 
-  def items_for_trade
-    collection_items.where(for_trade: true)
+  def active_cards
+    gift_cards.active.with_balance
   end
 
-  def items_for_sale
-    collection_items.where(for_sale: true)
+  def expiring_soon_cards
+    gift_cards.expiring_soon
+  end
+
+  def listed_cards
+    gift_cards.where(status: "listed")
+  end
+
+  def active_listings
+    listings.active
   end
 
   def display_name
-    name.presence || email.split('@').first
+    name.presence || email.split("@").first
   end
 end
