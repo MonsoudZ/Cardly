@@ -1,0 +1,86 @@
+<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
+  <div class="sm:flex sm:items-center sm:justify-between">
+    <div>
+      <div class="flex items-center">
+        <%= link_to collections_path, class: "text-gray-400 hover:text-gray-600 mr-2" do %>
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        <% end %>
+        <h1 class="text-2xl font-bold text-gray-900"><%= @collection.name %></h1>
+        <% if @collection.public? %>
+          <span class="ml-3 inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">Public</span>
+        <% end %>
+      </div>
+      <p class="mt-2 text-sm text-gray-700"><%= @collection.description %></p>
+    </div>
+    <% if @collection.user == current_user %>
+      <div class="mt-4 sm:mt-0 flex space-x-3">
+        <%= link_to "Edit", edit_collection_path(@collection), class: "rounded-md bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200" %>
+        <%= button_to "Delete", collection_path(@collection), method: :delete, data: { turbo_confirm: "Are you sure you want to delete this collection?" }, class: "rounded-md bg-red-100 px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-200" %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-3">
+    <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+      <dt class="truncate text-sm font-medium text-gray-500">Total Cards</dt>
+      <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900"><%= @collection.total_cards %></dd>
+    </div>
+    <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+      <dt class="truncate text-sm font-medium text-gray-500">Estimated Value</dt>
+      <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900"><%= number_to_currency(@collection.total_value) %></dd>
+    </div>
+    <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+      <dt class="truncate text-sm font-medium text-gray-500">For Trade/Sale</dt>
+      <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900"><%= @collection.items_for_trade.count + @collection.items_for_sale.count %></dd>
+    </div>
+  </div>
+
+  <div class="mt-8">
+    <h2 class="text-lg font-semibold text-gray-900">Cards in Collection</h2>
+    <% if @collection_items.any? %>
+      <div class="mt-4 overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
+        <table class="min-w-full divide-y divide-gray-300">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Card</th>
+              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Type</th>
+              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Condition</th>
+              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Qty</th>
+              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Value</th>
+              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200 bg-white">
+            <% @collection_items.each do |item| %>
+              <tr>
+                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
+                  <div class="font-medium text-gray-900"><%= item.card.name %></div>
+                  <div class="text-gray-500"><%= item.card.set_name %> #<%= item.card.card_number %></div>
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 capitalize"><%= item.card.card_type %></td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"><%= item.display_condition %></td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"><%= item.quantity %></td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"><%= number_to_currency(item.total_value) %></td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm">
+                  <% if item.for_sale? %>
+                    <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">For Sale</span>
+                  <% elsif item.for_trade? %>
+                    <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">For Trade</span>
+                  <% else %>
+                    <span class="text-gray-400">-</span>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="mt-4 text-center py-12 bg-white rounded-lg shadow">
+        <p class="text-sm text-gray-500">No cards in this collection yet.</p>
+      </div>
+    <% end %>
+  </div>
+</div>
