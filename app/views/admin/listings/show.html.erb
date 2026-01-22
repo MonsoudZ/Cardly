@@ -1,0 +1,132 @@
+<% content_for :page_title, "Listing: #{@listing.brand_name}" %>
+
+<div class="mb-6">
+  <%= link_to admin_listings_path, class: "inline-flex items-center text-gray-600 hover:text-gray-900" do %>
+    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+    </svg>
+    Back to Listings
+  <% end %>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <!-- Listing Info -->
+  <div class="lg:col-span-1">
+    <div class="bg-white rounded-lg shadow p-6">
+      <div class="text-center">
+        <h3 class="text-xl font-semibold text-gray-900"><%= @listing.brand_name %></h3>
+        <p class="text-gray-500"><%= @listing.gift_card&.brand&.category %></p>
+
+        <div class="mt-4 flex justify-center space-x-2">
+          <span class="px-3 py-1 text-sm rounded-full <%= @listing.sale? ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800' %>">
+            <%= @listing.listing_type.capitalize %>
+          </span>
+          <span class="px-3 py-1 text-sm rounded-full <%= case @listing.status
+              when 'active' then 'bg-green-100 text-green-800'
+              when 'sold' then 'bg-blue-100 text-blue-800'
+              else 'bg-gray-100 text-gray-800'
+              end %>">
+            <%= @listing.status.capitalize %>
+          </span>
+        </div>
+      </div>
+
+      <div class="mt-6 border-t border-gray-200 pt-6 space-y-4">
+        <div class="flex justify-between">
+          <span class="text-gray-500">Card Balance</span>
+          <span class="font-medium"><%= number_to_currency(@listing.gift_card&.balance) %></span>
+        </div>
+        <% if @listing.asking_price %>
+          <div class="flex justify-between">
+            <span class="text-gray-500">Asking Price</span>
+            <span class="font-medium"><%= number_to_currency(@listing.asking_price) %></span>
+          </div>
+          <% if @listing.gift_card&.balance && @listing.gift_card.balance > 0 %>
+            <div class="flex justify-between">
+              <span class="text-gray-500">Discount</span>
+              <span class="font-medium text-green-600">
+                <%= number_to_percentage((1 - @listing.asking_price / @listing.gift_card.balance) * 100, precision: 0) %> off
+              </span>
+            </div>
+          <% end %>
+        <% end %>
+        <div class="flex justify-between">
+          <span class="text-gray-500">Seller</span>
+          <%= link_to @listing.user.display_name, admin_user_path(@listing.user), class: "font-medium text-rose-600 hover:text-rose-800" %>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-500">Listed</span>
+          <span class="font-medium"><%= @listing.created_at.strftime("%B %d, %Y") %></span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-500">Views</span>
+          <span class="font-medium"><%= @listing.views_count || 0 %></span>
+        </div>
+      </div>
+
+      <% if @listing.description.present? %>
+        <div class="mt-6 border-t border-gray-200 pt-6">
+          <h4 class="text-sm font-medium text-gray-700 mb-2">Description</h4>
+          <p class="text-sm text-gray-600"><%= @listing.description %></p>
+        </div>
+      <% end %>
+
+      <% if @listing.active? %>
+        <div class="mt-6">
+          <%= button_to cancel_admin_listing_path(@listing), method: :post, class: "w-full inline-flex items-center justify-center px-4 py-2 border border-red-300 rounded-lg text-sm font-medium text-red-700 hover:bg-red-50", data: { turbo_confirm: "Are you sure you want to cancel this listing?" } do %>
+            Cancel Listing
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Transactions -->
+  <div class="lg:col-span-2">
+    <div class="bg-white rounded-lg shadow p-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">Transactions</h3>
+
+      <% if @transactions.any? %>
+        <div class="overflow-x-auto">
+          <table class="min-w-full">
+            <thead>
+              <tr class="text-left text-xs text-gray-500 uppercase tracking-wider">
+                <th class="pb-2">Buyer</th>
+                <th class="pb-2">Amount</th>
+                <th class="pb-2">Status</th>
+                <th class="pb-2">Date</th>
+                <th class="pb-2"></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              <% @transactions.each do |txn| %>
+                <tr>
+                  <td class="py-3">
+                    <%= link_to txn.buyer.display_name, admin_user_path(txn.buyer), class: "text-sm font-medium text-rose-600 hover:text-rose-800" %>
+                  </td>
+                  <td class="py-3 text-sm"><%= txn.amount ? number_to_currency(txn.amount) : "—" %></td>
+                  <td class="py-3">
+                    <span class="px-2 py-1 text-xs rounded-full <%= case txn.status
+                        when 'completed' then 'bg-green-100 text-green-800'
+                        when 'pending' then 'bg-amber-100 text-amber-800'
+                        when 'cancelled' then 'bg-gray-100 text-gray-800'
+                        else 'bg-gray-100 text-gray-800'
+                        end %>">
+                      <%= txn.status.capitalize %>
+                    </span>
+                  </td>
+                  <td class="py-3 text-sm text-gray-500"><%= time_ago_in_words(txn.created_at) %> ago</td>
+                  <td class="py-3 text-right">
+                    <%= link_to "View", admin_transaction_path(txn), class: "text-sm text-rose-600 hover:text-rose-800" %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <p class="text-gray-500 text-sm">No transactions for this listing.</p>
+      <% end %>
+    </div>
+  </div>
+</div>

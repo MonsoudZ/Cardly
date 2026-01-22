@@ -1,0 +1,99 @@
+<% content_for :page_title, "Transactions" %>
+
+<div class="mb-6 flex items-center justify-between">
+  <h1 class="text-2xl font-bold text-gray-900">Transactions</h1>
+</div>
+
+<!-- Filters -->
+<div class="bg-white rounded-lg shadow p-4 mb-6">
+  <%= form_with url: admin_transactions_path, method: :get, class: "flex flex-wrap gap-4 items-end" do |f| %>
+    <div class="w-40">
+      <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+      <%= f.select :status, options_for_select([["All Statuses", ""], ["Pending", "pending"], ["Completed", "completed"], ["Cancelled", "cancelled"]], params[:status]), {}, class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent" %>
+    </div>
+
+    <div class="w-40">
+      <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
+      <%= f.select :type, options_for_select([["All Types", ""], ["Sale", "sale"], ["Trade", "trade"]], params[:type]), {}, class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent" %>
+    </div>
+
+    <div class="w-40">
+      <label class="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
+      <%= f.select :date, options_for_select([["All Time", ""], ["Today", "today"], ["This Week", "week"], ["This Month", "month"]], params[:date]), {}, class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent" %>
+    </div>
+
+    <div>
+      <%= f.submit "Filter", class: "px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 cursor-pointer" %>
+      <% if params[:status].present? || params[:type].present? || params[:date].present? %>
+        <%= link_to "Clear", admin_transactions_path, class: "ml-2 px-4 py-2 text-gray-600 hover:text-gray-900" %>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+<!-- Transactions Table -->
+<div class="bg-white rounded-lg shadow overflow-hidden">
+  <table class="min-w-full divide-y divide-gray-200">
+    <thead class="bg-gray-50">
+      <tr>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Transaction</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Buyer</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Seller</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
+      </tr>
+    </thead>
+    <tbody class="bg-white divide-y divide-gray-200">
+      <% @transactions.each do |txn| %>
+        <tr class="hover:bg-gray-50">
+          <td class="px-6 py-4">
+            <div>
+              <p class="text-sm font-medium text-gray-900"><%= txn.listing.brand_name %></p>
+              <p class="text-sm text-gray-500"><%= txn.transaction_type&.capitalize || "Sale" %></p>
+            </div>
+          </td>
+          <td class="px-6 py-4">
+            <%= link_to txn.buyer.display_name, admin_user_path(txn.buyer), class: "text-sm text-rose-600 hover:text-rose-800" %>
+          </td>
+          <td class="px-6 py-4">
+            <%= link_to txn.seller.display_name, admin_user_path(txn.seller), class: "text-sm text-rose-600 hover:text-rose-800" %>
+          </td>
+          <td class="px-6 py-4 text-sm font-medium text-gray-900">
+            <%= txn.amount ? number_to_currency(txn.amount) : "—" %>
+          </td>
+          <td class="px-6 py-4">
+            <span class="px-2 py-1 text-xs rounded-full <%= case txn.status
+                when 'completed' then 'bg-green-100 text-green-800'
+                when 'pending' then 'bg-amber-100 text-amber-800'
+                when 'cancelled' then 'bg-gray-100 text-gray-800'
+                else 'bg-gray-100 text-gray-800'
+                end %>">
+              <%= txn.status.capitalize %>
+            </span>
+          </td>
+          <td class="px-6 py-4 text-sm text-gray-500">
+            <%= txn.created_at.strftime("%b %d, %Y") %>
+          </td>
+          <td class="px-6 py-4 text-right text-sm">
+            <%= link_to "View", admin_transaction_path(txn), class: "text-rose-600 hover:text-rose-800" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <% if @transactions.empty? %>
+    <div class="text-center py-12">
+      <p class="text-gray-500">No transactions found.</p>
+    </div>
+  <% end %>
+</div>
+
+<!-- Pagination -->
+<% if @transactions.respond_to?(:total_pages) && @transactions.total_pages > 1 %>
+  <div class="mt-6 flex justify-center">
+    <%= paginate @transactions %>
+  </div>
+<% end %>

@@ -1,0 +1,19 @@
+Your offer has expired
+
+Hi <%= @buyer.display_name %>,
+
+Your offer for the following gift card has expired:
+
+<%= @listing.brand_name %> Gift Card
+Card Value: <%= number_to_currency(@listing.balance) %>
+Your Offer: <%= number_to_currency(@transaction.current_offer_amount) %>
+
+<% if @listing.active? %>
+Good news - the listing is still available! You can submit a new offer if you're still interested.
+
+View listing: <%= listing_url(@listing) %>
+<% else %>
+Unfortunately, this listing is no longer available.
+
+Browse marketplace: <%= marketplace_url %>
+<% end %>

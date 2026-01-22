@@ -1,8 +1,27 @@
 Rails.application.routes.draw do
   devise_for :users
 
-  # Profile routes
+  # Admin namespace
+  namespace :admin do
+    root to: "dashboard#index"
+    resources :users do
+      member do
+        post :toggle_admin
+      end
+    end
+    resources :listings, only: [ :index, :show ] do
+      member do
+        post :cancel
+      end
+    end
+    resources :transactions, only: [ :index, :show ]
+  end
+
+  # Profile routes (current user's own profile)
   resource :profile, only: [ :show, :edit, :update ]
+
+  # Public user profiles
+  resources :users, only: [ :show ], path: "u"
 
   # Wallet - user's gift cards
   resource :wallet, only: [ :show ]
@@ -35,9 +54,14 @@ Rails.application.routes.draw do
       post :accept
       post :reject
       post :cancel
+      post :counter
+      post :accept_counter
+      post :reject_counter
     end
     # Ratings for completed transactions
     resource :rating, only: [ :new, :create ]
+    # Messages between buyer and seller
+    resources :messages, only: [ :create ]
   end
 
   # Marketplace - browse listings

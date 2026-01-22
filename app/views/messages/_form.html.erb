@@ -1,0 +1,17 @@
+<div id="message_form">
+  <%= form_with model: [transaction, message], class: "mt-4" do |form| %>
+    <div class="flex space-x-3">
+      <div class="flex-grow">
+        <%= form.text_area :body,
+            rows: 2,
+            class: "w-full rounded-lg border-gray-300 shadow-sm focus:border-rose-500 focus:ring-rose-500 text-sm resize-none #{'border-red-500' if message.errors[:body].any?}",
+            placeholder: "Type your message..." %>
+        <% if message.errors[:body].any? %>
+          <p class="mt-1 text-sm text-red-600"><%= message.errors[:body].first %></p>
+        <% end %>
+      </div>
+      <%= form.submit "Send",
+          class: "px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-500 font-medium text-sm cursor-pointer self-end" %>
+    </div>
+  <% end %>
+</div>

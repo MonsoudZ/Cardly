@@ -19,9 +19,11 @@
         <span class="px-3 py-1 rounded-full text-sm font-medium
           <%= case @transaction.status
               when 'pending' then 'bg-amber-100 text-amber-800'
+              when 'countered' then 'bg-blue-100 text-blue-800'
               when 'accepted', 'completed' then 'bg-green-100 text-green-800'
               when 'rejected' then 'bg-red-100 text-red-800'
               when 'cancelled' then 'bg-gray-100 text-gray-800'
+              when 'expired' then 'bg-gray-100 text-gray-500'
               end %>">
           <%= @transaction.status.capitalize %>
         </span>
@@ -43,13 +45,30 @@
         <!-- Sale Details -->
         <div class="space-y-4 mb-6">
           <div class="flex justify-between py-3 border-b border-gray-100">
-            <span class="text-gray-600">Purchase Price</span>
-            <span class="font-semibold text-gray-900"><%= number_to_currency(@transaction.amount) %></span>
+            <span class="text-gray-600">Asking Price</span>
+            <span class="font-semibold text-gray-900"><%= number_to_currency(@transaction.listing.asking_price) %></span>
           </div>
-          <% if @transaction.listing.discount_percentage.present? && @transaction.listing.discount_percentage > 0 %>
-            <div class="flex justify-between py-3 border-b border-gray-100">
-              <span class="text-gray-600">Savings</span>
-              <span class="font-semibold text-green-600"><%= @transaction.listing.discount_percentage %>% off</span>
+          <div class="flex justify-between py-3 border-b border-gray-100">
+            <span class="text-gray-600">
+              <% if @transaction.countered? %>Original Offer<% else %>Buyer's Offer<% end %>
+            </span>
+            <span class="font-semibold <%= @transaction.amount < @transaction.listing.asking_price ? 'text-amber-600' : 'text-gray-900' %>">
+              <%= number_to_currency(@transaction.original_amount || @transaction.amount) %>
+              <% if @transaction.amount < @transaction.listing.asking_price && !@transaction.countered? %>
+                <span class="text-xs text-amber-600">(<%= number_to_percentage((@transaction.listing.asking_price - @transaction.amount) / @transaction.listing.asking_price * 100, precision: 0) %> below asking)</span>
+              <% end %>
+            </span>
+          </div>
+          <% if @transaction.countered? || @transaction.counter_amount.present? %>
+            <div class="flex justify-between py-3 border-b border-gray-100 bg-blue-50 -mx-4 px-4 rounded">
+              <span class="text-blue-700 font-medium">Counteroffer</span>
+              <span class="font-bold text-blue-700"><%= number_to_currency(@transaction.counter_amount) %></span>
+            </div>
+          <% end %>
+          <% if @transaction.completed? %>
+            <div class="flex justify-between py-3 border-b border-gray-100 bg-green-50 -mx-4 px-4 rounded">
+              <span class="text-green-700 font-medium">Final Sale Price</span>
+              <span class="font-bold text-green-700"><%= number_to_currency(@transaction.amount) %></span>
             </div>
           <% end %>
         </div>
@@ -79,20 +98,67 @@
       <div class="grid grid-cols-2 gap-4 mb-6 pt-6 border-t border-gray-100">
         <div>
           <p class="text-sm text-gray-500 mb-2">Buyer</p>
-          <p class="font-medium text-gray-900"><%= @transaction.buyer.display_name %></p>
+          <%= link_to user_path(@transaction.buyer), class: "flex items-center group" do %>
+            <img class="h-8 w-8 rounded-full object-cover" src="<%= @transaction.buyer.avatar.presence || 'https://placehold.co/32?text=' + @transaction.buyer.display_name.first.upcase %>" alt="" />
+            <span class="ml-2 font-medium text-gray-900 group-hover:text-rose-600"><%= @transaction.buyer.display_name %></span>
+            <% if @transaction.buyer.average_rating %>
+              <span class="ml-2 flex items-center text-sm text-gray-500">
+                <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                </svg>
+                <span class="ml-0.5"><%= @transaction.buyer.average_rating %></span>
+              </span>
+            <% end %>
+          <% end %>
         </div>
         <div>
           <p class="text-sm text-gray-500 mb-2">Seller</p>
-          <p class="font-medium text-gray-900"><%= @transaction.seller.display_name %></p>
+          <%= link_to user_path(@transaction.seller), class: "flex items-center group" do %>
+            <img class="h-8 w-8 rounded-full object-cover" src="<%= @transaction.seller.avatar.presence || 'https://placehold.co/32?text=' + @transaction.seller.display_name.first.upcase %>" alt="" />
+            <span class="ml-2 font-medium text-gray-900 group-hover:text-rose-600"><%= @transaction.seller.display_name %></span>
+            <% if @transaction.seller.average_rating %>
+              <span class="ml-2 flex items-center text-sm text-gray-500">
+                <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                </svg>
+                <span class="ml-0.5"><%= @transaction.seller.average_rating %></span>
+              </span>
+            <% end %>
+          <% end %>
         </div>
       </div>
 
+      <!-- Counter Message -->
+      <% if @transaction.counter_message.present? %>
+        <div class="mb-6">
+          <p class="text-sm text-gray-500 mb-2">Message from seller with counteroffer</p>
+          <p class="text-gray-700 bg-blue-50 p-4 rounded-lg border border-blue-100"><%= @transaction.counter_message %></p>
+        </div>
+      <% end %>
+
+      <!-- Expiration Notice -->
+      <% if @transaction.expires_at.present? && (@transaction.pending? || @transaction.countered?) %>
+        <div class="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+          <p class="text-sm text-amber-800">
+            <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+            </svg>
+            <% if @transaction.expired? %>
+              This offer has expired.
+            <% else %>
+              This offer expires <%= time_ago_in_words(@transaction.expires_at) %> from now
+              (<%= @transaction.expires_at.strftime("%b %d at %I:%M %p") %>)
+            <% end %>
+          </p>
+        </div>
+      <% end %>
+
       <!-- Actions -->
-      <% if @transaction.pending? %>
+      <% if @transaction.pending? && !@transaction.expired? %>
         <div class="pt-6 border-t border-gray-100">
           <% if @transaction.seller == current_user %>
-            <p class="text-sm text-gray-500 mb-4">You received this offer. Accept to complete the transaction.</p>
-            <div class="flex space-x-3">
+            <p class="text-sm text-gray-500 mb-4">You received this offer. Accept, reject, or make a counteroffer.</p>
+            <div class="flex space-x-3 mb-4">
               <%= button_to accept_transaction_path(@transaction), method: :post, class: "flex-1 inline-flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-500 font-medium" do %>
                 Accept Offer
               <% end %>
@@ -100,8 +166,55 @@
                 Reject
               <% end %>
             </div>
+
+            <% if @transaction.sale? %>
+              <!-- Counteroffer Form -->
+              <div class="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <h4 class="font-medium text-gray-900 mb-3">Or make a counteroffer</h4>
+                <%= form_with url: counter_transaction_path(@transaction), method: :post, class: "space-y-3" do |f| %>
+                  <div>
+                    <label class="block text-sm text-gray-600 mb-1">Your counteroffer amount</label>
+                    <div class="relative">
+                      <span class="absolute left-3 top-2 text-gray-500">$</span>
+                      <%= number_field_tag :counter_amount, nil, min: 0.01, max: @transaction.listing.balance, step: 0.01, placeholder: @transaction.listing.asking_price, class: "w-full pl-7 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500", required: true %>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">Asking price: <%= number_to_currency(@transaction.listing.asking_price) %> | Buyer offered: <%= number_to_currency(@transaction.amount) %></p>
+                  </div>
+                  <div>
+                    <label class="block text-sm text-gray-600 mb-1">Message (optional)</label>
+                    <%= text_area_tag :counter_message, nil, rows: 2, placeholder: "Explain your counteroffer...", class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500" %>
+                  </div>
+                  <%= submit_tag "Send Counteroffer", class: "w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500 font-medium cursor-pointer" %>
+                <% end %>
+              </div>
+            <% end %>
           <% else %>
             <p class="text-sm text-gray-500 mb-4">Waiting for <%= @transaction.seller.display_name %> to respond.</p>
+            <%= button_to cancel_transaction_path(@transaction), method: :post, class: "w-full inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium", data: { turbo_confirm: "Are you sure you want to cancel this offer?" } do %>
+              Cancel Offer
+            <% end %>
+          <% end %>
+        </div>
+      <% elsif @transaction.countered? && !@transaction.expired? %>
+        <div class="pt-6 border-t border-gray-100">
+          <% if @transaction.buyer == current_user %>
+            <p class="text-sm text-gray-500 mb-4">
+              The seller has made a counteroffer of <strong><%= number_to_currency(@transaction.counter_amount) %></strong>.
+              Accept to complete the transaction at this price.
+            </p>
+            <div class="flex space-x-3">
+              <%= button_to accept_counter_transaction_path(@transaction), method: :post, class: "flex-1 inline-flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-500 font-medium" do %>
+                Accept Counteroffer
+              <% end %>
+              <%= button_to reject_counter_transaction_path(@transaction), method: :post, class: "flex-1 inline-flex items-center justify-center px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 font-medium", data: { turbo_confirm: "Are you sure you want to reject this counteroffer?" } do %>
+                Reject
+              <% end %>
+            </div>
+          <% else %>
+            <p class="text-sm text-gray-500 mb-4">
+              You sent a counteroffer of <strong><%= number_to_currency(@transaction.counter_amount) %></strong>.
+              Waiting for <%= @transaction.buyer.display_name %> to respond.
+            </p>
             <%= button_to cancel_transaction_path(@transaction), method: :post, class: "w-full inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium", data: { turbo_confirm: "Are you sure you want to cancel this offer?" } do %>
               Cancel Offer
             <% end %>
@@ -115,6 +228,37 @@
         <% if @transaction.completed? %>
           &middot; Completed <%= time_ago_in_words(@transaction.updated_at) %> ago
         <% end %>
+      </div>
+
+      <!-- Messages Section -->
+      <div class="mt-6 pt-6 border-t border-gray-100" id="messages">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-semibold text-gray-900">
+            Messages
+            <% if @transaction.messages.any? %>
+              <span class="text-sm font-normal text-gray-500">(<span id="message_count"><%= @transaction.messages.count %></span>)</span>
+            <% end %>
+          </h3>
+          <% unread_count = @transaction.unread_message_count_for(current_user) %>
+          <% if unread_count > 0 %>
+            <span class="px-2 py-1 bg-rose-100 text-rose-700 text-xs font-medium rounded-full">
+              <%= unread_count %> new
+            </span>
+          <% end %>
+        </div>
+
+        <% if @transaction.messages.any? %>
+          <div id="messages" class="space-y-3 max-h-80 overflow-y-auto mb-4 p-2">
+            <% @transaction.messages.chronological.each do |message| %>
+              <%= render partial: "messages/message", locals: { message: message, current_user: current_user } %>
+            <% end %>
+          </div>
+          <% @transaction.mark_messages_read_for!(current_user) %>
+        <% else %>
+          <p class="text-sm text-gray-500 mb-4">No messages yet. Start the conversation!</p>
+        <% end %>
+
+        <%= render partial: "messages/form", locals: { transaction: @transaction, message: @transaction.messages.build } %>
       </div>
 
       <% if @transaction.completed? %>
@@ -140,9 +284,9 @@
                 <div class="bg-gray-50 rounded-lg p-4">
                   <div class="flex items-center justify-between mb-2">
                     <div class="flex items-center">
-                      <span class="font-medium text-gray-900"><%= rating.rater.display_name %></span>
+                      <%= link_to rating.rater.display_name, user_path(rating.rater), class: "font-medium text-gray-900 hover:text-rose-600" %>
                       <span class="mx-2 text-gray-400">rated</span>
-                      <span class="font-medium text-gray-900"><%= rating.ratee.display_name %></span>
+                      <%= link_to rating.ratee.display_name, user_path(rating.ratee), class: "font-medium text-gray-900 hover:text-rose-600" %>
                     </div>
                     <div class="flex items-center">
                       <% rating.score.times do %>

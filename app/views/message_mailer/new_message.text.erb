@@ -1,0 +1,19 @@
+New message received
+
+Hi <%= @recipient.display_name %>,
+
+<%= @sender.display_name %> sent you a message about your <%= @transaction.sale? ? 'purchase' : 'trade' %> transaction.
+
+<%= @transaction.brand_name %> Gift Card
+Transaction Status: <%= @transaction.status.capitalize %>
+
+Message:
+"<%= @message.body %>"
+— <%= @sender.display_name %>, <%= @message.created_at.strftime("%B %d at %I:%M %p") %>
+
+View Conversation: <%= transaction_url(@transaction) %>
+
+Reply directly from the transaction page to continue the conversation.
+
+---
+Cardly - Gift Card Marketplace

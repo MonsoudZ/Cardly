@@ -124,4 +124,89 @@ RSpec.describe User, type: :model do
       end
     end
   end
+
+  describe "profile stats" do
+    let(:seller) { create(:user) }
+    let(:buyer) { create(:user) }
+
+    describe "#active_listings_count" do
+      it "returns count of active listings" do
+        brand = create(:brand)
+        gift_card1 = create(:gift_card, user: seller, brand: brand, balance: 100)
+        gift_card2 = create(:gift_card, user: seller, brand: brand, balance: 50)
+        create(:listing, :for_sale, user: seller, gift_card: gift_card1)
+        cancelled_listing = create(:listing, :for_sale, user: seller, gift_card: gift_card2)
+        cancelled_listing.update!(status: "cancelled")
+
+        expect(seller.active_listings_count).to eq(1)
+      end
+    end
+
+    describe "#completed_sales_count" do
+      it "returns count of completed sales as seller" do
+        brand = create(:brand)
+        gift_card = create(:gift_card, user: seller, brand: brand, balance: 100)
+        listing = create(:listing, :for_sale, user: seller, gift_card: gift_card, asking_price: 85)
+        create(:transaction, :completed, listing: listing, seller: seller, buyer: buyer)
+
+        expect(seller.completed_sales_count).to eq(1)
+        expect(buyer.completed_sales_count).to eq(0)
+      end
+    end
+
+    describe "#completed_purchases_count" do
+      it "returns count of completed purchases as buyer" do
+        brand = create(:brand)
+        gift_card = create(:gift_card, user: seller, brand: brand, balance: 100)
+        listing = create(:listing, :for_sale, user: seller, gift_card: gift_card, asking_price: 85)
+        create(:transaction, :completed, listing: listing, seller: seller, buyer: buyer)
+
+        expect(buyer.completed_purchases_count).to eq(1)
+        expect(seller.completed_purchases_count).to eq(0)
+      end
+    end
+
+    describe "#seller_rating_count" do
+      it "returns count of ratings received as seller" do
+        brand = create(:brand)
+        gift_card = create(:gift_card, user: seller, brand: brand, balance: 100)
+        listing = create(:listing, :for_sale, user: seller, gift_card: gift_card, asking_price: 85)
+        transaction = create(:transaction, :completed, listing: listing, seller: seller, buyer: buyer)
+        create(:rating, :from_buyer, transaction: transaction, rater: buyer, ratee: seller)
+
+        expect(seller.seller_rating_count).to eq(1)
+      end
+    end
+
+    describe "#buyer_rating_count" do
+      it "returns count of ratings received as buyer" do
+        brand = create(:brand)
+        gift_card = create(:gift_card, user: seller, brand: brand, balance: 100)
+        listing = create(:listing, :for_sale, user: seller, gift_card: gift_card, asking_price: 85)
+        transaction = create(:transaction, :completed, listing: listing, seller: seller, buyer: buyer)
+        create(:rating, :from_seller, transaction: transaction, rater: seller, ratee: buyer)
+
+        expect(buyer.buyer_rating_count).to eq(1)
+      end
+    end
+
+    describe "#total_transactions_count" do
+      it "returns sum of completed sales and purchases" do
+        brand = create(:brand)
+
+        # User as seller
+        gift_card1 = create(:gift_card, user: seller, brand: brand, balance: 100)
+        listing1 = create(:listing, :for_sale, user: seller, gift_card: gift_card1, asking_price: 85)
+        create(:transaction, :completed, listing: listing1, seller: seller, buyer: buyer)
+
+        # Same user as buyer in another transaction
+        other_seller = create(:user)
+        gift_card2 = create(:gift_card, user: other_seller, brand: brand, balance: 50)
+        listing2 = create(:listing, :for_sale, user: other_seller, gift_card: gift_card2, asking_price: 40)
+        create(:transaction, :completed, listing: listing2, seller: other_seller, buyer: seller)
+
+        expect(seller.total_transactions_count).to eq(2)
+      end
+    end
+  end
 end

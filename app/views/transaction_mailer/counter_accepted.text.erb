@@ -1,0 +1,15 @@
+Your counteroffer was accepted!
+
+Hi <%= @seller.display_name %>,
+
+Great news! <%= @buyer.display_name %> has accepted your counteroffer.
+
+<%= @listing.brand_name %> Gift Card
+Card Value: <%= number_to_currency(@listing.balance) %>
+Final Sale Price: <%= number_to_currency(@transaction.amount) %>
+
+The transaction has been completed and the gift card has been transferred to the buyer.
+
+View this transaction: <%= transaction_url(@transaction) %>
+
+Don't forget to rate your experience with this buyer!

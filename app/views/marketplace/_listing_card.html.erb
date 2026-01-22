@@ -26,7 +26,7 @@
           <div>
             <h3 class="font-medium text-gray-900 group-hover:text-rose-600"><%= listing.brand_name %></h3>
             <div class="flex items-center text-sm text-gray-500">
-              <span>by <%= listing.user.display_name %></span>
+              <span>by <%= link_to listing.user.display_name, user_path(listing.user), class: "hover:text-rose-600 hover:underline", onclick: "event.stopPropagation()" %></span>
               <% if listing.user.rating_count > 0 %>
                 <span class="mx-1">·</span>
                 <svg class="w-3.5 h-3.5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
