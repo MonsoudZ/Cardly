@@ -16,6 +16,8 @@ class Transaction < ApplicationRecord
   validate :offered_card_has_balance, if: :trade?
   validate :listing_must_be_active, on: :create
 
+  after_create_commit :send_new_offer_notification
+
   scope :pending, -> { where(status: "pending") }
   scope :for_seller, ->(user) { where(seller: user) }
   scope :for_buyer, ->(user) { where(buyer: user) }
@@ -48,6 +50,7 @@ class Transaction < ApplicationRecord
     ActiveRecord::Base.transaction do
       complete_transaction!
     end
+    send_offer_accepted_notification
     true
   rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound => e
     Rails.logger.error("Transaction accept failed: #{e.message}")
@@ -57,11 +60,15 @@ class Transaction < ApplicationRecord
   def reject!
     return false unless pending?
     update!(status: "rejected")
+    send_offer_rejected_notification
+    true
   end
 
   def cancel!
     return false unless pending?
     update!(status: "cancelled")
+    send_offer_cancelled_notification
+    true
   end
 
   private
@@ -116,5 +123,22 @@ class Transaction < ApplicationRecord
   def listing_must_be_active
     return if listing.nil?
     errors.add(:listing, "is no longer available") unless listing.active?
+  end
+
+  # Email notifications
+  def send_new_offer_notification
+    TransactionMailer.new_offer(self).deliver_later
+  end
+
+  def send_offer_accepted_notification
+    TransactionMailer.offer_accepted(self).deliver_later
+  end
+
+  def send_offer_rejected_notification
+    TransactionMailer.offer_rejected(self).deliver_later
+  end
+
+  def send_offer_cancelled_notification
+    TransactionMailer.offer_cancelled(self).deliver_later
   end
 end

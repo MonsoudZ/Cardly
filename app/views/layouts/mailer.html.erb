@@ -2,12 +2,94 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-      /* Email styles need to be inline */
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        line-height: 1.6;
+        color: #374151;
+        background-color: #f9fafb;
+        margin: 0;
+        padding: 20px;
+      }
+      .email-container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+      .email-header {
+        background-color: #e11d48;
+        color: #ffffff;
+        padding: 24px;
+        text-align: center;
+      }
+      .email-header h1 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: bold;
+      }
+      .email-body {
+        padding: 32px 24px;
+      }
+      .email-footer {
+        background-color: #f9fafb;
+        padding: 24px;
+        text-align: center;
+        font-size: 14px;
+        color: #6b7280;
+        border-top: 1px solid #e5e7eb;
+      }
+      .btn {
+        display: inline-block;
+        background-color: #e11d48;
+        color: #ffffff !important;
+        text-decoration: none;
+        padding: 12px 24px;
+        border-radius: 6px;
+        font-weight: 600;
+        margin: 16px 0;
+      }
+      .card-details {
+        background-color: #fef2f2;
+        border: 1px solid #fecaca;
+        border-radius: 8px;
+        padding: 16px;
+        margin: 16px 0;
+      }
+      .card-details h3 {
+        margin: 0 0 8px 0;
+        color: #e11d48;
+      }
+      .detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 4px 0;
+      }
+      .detail-label {
+        color: #6b7280;
+      }
+      .detail-value {
+        font-weight: 600;
+        color: #111827;
+      }
     </style>
   </head>
 
   <body>
-    <%= yield %>
+    <div class="email-container">
+      <div class="email-header">
+        <h1>Cardly</h1>
+      </div>
+      <div class="email-body">
+        <%= yield %>
+      </div>
+      <div class="email-footer">
+        <p>This email was sent by Cardly. Please do not reply directly to this email.</p>
+        <p>&copy; <%= Date.current.year %> Cardly. All rights reserved.</p>
+      </div>
+    </div>
   </body>
 </html>

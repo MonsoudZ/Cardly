@@ -1,0 +1,20 @@
+Offer cancelled
+
+Hi <%= @seller.display_name %>,
+
+<%= @buyer.display_name %> has cancelled their offer for your <%= @listing.brand_name %> gift card.
+
+<%= @listing.brand_name %> Gift Card
+- Card Value: <%= number_to_currency(@listing.balance) %>
+<% if @transaction.sale? -%>
+- Their Offer Was: <%= number_to_currency(@transaction.amount) %>
+<% else -%>
+- Their Offer Was: <%= @transaction.offered_gift_card.brand_name %> (<%= number_to_currency(@transaction.offered_gift_card.balance) %>)
+<% end -%>
+
+Your listing is still active and available for other buyers to make offers.
+
+View Your Listings: <%= transactions_url %>
+
+---
+Cardly - Gift Card Marketplace

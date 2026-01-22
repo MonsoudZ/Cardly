@@ -1,0 +1,36 @@
+<h2>Great news! Your offer was accepted!</h2>
+
+<p>Hi <%= @buyer.display_name %>,</p>
+
+<p>Congratulations! Your offer for the <strong><%= @listing.brand_name %></strong> gift card has been accepted.</p>
+
+<div class="card-details">
+  <h3><%= @listing.brand_name %> Gift Card</h3>
+  <div class="detail-row">
+    <span class="detail-label">Card Value:</span>
+    <span class="detail-value"><%= number_to_currency(@listing.balance) %></span>
+  </div>
+  <% if @transaction.sale? %>
+    <div class="detail-row">
+      <span class="detail-label">Amount Paid:</span>
+      <span class="detail-value"><%= number_to_currency(@transaction.amount) %></span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Your Savings:</span>
+      <span class="detail-value" style="color: #059669;"><%= number_to_currency(@listing.balance - @transaction.amount) %></span>
+    </div>
+  <% else %>
+    <div class="detail-row">
+      <span class="detail-label">Traded For:</span>
+      <span class="detail-value"><%= @transaction.offered_gift_card.brand_name %> (<%= number_to_currency(@transaction.offered_gift_card.balance) %>)</span>
+    </div>
+  <% end %>
+</div>
+
+<p>The gift card has been added to your wallet and is ready to use!</p>
+
+<p style="text-align: center;">
+  <%= link_to "View Your Wallet", wallet_url, class: "btn" %>
+</p>
+
+<p>Thank you for using Cardly!</p>

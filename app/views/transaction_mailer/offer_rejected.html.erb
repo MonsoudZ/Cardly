@@ -1,0 +1,30 @@
+<h2>Your offer was declined</h2>
+
+<p>Hi <%= @buyer.display_name %>,</p>
+
+<p>Unfortunately, your offer for the <strong><%= @listing.brand_name %></strong> gift card was declined by the seller.</p>
+
+<div class="card-details">
+  <h3><%= @listing.brand_name %> Gift Card</h3>
+  <div class="detail-row">
+    <span class="detail-label">Card Value:</span>
+    <span class="detail-value"><%= number_to_currency(@listing.balance) %></span>
+  </div>
+  <% if @transaction.sale? %>
+    <div class="detail-row">
+      <span class="detail-label">Your Offer:</span>
+      <span class="detail-value"><%= number_to_currency(@transaction.amount) %></span>
+    </div>
+  <% else %>
+    <div class="detail-row">
+      <span class="detail-label">Offered Card:</span>
+      <span class="detail-value"><%= @transaction.offered_gift_card.brand_name %> (<%= number_to_currency(@transaction.offered_gift_card.balance) %>)</span>
+    </div>
+  <% end %>
+</div>
+
+<p>Don't worry! There are plenty of other great deals on Cardly. Browse the marketplace to find more gift cards.</p>
+
+<p style="text-align: center;">
+  <%= link_to "Browse Marketplace", marketplace_url, class: "btn" %>
+</p>

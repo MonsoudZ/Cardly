@@ -1,0 +1,23 @@
+Great news! Your offer was accepted!
+
+Hi <%= @buyer.display_name %>,
+
+Congratulations! Your offer for the <%= @listing.brand_name %> gift card has been accepted.
+
+<%= @listing.brand_name %> Gift Card
+- Card Value: <%= number_to_currency(@listing.balance) %>
+<% if @transaction.sale? -%>
+- Amount Paid: <%= number_to_currency(@transaction.amount) %>
+- Your Savings: <%= number_to_currency(@listing.balance - @transaction.amount) %>
+<% else -%>
+- Traded For: <%= @transaction.offered_gift_card.brand_name %> (<%= number_to_currency(@transaction.offered_gift_card.balance) %>)
+<% end -%>
+
+The gift card has been added to your wallet and is ready to use!
+
+View Your Wallet: <%= wallet_url %>
+
+Thank you for using Cardly!
+
+---
+Cardly - Gift Card Marketplace

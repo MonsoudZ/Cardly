@@ -1,0 +1,30 @@
+<h2>Offer cancelled</h2>
+
+<p>Hi <%= @seller.display_name %>,</p>
+
+<p><strong><%= @buyer.display_name %></strong> has cancelled their offer for your <strong><%= @listing.brand_name %></strong> gift card.</p>
+
+<div class="card-details">
+  <h3><%= @listing.brand_name %> Gift Card</h3>
+  <div class="detail-row">
+    <span class="detail-label">Card Value:</span>
+    <span class="detail-value"><%= number_to_currency(@listing.balance) %></span>
+  </div>
+  <% if @transaction.sale? %>
+    <div class="detail-row">
+      <span class="detail-label">Their Offer Was:</span>
+      <span class="detail-value"><%= number_to_currency(@transaction.amount) %></span>
+    </div>
+  <% else %>
+    <div class="detail-row">
+      <span class="detail-label">Their Offer Was:</span>
+      <span class="detail-value"><%= @transaction.offered_gift_card.brand_name %> (<%= number_to_currency(@transaction.offered_gift_card.balance) %>)</span>
+    </div>
+  <% end %>
+</div>
+
+<p>Your listing is still active and available for other buyers to make offers.</p>
+
+<p style="text-align: center;">
+  <%= link_to "View Your Listings", transactions_url, class: "btn" %>
+</p>

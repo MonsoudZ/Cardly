@@ -1,0 +1,25 @@
+You've received a new offer!
+
+Hi <%= @seller.display_name %>,
+
+<%= @buyer.display_name %> wants to <%= @transaction.sale? ? 'purchase' : 'trade for' %> your gift card.
+
+<%= @listing.brand_name %> Gift Card
+- Card Value: <%= number_to_currency(@listing.balance) %>
+<% if @transaction.sale? -%>
+- Offer Amount: <%= number_to_currency(@transaction.amount) %>
+<% else -%>
+- Offered Card: <%= @transaction.offered_gift_card.brand_name %> (<%= number_to_currency(@transaction.offered_gift_card.balance) %>)
+<% end -%>
+
+<% if @transaction.message.present? -%>
+Message from buyer:
+"<%= @transaction.message %>"
+
+<% end -%>
+View this offer: <%= transaction_url(@transaction) %>
+
+You can accept or decline this offer from your transactions page.
+
+---
+Cardly - Gift Card Marketplace
