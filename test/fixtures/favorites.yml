@@ -1,0 +1,9 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+user_one_favorite:
+  user: one
+  listing: sale_listing
+
+user_one_trade_favorite:
+  user: one
+  listing: trade_listing
