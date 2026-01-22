@@ -32,6 +32,12 @@ Rails.application.routes.draw do
       post :list_for_sale
       post :list_for_trade
     end
+    # Spending tracker
+    resources :card_activities, except: [ :show ] do
+      collection do
+        post :quick_purchase
+      end
+    end
   end
 
   # Listings management
