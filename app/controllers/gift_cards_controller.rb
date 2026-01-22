@@ -81,7 +81,8 @@ class GiftCardsController < ApplicationController
   def gift_card_params
     params.require(:gift_card).permit(
       :brand_id, :balance, :original_value, :card_number, :pin,
-      :expiration_date, :barcode_data, :notes, :acquired_date, :acquired_from
+      :expiration_date, :barcode_data, :notes, :acquired_date, :acquired_from,
+      tag_ids: []
     )
   end
 end

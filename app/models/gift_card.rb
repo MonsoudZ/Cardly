@@ -10,6 +10,8 @@ class GiftCard < ApplicationRecord
   belongs_to :brand
   has_one :listing, dependent: :destroy
   has_many :card_activities, dependent: :destroy
+  has_many :gift_card_tags, dependent: :destroy
+  has_many :tags, through: :gift_card_tags
 
   validates :balance, presence: true, numericality: { greater_than_or_equal_to: 0 }
   validates :original_value, presence: true, numericality: { greater_than: 0 }
@@ -21,6 +23,8 @@ class GiftCard < ApplicationRecord
   scope :expiring_soon, -> { where("expiration_date <= ?", 30.days.from_now).where("expiration_date >= ?", Date.current) }
   scope :expired, -> { where("expiration_date < ?", Date.current) }
   scope :by_brand, ->(brand_id) { where(brand_id: brand_id) }
+  scope :by_tag, ->(tag_id) { joins(:gift_card_tags).where(gift_card_tags: { tag_id: tag_id }) }
+  scope :untagged, -> { left_joins(:gift_card_tags).where(gift_card_tags: { id: nil }) }
 
   delegate :name, :logo_url, :display_logo, to: :brand, prefix: true
 
