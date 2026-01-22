@@ -137,6 +137,80 @@
           </div>
         <% end %>
       </div>
+
+      <!-- Spending Tracker -->
+      <div class="mt-6 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold text-gray-900">Spending Tracker</h2>
+          <%= link_to gift_card_card_activities_path(@gift_card), class: "text-sm text-rose-600 hover:text-rose-700" do %>
+            View All
+            <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          <% end %>
+        </div>
+
+        <!-- Quick Log Form -->
+        <% unless @gift_card.used? || @gift_card.expired? %>
+          <%= form_with url: quick_purchase_gift_card_card_activities_path(@gift_card), method: :post, class: "mb-4 p-4 bg-gray-50 rounded-lg" do |f| %>
+            <p class="text-sm font-medium text-gray-700 mb-3">Quick Log Purchase</p>
+            <div class="flex space-x-2">
+              <div class="flex-1 relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span class="text-gray-500 text-sm">$</span>
+                </div>
+                <%= f.number_field :amount, step: 0.01, min: 0.01, max: @gift_card.balance, class: "block w-full pl-7 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent", placeholder: "0.00", required: true %>
+              </div>
+              <div class="flex-1">
+                <%= f.text_field :merchant, class: "block w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent", placeholder: "Store name" %>
+              </div>
+              <%= f.submit "Log", class: "px-4 py-2 text-sm font-medium text-white bg-rose-600 rounded-lg hover:bg-rose-700 cursor-pointer" %>
+            </div>
+          <% end %>
+        <% end %>
+
+        <!-- Recent Activity -->
+        <% recent_activities = @gift_card.recent_activities(5) %>
+        <% if recent_activities.any? %>
+          <div class="space-y-3">
+            <% recent_activities.each do |activity| %>
+              <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+                <div class="flex items-center space-x-3">
+                  <div class="w-8 h-8 rounded-full flex items-center justify-center <%= activity.purchase? ? 'bg-red-100' : 'bg-green-100' %>">
+                    <% if activity.purchase? %>
+                      <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                      </svg>
+                    <% else %>
+                      <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+                      </svg>
+                    <% end %>
+                  </div>
+                  <div>
+                    <p class="text-sm font-medium text-gray-900"><%= activity.merchant.presence || activity.activity_type.titleize %></p>
+                    <p class="text-xs text-gray-500"><%= activity.occurred_at.strftime("%b %d, %Y") %></p>
+                  </div>
+                </div>
+                <span class="text-sm font-medium <%= activity.purchase? ? 'text-red-600' : 'text-green-600' %>">
+                  <%= activity.purchase? ? "-" : "+" %><%= number_to_currency(activity.amount) %>
+                </span>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-sm text-gray-500 text-center py-4">No spending activity yet. Use the form above to log your first purchase.</p>
+        <% end %>
+
+        <% if @gift_card.total_spent > 0 %>
+          <div class="mt-4 pt-4 border-t border-gray-200">
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-500">Total Spent</span>
+              <span class="font-medium text-gray-900"><%= number_to_currency(@gift_card.total_spent) %></span>
+            </div>
+          </div>
+        <% end %>
+      </div>
     </div>
 
     <!-- Sidebar -->

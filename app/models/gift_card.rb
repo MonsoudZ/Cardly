@@ -9,6 +9,7 @@ class GiftCard < ApplicationRecord
   belongs_to :user
   belongs_to :brand
   has_one :listing, dependent: :destroy
+  has_many :card_activities, dependent: :destroy
 
   validates :balance, presence: true, numericality: { greater_than_or_equal_to: 0 }
   validates :original_value, presence: true, numericality: { greater_than: 0 }
@@ -64,5 +65,34 @@ class GiftCard < ApplicationRecord
     else
       update!(status: "active")
     end
+  end
+
+  # Spending tracker methods
+  def total_spent
+    card_activities.purchases.sum(:amount)
+  end
+
+  def total_refunded
+    card_activities.refunds.sum(:amount)
+  end
+
+  def net_spent
+    total_spent - total_refunded
+  end
+
+  def activity_count
+    card_activities.count
+  end
+
+  def recent_activities(limit = 5)
+    card_activities.reverse_chronological.limit(limit)
+  end
+
+  def spending_by_merchant
+    card_activities.purchases
+                   .where.not(merchant: [nil, ""])
+                   .group(:merchant)
+                   .sum(:amount)
+                   .sort_by { |_, v| -v }
   end
 end

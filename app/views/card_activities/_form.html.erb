@@ -1,0 +1,95 @@
+<%= form_with model: [@gift_card, card_activity], class: "space-y-6" do |f| %>
+  <% if card_activity.errors.any? %>
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+      <h3 class="text-sm font-medium text-red-800">Please fix the following errors:</h3>
+      <ul class="mt-2 list-disc list-inside text-sm text-red-700">
+        <% card_activity.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <% if card_activity.new_record? %>
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">Activity Type</label>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+        <% CardActivity::ACTIVITY_TYPES.each do |type| %>
+          <label class="relative flex items-center justify-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 <%= card_activity.activity_type == type ? 'border-rose-500 bg-rose-50' : 'border-gray-300' %>">
+            <%= f.radio_button :activity_type, type, class: "sr-only" %>
+            <span class="text-sm font-medium <%= card_activity.activity_type == type ? 'text-rose-700' : 'text-gray-700' %>">
+              <%= type.titleize %>
+            </span>
+          </label>
+        <% end %>
+      </div>
+    </div>
+  <% else %>
+    <%= f.hidden_field :activity_type %>
+  <% end %>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div>
+      <label for="card_activity_amount" class="block text-sm font-medium text-gray-700 mb-1">
+        <% if card_activity.activity_type == "adjustment" %>
+          New Balance
+        <% else %>
+          Amount
+        <% end %>
+      </label>
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <span class="text-gray-500">$</span>
+        </div>
+        <% if card_activity.activity_type == "adjustment" %>
+          <%= f.number_field :balance_after, value: card_activity.balance_after || @gift_card.balance, step: 0.01, min: 0, class: "block w-full pl-7 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent", placeholder: "0.00" %>
+        <% else %>
+          <%= f.number_field :amount, step: 0.01, min: 0.01, class: "block w-full pl-7 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent", placeholder: "0.00" %>
+        <% end %>
+      </div>
+      <% if card_activity.activity_type != "adjustment" %>
+        <p class="mt-1 text-xs text-gray-500">
+          Maximum available: <%= number_to_currency(@gift_card.balance) %>
+        </p>
+      <% end %>
+    </div>
+
+    <div>
+      <label for="card_activity_occurred_at" class="block text-sm font-medium text-gray-700 mb-1">Date & Time</label>
+      <%= f.datetime_local_field :occurred_at, class: "block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent" %>
+    </div>
+  </div>
+
+  <% unless card_activity.activity_type == "balance_check" %>
+    <div>
+      <label for="card_activity_merchant" class="block text-sm font-medium text-gray-700 mb-1">
+        <%= card_activity.activity_type == "refund" ? "Refund From" : "Merchant / Store" %>
+      </label>
+      <%= f.text_field :merchant, class: "block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent", placeholder: "e.g., Amazon, Starbucks, Target" %>
+    </div>
+  <% end %>
+
+  <div>
+    <label for="card_activity_description" class="block text-sm font-medium text-gray-700 mb-1">Notes (optional)</label>
+    <%= f.text_area :description, rows: 2, class: "block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent", placeholder: "Add any notes about this transaction..." %>
+  </div>
+
+  <div class="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
+    <%= link_to "Cancel", gift_card_card_activities_path(@gift_card), class: "px-4 py-2 text-gray-700 hover:text-gray-900" %>
+    <%= f.submit card_activity.new_record? ? "Log Activity" : "Update Activity", class: "px-6 py-2 bg-rose-600 text-white font-medium rounded-lg hover:bg-rose-700 cursor-pointer" %>
+  </div>
+<% end %>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const radioButtons = document.querySelectorAll('input[name="card_activity[activity_type]"]');
+    radioButtons.forEach(function(radio) {
+      radio.addEventListener('change', function() {
+        // Refresh page with new type to update form
+        const url = new URL(window.location.href);
+        url.searchParams.set('type', this.value);
+        window.location.href = url.toString();
+      });
+    });
+  });
+</script>
