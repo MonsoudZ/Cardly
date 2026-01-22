@@ -1,0 +1,121 @@
+<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Back Link -->
+  <div class="mb-6">
+    <%= link_to transactions_path, class: "inline-flex items-center text-gray-600 hover:text-rose-600" do %>
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+      Back to Transactions
+    <% end %>
+  </div>
+
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="p-6">
+      <!-- Status Badge -->
+      <div class="flex justify-between items-start mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">
+          <% if @transaction.sale? %>Purchase<% else %>Trade<% end %> Offer
+        </h1>
+        <span class="px-3 py-1 rounded-full text-sm font-medium
+          <%= case @transaction.status
+              when 'pending' then 'bg-amber-100 text-amber-800'
+              when 'accepted', 'completed' then 'bg-green-100 text-green-800'
+              when 'rejected' then 'bg-red-100 text-red-800'
+              when 'cancelled' then 'bg-gray-100 text-gray-800'
+              end %>">
+          <%= @transaction.status.capitalize %>
+        </span>
+      </div>
+
+      <!-- Card Being Purchased/Traded -->
+      <div class="bg-gray-50 rounded-lg p-4 mb-6">
+        <p class="text-sm text-gray-500 mb-2">Card</p>
+        <div class="flex items-center space-x-4">
+          <img src="<%= @transaction.listing.brand_display_logo %>" alt="" class="w-16 h-10 object-contain rounded bg-white p-2">
+          <div>
+            <p class="font-semibold text-gray-900"><%= @transaction.brand_name %> Gift Card</p>
+            <p class="text-lg font-bold text-gray-900"><%= number_to_currency(@transaction.listing.balance) %> value</p>
+          </div>
+        </div>
+      </div>
+
+      <% if @transaction.sale? %>
+        <!-- Sale Details -->
+        <div class="space-y-4 mb-6">
+          <div class="flex justify-between py-3 border-b border-gray-100">
+            <span class="text-gray-600">Purchase Price</span>
+            <span class="font-semibold text-gray-900"><%= number_to_currency(@transaction.amount) %></span>
+          </div>
+          <% if @transaction.listing.discount_percentage.present? && @transaction.listing.discount_percentage > 0 %>
+            <div class="flex justify-between py-3 border-b border-gray-100">
+              <span class="text-gray-600">Savings</span>
+              <span class="font-semibold text-green-600"><%= @transaction.listing.discount_percentage %>% off</span>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <!-- Trade Details -->
+        <div class="bg-blue-50 rounded-lg p-4 mb-6">
+          <p class="text-sm text-blue-600 mb-2">Offered in Trade</p>
+          <div class="flex items-center space-x-4">
+            <img src="<%= @transaction.offered_gift_card.brand_display_logo %>" alt="" class="w-16 h-10 object-contain rounded bg-white p-2">
+            <div>
+              <p class="font-semibold text-gray-900"><%= @transaction.offered_gift_card.brand_name %> Gift Card</p>
+              <p class="text-lg font-bold text-gray-900"><%= number_to_currency(@transaction.offered_gift_card.balance) %> value</p>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Message -->
+      <% if @transaction.message.present? %>
+        <div class="mb-6">
+          <p class="text-sm text-gray-500 mb-2">Message from <%= @transaction.buyer.display_name %></p>
+          <p class="text-gray-700 bg-gray-50 p-4 rounded-lg"><%= @transaction.message %></p>
+        </div>
+      <% end %>
+
+      <!-- Parties -->
+      <div class="grid grid-cols-2 gap-4 mb-6 pt-6 border-t border-gray-100">
+        <div>
+          <p class="text-sm text-gray-500 mb-2">Buyer</p>
+          <p class="font-medium text-gray-900"><%= @transaction.buyer.display_name %></p>
+        </div>
+        <div>
+          <p class="text-sm text-gray-500 mb-2">Seller</p>
+          <p class="font-medium text-gray-900"><%= @transaction.seller.display_name %></p>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <% if @transaction.pending? %>
+        <div class="pt-6 border-t border-gray-100">
+          <% if @transaction.seller == current_user %>
+            <p class="text-sm text-gray-500 mb-4">You received this offer. Accept to complete the transaction.</p>
+            <div class="flex space-x-3">
+              <%= button_to accept_transaction_path(@transaction), method: :post, class: "flex-1 inline-flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-500 font-medium" do %>
+                Accept Offer
+              <% end %>
+              <%= button_to reject_transaction_path(@transaction), method: :post, class: "flex-1 inline-flex items-center justify-center px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 font-medium", data: { turbo_confirm: "Are you sure you want to reject this offer?" } do %>
+                Reject
+              <% end %>
+            </div>
+          <% else %>
+            <p class="text-sm text-gray-500 mb-4">Waiting for <%= @transaction.seller.display_name %> to respond.</p>
+            <%= button_to cancel_transaction_path(@transaction), method: :post, class: "w-full inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium", data: { turbo_confirm: "Are you sure you want to cancel this offer?" } do %>
+              Cancel Offer
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+
+      <!-- Timestamp -->
+      <div class="mt-6 pt-6 border-t border-gray-100 text-sm text-gray-500">
+        Created <%= time_ago_in_words(@transaction.created_at) %> ago
+        <% if @transaction.completed? %>
+          &middot; Completed <%= time_ago_in_words(@transaction.updated_at) %> ago
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

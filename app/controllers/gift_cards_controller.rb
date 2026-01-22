@@ -1,7 +1,7 @@
 class GiftCardsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_gift_card, only: [ :show, :edit, :update, :destroy, :list_for_sale, :list_for_trade ]
-  before_action :authorize_gift_card, only: [ :edit, :update, :destroy, :list_for_sale, :list_for_trade ]
+  before_action :authorize_gift_card, only: [ :show, :edit, :update, :destroy, :list_for_sale, :list_for_trade ]
 
   def index
     redirect_to wallet_path

@@ -1,0 +1,21 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+pending_sale:
+  buyer: one
+  seller: two
+  listing: sale_listing
+  offered_gift_card:
+  transaction_type: sale
+  status: pending
+  amount: 90.00
+  message: "I'd like to buy this card!"
+
+pending_trade:
+  buyer: one
+  seller: two
+  listing: trade_listing
+  offered_gift_card: amazon_card
+  transaction_type: trade
+  status: pending
+  amount:
+  message: "Trade my Amazon card for yours?"

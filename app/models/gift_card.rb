@@ -2,6 +2,10 @@ class GiftCard < ApplicationRecord
   STATUSES = %w[active used expired listed].freeze
   ACQUIRED_FROM = %w[purchased gift traded bought_on_cardly other].freeze
 
+  # Encrypt sensitive fields at rest
+  encrypts :card_number, deterministic: true
+  encrypts :pin
+
   belongs_to :user
   belongs_to :brand
   has_one :listing, dependent: :destroy
