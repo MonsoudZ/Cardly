@@ -1,0 +1,31 @@
+<h2>Your offer has expired</h2>
+
+<p>Hi <%= @buyer.display_name %>,</p>
+
+<p>Your offer for the following gift card has expired:</p>
+
+<div class="card-details">
+  <h3><%= @listing.brand_name %> Gift Card</h3>
+  <div class="detail-row">
+    <span class="detail-label">Card Value:</span>
+    <span class="detail-value"><%= number_to_currency(@listing.balance) %></span>
+  </div>
+  <div class="detail-row">
+    <span class="detail-label">Your Offer:</span>
+    <span class="detail-value"><%= number_to_currency(@transaction.current_offer_amount) %></span>
+  </div>
+</div>
+
+<% if @listing.active? %>
+  <p>Good news - the listing is still available! You can submit a new offer if you're still interested.</p>
+
+  <p style="text-align: center;">
+    <%= link_to "View Listing", listing_url(@listing), class: "btn" %>
+  </p>
+<% else %>
+  <p>Unfortunately, this listing is no longer available.</p>
+
+  <p style="text-align: center;">
+    <%= link_to "Browse Marketplace", marketplace_url, class: "btn" %>
+  </p>
+<% end %>

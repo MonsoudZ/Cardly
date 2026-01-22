@@ -1,15 +1,16 @@
 class TransactionsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_listing, only: [ :new, :create ]
-  before_action :set_transaction, only: [ :show, :accept, :reject, :cancel ]
-  before_action :authorize_buyer, only: [ :cancel ]
-  before_action :authorize_seller, only: [ :accept, :reject ]
+  before_action :set_transaction, only: [ :show, :accept, :reject, :cancel, :counter, :accept_counter, :reject_counter ]
+  before_action :authorize_buyer, only: [ :cancel, :accept_counter, :reject_counter ]
+  before_action :authorize_seller, only: [ :accept, :reject, :counter ]
 
   rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
 
   def index
-    @received_offers = current_user.pending_offers_received.includes(listing: { gift_card: :brand }, buyer: [])
-    @sent_offers = current_user.pending_offers_made.includes(listing: { gift_card: :brand }, seller: [])
+    @received_offers = current_user.sales.active_offers.includes(listing: { gift_card: :brand }, buyer: [])
+    @sent_offers = current_user.purchases.active_offers.includes(listing: { gift_card: :brand }, seller: [])
+    @awaiting_response = @sent_offers.countered
     @completed = current_user.purchases.where(status: "completed").or(
       current_user.sales.where(status: "completed")
     ).includes(listing: { gift_card: :brand }).order(updated_at: :desc).limit(10)
@@ -44,7 +45,12 @@ class TransactionsController < ApplicationController
     @transaction.seller = @listing.user
     @transaction.buyer = current_user
     @transaction.transaction_type = @listing.listing_type
-    @transaction.amount = @listing.asking_price if @listing.sale?
+
+    # Allow custom offer amounts for sales, default to asking price if not specified
+    if @listing.sale?
+      @transaction.amount = transaction_params[:amount].presence || @listing.asking_price
+      @transaction.expires_at = 48.hours.from_now
+    end
 
     if @transaction.save
       redirect_to @transaction, notice: offer_success_message
@@ -78,6 +84,33 @@ class TransactionsController < ApplicationController
     end
   end
 
+  def counter
+    counter_amount = params[:counter_amount].to_d
+    counter_message = params[:counter_message]
+
+    if @transaction.counter!(counter_amount, counter_message)
+      redirect_to @transaction, notice: "Counteroffer sent! Waiting for buyer's response."
+    else
+      redirect_to @transaction, alert: "Unable to send counteroffer. Amount must be different from the original offer."
+    end
+  end
+
+  def accept_counter
+    if @transaction.accept_counter!
+      redirect_to transactions_path, notice: "Counteroffer accepted! The transaction has been completed."
+    else
+      redirect_to @transaction, alert: "Unable to accept counteroffer."
+    end
+  end
+
+  def reject_counter
+    if @transaction.reject_counter!
+      redirect_to transactions_path, notice: "Counteroffer rejected."
+    else
+      redirect_to @transaction, alert: "Unable to reject counteroffer."
+    end
+  end
+
   private
 
   def set_listing
@@ -98,12 +131,16 @@ class TransactionsController < ApplicationController
   end
 
   def transaction_params
-    params.require(:transaction).permit(:offered_gift_card_id, :message)
+    params.require(:transaction).permit(:offered_gift_card_id, :message, :amount)
   end
 
   def offer_success_message
     if @transaction.sale?
-      "Purchase offer sent! The seller will review your offer."
+      if @transaction.amount < @listing.asking_price
+        "Your offer of #{helpers.number_to_currency(@transaction.amount)} has been sent! The seller will review your offer."
+      else
+        "Purchase offer sent at asking price! The seller will review your offer."
+      end
     else
       "Trade offer sent! The seller will review your offer."
     end

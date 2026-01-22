@@ -1,0 +1,13 @@
+Your counteroffer was declined
+
+Hi <%= @seller.display_name %>,
+
+<%= @buyer.display_name %> has declined your counteroffer for the following listing:
+
+<%= @listing.brand_name %> Gift Card
+Card Value: <%= number_to_currency(@listing.balance) %>
+Your Counteroffer: <%= number_to_currency(@transaction.counter_amount) %>
+
+Your listing is still active and available for other buyers.
+
+View your listing: <%= listing_url(@listing) %>

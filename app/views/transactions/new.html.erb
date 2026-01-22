@@ -61,15 +61,35 @@
               <span class="text-gray-900"><%= number_to_currency(@listing.balance) %></span>
             </div>
             <div class="flex justify-between py-3 border-b border-gray-100">
-              <span class="text-gray-600">Your Price</span>
+              <span class="text-gray-600">Asking Price</span>
               <span class="font-semibold text-rose-600"><%= number_to_currency(@listing.asking_price) %></span>
             </div>
             <% if @listing.discount_percentage.present? && @listing.discount_percentage > 0 %>
-              <div class="flex justify-between py-3">
-                <span class="text-gray-600">You Save</span>
+              <div class="flex justify-between py-3 border-b border-gray-100">
+                <span class="text-gray-600">Savings at Asking Price</span>
                 <span class="font-semibold text-green-600"><%= number_to_currency(@listing.savings) %> (<%= @listing.discount_percentage %>%)</span>
               </div>
             <% end %>
+          </div>
+
+          <!-- Custom Offer Amount -->
+          <div class="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <div class="flex items-center justify-between mb-3">
+              <label class="block text-sm font-medium text-gray-700">Your Offer</label>
+              <span class="text-xs text-gray-500">Make an offer at or below asking price</span>
+            </div>
+            <div class="flex items-center space-x-3">
+              <div class="relative flex-1">
+                <span class="absolute left-3 top-3 text-gray-500">$</span>
+                <%= form.number_field :amount, value: @listing.asking_price, min: 0.01, max: @listing.balance, step: 0.01, class: "w-full pl-7 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500", id: "offer_amount" %>
+              </div>
+              <button type="button" onclick="document.getElementById('offer_amount').value = <%= @listing.asking_price %>" class="px-3 py-2 text-sm text-rose-600 hover:bg-rose-50 rounded-lg border border-rose-200">
+                Use Asking Price
+              </button>
+            </div>
+            <p class="text-xs text-gray-500 mt-2">
+              Tip: Offers below asking price may be rejected or countered by the seller.
+            </p>
           </div>
         <% else %>
           <!-- Trade Card Selection -->

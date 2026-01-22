@@ -38,6 +38,9 @@ Rails.application.routes.draw do
       post :accept
       post :reject
       post :cancel
+      post :counter
+      post :accept_counter
+      post :reject_counter
     end
     # Ratings for completed transactions
     resource :rating, only: [ :new, :create ]

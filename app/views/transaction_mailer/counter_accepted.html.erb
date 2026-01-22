@@ -1,0 +1,25 @@
+<h2>Your counteroffer was accepted!</h2>
+
+<p>Hi <%= @seller.display_name %>,</p>
+
+<p>Great news! <strong><%= @buyer.display_name %></strong> has accepted your counteroffer.</p>
+
+<div class="card-details">
+  <h3><%= @listing.brand_name %> Gift Card</h3>
+  <div class="detail-row">
+    <span class="detail-label">Card Value:</span>
+    <span class="detail-value"><%= number_to_currency(@listing.balance) %></span>
+  </div>
+  <div class="detail-row">
+    <span class="detail-label">Final Sale Price:</span>
+    <span class="detail-value" style="color: #059669; font-weight: bold;"><%= number_to_currency(@transaction.amount) %></span>
+  </div>
+</div>
+
+<p>The transaction has been completed and the gift card has been transferred to the buyer.</p>
+
+<p style="text-align: center;">
+  <%= link_to "View Transaction", transaction_url(@transaction), class: "btn" %>
+</p>
+
+<p>Don't forget to rate your experience with this buyer!</p>

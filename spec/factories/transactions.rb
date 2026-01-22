@@ -40,5 +40,23 @@ FactoryBot.define do
     trait :cancelled do
       status { "cancelled" }
     end
+
+    trait :countered do
+      status { "countered" }
+      original_amount { 85.00 }
+      counter_amount { 92.00 }
+      counter_message { "I can do $92 for this card" }
+      countered_at { Time.current }
+      expires_at { 48.hours.from_now }
+    end
+
+    trait :expired do
+      status { "expired" }
+      expires_at { 1.hour.ago }
+    end
+
+    trait :with_expiration do
+      expires_at { 48.hours.from_now }
+    end
   end
 end

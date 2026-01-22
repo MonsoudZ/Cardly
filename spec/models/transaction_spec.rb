@@ -126,6 +126,105 @@ RSpec.describe Transaction, type: :model do
     end
   end
 
+  describe "counteroffers" do
+    let(:buyer) { create(:user) }
+    let(:seller) { create(:user) }
+    let(:listing) { create(:listing, :sale, user: seller) }
+
+    describe "#counter!" do
+      it "creates a counteroffer" do
+        transaction = create(:transaction, :sale, buyer: buyer, seller: seller, listing: listing, amount: 80.00)
+
+        expect(transaction.counter!(90.00, "I can do $90")).to be true
+        expect(transaction.status).to eq("countered")
+        expect(transaction.counter_amount).to eq(90.00)
+        expect(transaction.counter_message).to eq("I can do $90")
+        expect(transaction.original_amount).to eq(80.00)
+        expect(transaction.expires_at).to be_present
+      end
+
+      it "fails if amount is the same as original" do
+        transaction = create(:transaction, :sale, buyer: buyer, seller: seller, listing: listing, amount: 80.00)
+        expect(transaction.counter!(80.00)).to be false
+      end
+
+      it "fails for non-pending transactions" do
+        transaction = create(:transaction, :sale, :rejected, buyer: buyer, seller: seller, listing: listing)
+        expect(transaction.counter!(90.00)).to be false
+      end
+
+      it "fails for trade transactions" do
+        trade_listing = create(:listing, :trade, user: seller)
+        offered_card = create(:gift_card, user: buyer)
+        transaction = create(:transaction, :trade, buyer: buyer, seller: seller, listing: trade_listing, offered_gift_card: offered_card)
+        expect(transaction.counter!(90.00)).to be false
+      end
+    end
+
+    describe "#accept_counter!" do
+      it "completes the transaction at counter amount" do
+        gift_card = create(:gift_card, :listed, user: seller)
+        listing_with_card = create(:listing, :sale, gift_card: gift_card, user: seller)
+        transaction = create(:transaction, :sale, :countered, buyer: buyer, seller: seller, listing: listing_with_card, amount: 80.00, counter_amount: 90.00)
+
+        expect(transaction.accept_counter!).to be true
+        expect(transaction.status).to eq("completed")
+        expect(transaction.amount).to eq(90.00)
+        expect(gift_card.reload.user).to eq(buyer)
+      end
+
+      it "fails for non-countered transactions" do
+        transaction = create(:transaction, :sale, :pending, buyer: buyer, seller: seller, listing: listing)
+        expect(transaction.accept_counter!).to be false
+      end
+    end
+
+    describe "#reject_counter!" do
+      it "rejects the counteroffer" do
+        transaction = create(:transaction, :sale, :countered, buyer: buyer, seller: seller, listing: listing)
+
+        expect(transaction.reject_counter!).to be true
+        expect(transaction.status).to eq("rejected")
+      end
+
+      it "fails for non-countered transactions" do
+        transaction = create(:transaction, :sale, :pending, buyer: buyer, seller: seller, listing: listing)
+        expect(transaction.reject_counter!).to be false
+      end
+    end
+
+    describe "#countered?" do
+      it "returns true for countered transactions" do
+        transaction = build(:transaction, :countered)
+        expect(transaction.countered?).to be true
+      end
+    end
+
+    describe "#expired?" do
+      it "returns true when expires_at is in the past" do
+        transaction = build(:transaction, expires_at: 1.hour.ago)
+        expect(transaction.expired?).to be true
+      end
+
+      it "returns false when expires_at is in the future" do
+        transaction = build(:transaction, expires_at: 1.hour.from_now)
+        expect(transaction.expired?).to be false
+      end
+    end
+
+    describe "#current_offer_amount" do
+      it "returns counter_amount when countered" do
+        transaction = build(:transaction, :countered, amount: 80.00, counter_amount: 90.00)
+        expect(transaction.current_offer_amount).to eq(90.00)
+      end
+
+      it "returns amount when pending" do
+        transaction = build(:transaction, :pending, amount: 80.00)
+        expect(transaction.current_offer_amount).to eq(80.00)
+      end
+    end
+  end
+
   describe "email notifications" do
     include ActiveJob::TestHelper
 
@@ -175,6 +274,44 @@ RSpec.describe Transaction, type: :model do
           transaction.cancel!
         }.to have_enqueued_job(ActionMailer::MailDeliveryJob)
           .with("TransactionMailer", "offer_cancelled", "deliver_now", anything)
+      end
+    end
+
+    describe "on counter" do
+      it "sends counteroffer notification to buyer" do
+        transaction = create(:transaction, :sale, buyer: buyer, seller: seller, listing: listing, amount: 80.00)
+        clear_enqueued_jobs
+
+        expect {
+          transaction.counter!(90.00, "How about $90?")
+        }.to have_enqueued_job(ActionMailer::MailDeliveryJob)
+          .with("TransactionMailer", "counteroffer", "deliver_now", anything)
+      end
+    end
+
+    describe "on accept_counter" do
+      it "sends counter accepted notification to seller" do
+        gift_card = create(:gift_card, :listed, user: seller)
+        listing_with_card = create(:listing, :sale, gift_card: gift_card, user: seller)
+        transaction = create(:transaction, :sale, :countered, buyer: buyer, seller: seller, listing: listing_with_card)
+        clear_enqueued_jobs
+
+        expect {
+          transaction.accept_counter!
+        }.to have_enqueued_job(ActionMailer::MailDeliveryJob)
+          .with("TransactionMailer", "counter_accepted", "deliver_now", anything)
+      end
+    end
+
+    describe "on reject_counter" do
+      it "sends counter rejected notification to seller" do
+        transaction = create(:transaction, :sale, :countered, buyer: buyer, seller: seller, listing: listing)
+        clear_enqueued_jobs
+
+        expect {
+          transaction.reject_counter!
+        }.to have_enqueued_job(ActionMailer::MailDeliveryJob)
+          .with("TransactionMailer", "counter_rejected", "deliver_now", anything)
       end
     end
   end

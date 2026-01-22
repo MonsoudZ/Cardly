@@ -1,0 +1,23 @@
+You've received a counteroffer!
+
+Hi <%= @buyer.display_name %>,
+
+<%= @seller.display_name %> has made a counteroffer on your purchase offer.
+
+<%= @listing.brand_name %> Gift Card
+Card Value: <%= number_to_currency(@listing.balance) %>
+Your Original Offer: <%= number_to_currency(@transaction.original_amount || @transaction.amount) %>
+Counteroffer Amount: <%= number_to_currency(@transaction.counter_amount) %>
+
+<% if @transaction.counter_message.present? %>
+Message from seller:
+"<%= @transaction.counter_message %>"
+
+<% end %>
+<% if @transaction.expires_at.present? %>
+This counteroffer expires in 48 hours (<%= @transaction.expires_at.strftime("%B %d, %Y at %I:%M %p") %>).
+
+<% end %>
+View this counteroffer: <%= transaction_url(@transaction) %>
+
+You can accept or decline this counteroffer from your transactions page.
