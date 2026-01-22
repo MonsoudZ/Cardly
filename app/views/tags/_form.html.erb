@@ -1,0 +1,34 @@
+<%= form_with model: tag, class: "space-y-6" do |f| %>
+  <% if tag.errors.any? %>
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+      <h3 class="text-sm font-medium text-red-800">Please fix the following errors:</h3>
+      <ul class="mt-2 list-disc list-inside text-sm text-red-700">
+        <% tag.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <label for="tag_name" class="block text-sm font-medium text-gray-700 mb-1">Tag Name</label>
+    <%= f.text_field :name, class: "block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent", placeholder: "e.g., Groceries, Restaurants" %>
+  </div>
+
+  <div>
+    <label class="block text-sm font-medium text-gray-700 mb-2">Color</label>
+    <div class="grid grid-cols-6 gap-2">
+      <% Tag::COLORS.each do |name, hex| %>
+        <label class="cursor-pointer">
+          <%= f.radio_button :color, hex, class: "sr-only peer" %>
+          <span class="block w-full aspect-square rounded-lg border-2 peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-gray-400 transition-all" style="background-color: <%= hex %>; border-color: <%= hex %>"></span>
+        </label>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
+    <%= link_to "Cancel", tags_path, class: "px-4 py-2 text-gray-700 hover:text-gray-900" %>
+    <%= f.submit tag.new_record? ? "Create Tag" : "Update Tag", class: "px-6 py-2 bg-rose-600 text-white font-medium rounded-lg hover:bg-rose-700 cursor-pointer" %>
+  </div>
+<% end %>

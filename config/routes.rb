@@ -26,6 +26,13 @@ Rails.application.routes.draw do
   # Wallet - user's gift cards
   resource :wallet, only: [ :show ]
 
+  # Card categories/tags
+  resources :tags, except: [ :show ] do
+    collection do
+      post :create_suggestions
+    end
+  end
+
   # Gift cards management
   resources :gift_cards do
     member do
