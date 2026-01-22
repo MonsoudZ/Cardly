@@ -4,17 +4,104 @@
     <p class="mt-2 text-gray-600">Buy and trade gift cards with other users.</p>
   </div>
 
+  <!-- Search and Filters -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+    <%= form_with url: request.path, method: :get, class: "space-y-4" do |f| %>
+      <!-- Search Bar -->
+      <div class="flex gap-4">
+        <div class="flex-1 relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+          </div>
+          <%= text_field_tag :q, params[:q], placeholder: "Search by brand name...", class: "block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500" %>
+        </div>
+        <button type="submit" class="px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-500 font-medium">
+          Search
+        </button>
+        <% if params[:q].present? || params[:brand_id].present? || params[:min_discount].present? || params[:max_price].present? %>
+          <%= link_to request.path, class: "px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium" do %>
+            Clear
+          <% end %>
+        <% end %>
+      </div>
+
+      <!-- Filter Row -->
+      <div class="flex flex-wrap gap-4 items-end">
+        <!-- Brand Filter -->
+        <div class="w-48">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Brand</label>
+          <%= select_tag :brand_id, options_from_collection_for_select(@brands, :id, :name, params[:brand_id]), include_blank: "All Brands", class: "block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500", onchange: "this.form.submit()" %>
+        </div>
+
+        <% if request.path == marketplace_sales_path || request.path == marketplace_path %>
+          <!-- Min Discount -->
+          <div class="w-36">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Min Discount</label>
+            <%= select_tag :min_discount, options_for_select([["Any", ""], ["5%+", 5], ["10%+", 10], ["15%+", 15], ["20%+", 20]], params[:min_discount]), class: "block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500", onchange: "this.form.submit()" %>
+          </div>
+
+          <!-- Max Price -->
+          <div class="w-36">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Max Price</label>
+            <%= select_tag :max_price, options_for_select([["Any", ""], ["$25", 25], ["$50", 50], ["$100", 100], ["$200", 200]], params[:max_price]), class: "block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500", onchange: "this.form.submit()" %>
+          </div>
+        <% end %>
+
+        <!-- Sort -->
+        <div class="w-40">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
+          <%= select_tag :sort, options_for_select([["Newest", "created_at"], ["Price: Low", "asking_price"], ["Discount: High", "discount_percent"]], params[:sort]), class: "block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500", onchange: "this.form.submit()" %>
+          <%= hidden_field_tag :direction, params[:sort] == "discount_percent" ? "desc" : (params[:sort] == "asking_price" ? "asc" : "desc") %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Active Filters -->
+  <% if params[:q].present? || params[:brand_id].present? || params[:min_discount].present? || params[:max_price].present? %>
+    <div class="flex flex-wrap gap-2 mb-4">
+      <span class="text-sm text-gray-500">Active filters:</span>
+      <% if params[:q].present? %>
+        <%= link_to url_for(request.params.except(:q)), class: "inline-flex items-center px-2 py-1 bg-rose-100 text-rose-700 rounded-full text-sm hover:bg-rose-200" do %>
+          Search: <%= params[:q] %>
+          <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        <% end %>
+      <% end %>
+      <% if params[:brand_id].present? %>
+        <% brand = @brands.find { |b| b.id == params[:brand_id].to_i } %>
+        <%= link_to url_for(request.params.except(:brand_id)), class: "inline-flex items-center px-2 py-1 bg-rose-100 text-rose-700 rounded-full text-sm hover:bg-rose-200" do %>
+          Brand: <%= brand&.name %>
+          <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        <% end %>
+      <% end %>
+      <% if params[:min_discount].present? %>
+        <%= link_to url_for(request.params.except(:min_discount)), class: "inline-flex items-center px-2 py-1 bg-rose-100 text-rose-700 rounded-full text-sm hover:bg-rose-200" do %>
+          Min <%= params[:min_discount] %>% off
+          <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        <% end %>
+      <% end %>
+      <% if params[:max_price].present? %>
+        <%= link_to url_for(request.params.except(:max_price)), class: "inline-flex items-center px-2 py-1 bg-rose-100 text-rose-700 rounded-full text-sm hover:bg-rose-200" do %>
+          Under $<%= params[:max_price] %>
+          <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+
   <!-- Marketplace Tabs -->
   <div class="border-b border-gray-200 mb-8">
     <nav class="-mb-px flex space-x-8">
-      <%= link_to marketplace_path, class: "pb-4 px-1 border-b-2 font-medium text-sm #{request.path == marketplace_path ? 'border-rose-500 text-rose-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}" do %>
+      <%= link_to marketplace_path(request.params.except(:controller, :action)), class: "pb-4 px-1 border-b-2 font-medium text-sm #{request.path == marketplace_path ? 'border-rose-500 text-rose-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}" do %>
         All Listings
         <span class="ml-2 py-0.5 px-2.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600"><%= @listings.count %></span>
       <% end %>
-      <%= link_to marketplace_sales_path, class: "pb-4 px-1 border-b-2 font-medium text-sm #{request.path == marketplace_sales_path ? 'border-rose-500 text-rose-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}" do %>
+      <%= link_to marketplace_sales_path(request.params.except(:controller, :action)), class: "pb-4 px-1 border-b-2 font-medium text-sm #{request.path == marketplace_sales_path ? 'border-rose-500 text-rose-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}" do %>
         For Sale
       <% end %>
-      <%= link_to marketplace_trades_path, class: "pb-4 px-1 border-b-2 font-medium text-sm #{request.path == marketplace_trades_path ? 'border-rose-500 text-rose-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}" do %>
+      <%= link_to marketplace_trades_path(request.params.except(:controller, :action)), class: "pb-4 px-1 border-b-2 font-medium text-sm #{request.path == marketplace_trades_path ? 'border-rose-500 text-rose-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}" do %>
         For Trade
       <% end %>
     </nav>
@@ -29,16 +116,26 @@
   <% else %>
     <div class="text-center py-16 bg-gray-50 rounded-xl">
       <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
       </svg>
-      <h3 class="mt-2 text-sm font-medium text-gray-900">No listings yet</h3>
-      <p class="mt-1 text-sm text-gray-500">Check back later for gift cards available for sale or trade.</p>
-      <% if user_signed_in? %>
+      <% if params[:q].present? || params[:brand_id].present? || params[:min_discount].present? || params[:max_price].present? %>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">No listings match your filters</h3>
+        <p class="mt-1 text-sm text-gray-500">Try adjusting your search or filters to find more results.</p>
         <div class="mt-6">
-          <%= link_to wallet_path, class: "inline-flex items-center px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-500" do %>
-            List Your Cards
+          <%= link_to request.path, class: "inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50" do %>
+            Clear Filters
           <% end %>
         </div>
+      <% else %>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">No listings yet</h3>
+        <p class="mt-1 text-sm text-gray-500">Check back later for gift cards available for sale or trade.</p>
+        <% if user_signed_in? %>
+          <div class="mt-6">
+            <%= link_to wallet_path, class: "inline-flex items-center px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-500" do %>
+              List Your Cards
+            <% end %>
+          </div>
+        <% end %>
       <% end %>
     </div>
   <% end %>
