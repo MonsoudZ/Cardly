@@ -5,6 +5,7 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
 
   has_many :gift_cards, dependent: :destroy
+  has_many :tags, dependent: :destroy
   has_many :listings, dependent: :destroy
   has_many :purchases, class_name: "Transaction", foreign_key: :buyer_id, dependent: :destroy
   has_many :sales, class_name: "Transaction", foreign_key: :seller_id, dependent: :destroy

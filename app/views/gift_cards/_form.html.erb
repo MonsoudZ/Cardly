@@ -100,6 +100,35 @@
     </div>
   </div>
 
+  <% if current_user.tags.any? %>
+    <div class="bg-white shadow rounded-lg p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-medium text-gray-900">Categories</h3>
+        <%= link_to "Manage Tags", tags_path, class: "text-sm text-rose-600 hover:text-rose-700" %>
+      </div>
+
+      <div class="flex flex-wrap gap-2">
+        <% current_user.tags.alphabetical.each do |tag| %>
+          <label class="inline-flex items-center cursor-pointer">
+            <%= f.check_box :tag_ids, { multiple: true, class: "sr-only peer", checked: gift_card.tags.include?(tag) }, tag.id, nil %>
+            <span class="px-3 py-1.5 rounded-full text-sm font-medium border-2 transition-all peer-checked:ring-2 peer-checked:ring-offset-1" style="border-color: <%= tag.color %>; color: <%= tag.color %>; --tw-ring-color: <%= tag.color %>">
+              <span class="peer-checked:hidden"><%= tag.name %></span>
+              <span class="hidden peer-checked:inline" style="background-color: <%= tag.color %>; color: white; margin: -6px -12px; padding: 6px 12px; border-radius: 9999px;"><%= tag.name %></span>
+            </span>
+          </label>
+        <% end %>
+      </div>
+      <p class="mt-2 text-xs text-gray-500">Click to select categories for this card</p>
+    </div>
+  <% else %>
+    <div class="bg-gray-50 border-2 border-dashed border-gray-200 rounded-lg p-6 text-center">
+      <svg class="mx-auto h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+      </svg>
+      <p class="mt-2 text-sm text-gray-500">No tags yet. <%= link_to "Create tags", tags_path, class: "text-rose-600 hover:text-rose-700" %> to organize your cards.</p>
+    </div>
+  <% end %>
+
   <div class="flex justify-end space-x-3">
     <%= link_to "Cancel", gift_cards_path, class: "px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50" %>
     <%= f.submit gift_card.new_record? ? "Add Gift Card" : "Update Gift Card", class: "px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-rose-600 hover:bg-rose-500 cursor-pointer" %>
