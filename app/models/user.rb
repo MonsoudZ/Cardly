@@ -84,4 +84,29 @@ class User < ApplicationRecord
     return nil if buyer_ratings.empty?
     buyer_ratings.average(:score).to_f.round(1)
   end
+
+  # Profile stats
+  def active_listings_count
+    listings.active.count
+  end
+
+  def completed_sales_count
+    sales.where(status: "completed").count
+  end
+
+  def completed_purchases_count
+    purchases.where(status: "completed").count
+  end
+
+  def seller_rating_count
+    ratings_received.as_seller.count
+  end
+
+  def buyer_rating_count
+    ratings_received.as_buyer.count
+  end
+
+  def total_transactions_count
+    completed_sales_count + completed_purchases_count
+  end
 end

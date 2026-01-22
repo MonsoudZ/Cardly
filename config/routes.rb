@@ -1,8 +1,11 @@
 Rails.application.routes.draw do
   devise_for :users
 
-  # Profile routes
+  # Profile routes (current user's own profile)
   resource :profile, only: [ :show, :edit, :update ]
+
+  # Public user profiles
+  resources :users, only: [ :show ], path: "u"
 
   # Wallet - user's gift cards
   resource :wallet, only: [ :show ]
