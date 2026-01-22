@@ -1,0 +1,20 @@
+Your offer was declined
+
+Hi <%= @buyer.display_name %>,
+
+Unfortunately, your offer for the <%= @listing.brand_name %> gift card was declined by the seller.
+
+<%= @listing.brand_name %> Gift Card
+- Card Value: <%= number_to_currency(@listing.balance) %>
+<% if @transaction.sale? -%>
+- Your Offer: <%= number_to_currency(@transaction.amount) %>
+<% else -%>
+- Offered Card: <%= @transaction.offered_gift_card.brand_name %> (<%= number_to_currency(@transaction.offered_gift_card.balance) %>)
+<% end -%>
+
+Don't worry! There are plenty of other great deals on Cardly.
+
+Browse Marketplace: <%= marketplace_url %>
+
+---
+Cardly - Gift Card Marketplace

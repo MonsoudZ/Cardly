@@ -16,6 +16,8 @@ class Listing < ApplicationRecord
   validate :gift_card_has_balance
 
   before_save :calculate_discount
+  before_save :track_price_change
+  after_commit :notify_watchers_of_price_drop, if: :price_dropped?
 
   scope :active, -> { where(status: "active") }
   scope :for_sale, -> { where(listing_type: "sale", status: "active") }
@@ -32,6 +34,9 @@ class Listing < ApplicationRecord
   delegate :brand, :brand_name, :brand_display_logo, :balance, :masked_card_number, to: :gift_card
 
   alias_attribute :discount_percentage, :discount_percent
+
+  # Track the old price for price drop notifications
+  attr_accessor :old_asking_price
 
   def sale?
     listing_type == "sale"
@@ -69,6 +74,36 @@ class Listing < ApplicationRecord
   def calculate_discount
     return unless sale? && asking_price.present? && gift_card.balance.positive?
     self.discount_percent = ((gift_card.balance - asking_price) / gift_card.balance * 100).round(2)
+  end
+
+  def track_price_change
+    return unless sale? && persisted?
+    return unless asking_price_changed?
+
+    self.old_asking_price = asking_price_was
+  end
+
+  def price_dropped?
+    old_asking_price.present? &&
+      asking_price.present? &&
+      asking_price < old_asking_price &&
+      active?
+  end
+
+  def notify_watchers_of_price_drop
+    return unless old_asking_price.present?
+
+    favorited_by.find_each do |watcher|
+      PriceDropMailer.price_drop_alert(
+        watcher,
+        self,
+        old_asking_price,
+        asking_price
+      ).deliver_later
+    end
+
+    # Clear the tracked price after notifications
+    self.old_asking_price = nil
   end
 
   def gift_card_belongs_to_user

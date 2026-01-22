@@ -1,0 +1,45 @@
+<h2 style="color: #059669;">Price Drop Alert!</h2>
+
+<p>Hi <%= @user.display_name %>,</p>
+
+<p>Great news! A gift card on your watchlist just dropped in price.</p>
+
+<div class="card-details">
+  <h3><%= @listing.brand_name %> Gift Card</h3>
+  <div class="detail-row">
+    <span class="detail-label">Card Value:</span>
+    <span class="detail-value"><%= number_to_currency(@listing.balance) %></span>
+  </div>
+  <div class="detail-row">
+    <span class="detail-label">Was:</span>
+    <span class="detail-value" style="text-decoration: line-through; color: #9ca3af;"><%= number_to_currency(@old_price) %></span>
+  </div>
+  <div class="detail-row">
+    <span class="detail-label">Now:</span>
+    <span class="detail-value" style="color: #059669; font-size: 1.25em;"><%= number_to_currency(@new_price) %></span>
+  </div>
+  <div class="detail-row">
+    <span class="detail-label">You Save:</span>
+    <span class="detail-value" style="color: #059669;"><%= number_to_currency(@savings) %> (<%= @savings_percentage %>% off previous price)</span>
+  </div>
+</div>
+
+<div style="background-color: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; padding: 16px; margin: 20px 0; text-align: center;">
+  <p style="margin: 0; font-size: 1.1em; color: #065f46;">
+    <strong>Total savings from card value:</strong> <%= number_to_currency(@listing.balance - @new_price) %>
+    <br>
+    <span style="font-size: 0.9em;">That's <%= @listing.discount_percentage&.round || 0 %>% off!</span>
+  </p>
+</div>
+
+<p>Don't miss out on this deal! This price won't last forever.</p>
+
+<p style="text-align: center;">
+  <%= link_to "View Listing", listing_url(@listing), class: "btn", style: "background-color: #059669;" %>
+</p>
+
+<p style="font-size: 0.9em; color: #6b7280;">
+  You're receiving this email because this listing is on your watchlist.
+  <br>
+  <%= link_to "Manage your watchlist", favorites_url, style: "color: #e11d48;" %>
+</p>

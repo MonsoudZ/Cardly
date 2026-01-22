@@ -36,6 +36,8 @@ Rails.application.routes.draw do
       post :reject
       post :cancel
     end
+    # Ratings for completed transactions
+    resource :rating, only: [ :new, :create ]
   end
 
   # Marketplace - browse listings

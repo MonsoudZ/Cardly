@@ -125,4 +125,57 @@ RSpec.describe Transaction, type: :model do
       expect(transaction.accept!).to be false
     end
   end
+
+  describe "email notifications" do
+    include ActiveJob::TestHelper
+
+    let(:buyer) { create(:user) }
+    let(:seller) { create(:user) }
+    let(:listing) { create(:listing, :sale, user: seller) }
+
+    describe "on create" do
+      it "sends new offer notification to seller" do
+        expect {
+          create(:transaction, :sale, buyer: buyer, seller: seller, listing: listing)
+        }.to have_enqueued_job(ActionMailer::MailDeliveryJob)
+          .with("TransactionMailer", "new_offer", "deliver_now", anything)
+      end
+    end
+
+    describe "on accept" do
+      it "sends accepted notification to buyer" do
+        transaction = create(:transaction, :sale, buyer: buyer, seller: seller, listing: listing)
+        clear_enqueued_jobs
+
+        expect {
+          transaction.accept!
+        }.to have_enqueued_job(ActionMailer::MailDeliveryJob)
+          .with("TransactionMailer", "offer_accepted", "deliver_now", anything)
+      end
+    end
+
+    describe "on reject" do
+      it "sends rejected notification to buyer" do
+        transaction = create(:transaction, :sale, buyer: buyer, seller: seller, listing: listing)
+        clear_enqueued_jobs
+
+        expect {
+          transaction.reject!
+        }.to have_enqueued_job(ActionMailer::MailDeliveryJob)
+          .with("TransactionMailer", "offer_rejected", "deliver_now", anything)
+      end
+    end
+
+    describe "on cancel" do
+      it "sends cancelled notification to seller" do
+        transaction = create(:transaction, :sale, buyer: buyer, seller: seller, listing: listing)
+        clear_enqueued_jobs
+
+        expect {
+          transaction.cancel!
+        }.to have_enqueued_job(ActionMailer::MailDeliveryJob)
+          .with("TransactionMailer", "offer_cancelled", "deliver_now", anything)
+      end
+    end
+  end
 end

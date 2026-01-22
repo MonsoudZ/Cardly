@@ -1,0 +1,125 @@
+<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900">Rate Your Transaction</h1>
+    <p class="mt-2 text-gray-600">Share your experience with <%= @rating.ratee.display_name %></p>
+  </div>
+
+  <!-- Transaction Summary -->
+  <div class="bg-gray-50 rounded-xl p-6 mb-8">
+    <h3 class="font-semibold text-gray-900 mb-4">Transaction Details</h3>
+    <div class="flex items-center space-x-4">
+      <img src="<%= @transaction.listing.brand_display_logo %>" alt="<%= @transaction.brand_name %>" class="w-16 h-12 object-contain">
+      <div>
+        <p class="font-medium text-gray-900"><%= @transaction.brand_name %> Gift Card</p>
+        <p class="text-sm text-gray-500">
+          <%= @transaction.sale? ? "Purchased" : "Traded" %> on <%= @transaction.updated_at.strftime("%B %d, %Y") %>
+        </p>
+        <% if @transaction.sale? %>
+          <p class="text-sm text-gray-500">Amount: <%= number_to_currency(@transaction.amount) %></p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <%= form_with model: @rating, url: transaction_rating_path(@transaction), class: "space-y-6" do |form| %>
+    <% if @rating.errors.any? %>
+      <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div class="flex">
+          <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+          </svg>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-red-800">There were errors with your submission</h3>
+            <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
+              <% @rating.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Star Rating -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-3">How would you rate this transaction?</label>
+      <div class="flex items-center space-x-1" data-controller="star-rating">
+        <% (1..5).each do |score| %>
+          <label class="cursor-pointer">
+            <%= form.radio_button :score, score, class: "sr-only peer", data: { star_rating_target: "input" } %>
+            <svg class="w-10 h-10 text-gray-300 peer-checked:text-yellow-400 hover:text-yellow-400 transition"
+                 fill="currentColor" viewBox="0 0 20 20"
+                 data-score="<%= score %>"
+                 data-action="click->star-rating#select mouseenter->star-rating#hover mouseleave->star-rating#reset">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+            </svg>
+          </label>
+        <% end %>
+        <span class="ml-3 text-sm text-gray-500" data-star-rating-target="label">Select a rating</span>
+      </div>
+    </div>
+
+    <!-- Comment -->
+    <div>
+      <label for="rating_comment" class="block text-sm font-medium text-gray-700 mb-2">
+        Comments (optional)
+      </label>
+      <%= form.text_area :comment,
+          rows: 4,
+          class: "w-full rounded-lg border-gray-300 shadow-sm focus:border-rose-500 focus:ring-rose-500",
+          placeholder: "Share your experience with this transaction..." %>
+      <p class="mt-2 text-sm text-gray-500">Your feedback helps other users make informed decisions.</p>
+    </div>
+
+    <!-- Submit -->
+    <div class="flex items-center justify-between pt-4">
+      <%= link_to "Cancel", transaction_path(@transaction), class: "text-gray-600 hover:text-gray-900" %>
+      <%= form.submit "Submit Rating", class: "bg-rose-600 text-white px-6 py-2 rounded-lg hover:bg-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 cursor-pointer" %>
+    </div>
+  <% end %>
+</div>
+
+<script>
+  // Simple star rating functionality without Stimulus
+  document.addEventListener('DOMContentLoaded', function() {
+    const stars = document.querySelectorAll('[data-score]');
+    const label = document.querySelector('[data-star-rating-target="label"]');
+    const labels = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
+
+    stars.forEach(star => {
+      star.addEventListener('click', function() {
+        const score = parseInt(this.dataset.score);
+        const radio = this.previousElementSibling;
+        radio.checked = true;
+        updateStars(score);
+        if (label) label.textContent = labels[score];
+      });
+
+      star.addEventListener('mouseenter', function() {
+        const score = parseInt(this.dataset.score);
+        highlightStars(score);
+      });
+    });
+
+    document.querySelector('.flex.items-center.space-x-1')?.addEventListener('mouseleave', function() {
+      const checked = document.querySelector('[data-star-rating-target="input"]:checked');
+      if (checked) {
+        updateStars(parseInt(checked.value));
+      } else {
+        highlightStars(0);
+      }
+    });
+
+    function highlightStars(score) {
+      stars.forEach(star => {
+        const starScore = parseInt(star.dataset.score);
+        star.classList.toggle('text-yellow-400', starScore <= score);
+        star.classList.toggle('text-gray-300', starScore > score);
+      });
+    }
+
+    function updateStars(score) {
+      highlightStars(score);
+    }
+  });
+</script>

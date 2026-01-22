@@ -7,6 +7,8 @@ class Transaction < ApplicationRecord
   belongs_to :listing
   belongs_to :offered_gift_card, class_name: "GiftCard", optional: true
 
+  has_many :ratings, dependent: :destroy
+
   validates :transaction_type, presence: true, inclusion: { in: TYPES }
   validates :status, presence: true, inclusion: { in: STATUSES }
   validates :amount, presence: true, numericality: { greater_than: 0 }, if: :sale?
@@ -15,6 +17,8 @@ class Transaction < ApplicationRecord
   validate :offered_card_belongs_to_buyer, if: :trade?
   validate :offered_card_has_balance, if: :trade?
   validate :listing_must_be_active, on: :create
+
+  after_create_commit :send_new_offer_notification
 
   scope :pending, -> { where(status: "pending") }
   scope :for_seller, ->(user) { where(seller: user) }
@@ -42,12 +46,29 @@ class Transaction < ApplicationRecord
     status == "completed"
   end
 
+  def buyer_rating
+    ratings.find_by(rater: buyer)
+  end
+
+  def seller_rating
+    ratings.find_by(rater: seller)
+  end
+
+  def rated_by?(user)
+    ratings.exists?(rater: user)
+  end
+
+  def can_be_rated_by?(user)
+    completed? && [ buyer_id, seller_id ].include?(user.id) && !rated_by?(user)
+  end
+
   def accept!
     return false unless pending?
 
     ActiveRecord::Base.transaction do
       complete_transaction!
     end
+    send_offer_accepted_notification
     true
   rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound => e
     Rails.logger.error("Transaction accept failed: #{e.message}")
@@ -57,11 +78,15 @@ class Transaction < ApplicationRecord
   def reject!
     return false unless pending?
     update!(status: "rejected")
+    send_offer_rejected_notification
+    true
   end
 
   def cancel!
     return false unless pending?
     update!(status: "cancelled")
+    send_offer_cancelled_notification
+    true
   end
 
   private
@@ -116,5 +141,22 @@ class Transaction < ApplicationRecord
   def listing_must_be_active
     return if listing.nil?
     errors.add(:listing, "is no longer available") unless listing.active?
+  end
+
+  # Email notifications
+  def send_new_offer_notification
+    TransactionMailer.new_offer(self).deliver_later
+  end
+
+  def send_offer_accepted_notification
+    TransactionMailer.offer_accepted(self).deliver_later
+  end
+
+  def send_offer_rejected_notification
+    TransactionMailer.offer_rejected(self).deliver_later
+  end
+
+  def send_offer_cancelled_notification
+    TransactionMailer.offer_cancelled(self).deliver_later
   end
 end
