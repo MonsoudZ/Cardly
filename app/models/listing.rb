@@ -19,6 +19,13 @@ class Listing < ApplicationRecord
   scope :for_sale, -> { where(listing_type: "sale", status: "active") }
   scope :for_trade, -> { where(listing_type: "trade", status: "active") }
   scope :by_brand, ->(brand_id) { joins(:gift_card).where(gift_cards: { brand_id: brand_id }) }
+  scope :search_brand, ->(query) {
+    joins(gift_card: :brand).where("brands.name ILIKE ?", "%#{query}%")
+  }
+  scope :min_discount, ->(percent) { where("discount_percent >= ?", percent) }
+  scope :max_price, ->(price) { where("asking_price <= ?", price) }
+  scope :min_value, ->(value) { joins(:gift_card).where("gift_cards.balance >= ?", value) }
+  scope :max_value, ->(value) { joins(:gift_card).where("gift_cards.balance <= ?", value) }
 
   delegate :brand, :brand_name, :brand_display_logo, :balance, :masked_card_number, to: :gift_card
 

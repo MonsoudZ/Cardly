@@ -8,7 +8,7 @@ class Transaction < ApplicationRecord
   belongs_to :offered_gift_card, class_name: "GiftCard", optional: true
 
   validates :transaction_type, presence: true, inclusion: { in: TYPES }
-  validates :status, inclusion: { in: STATUSES }
+  validates :status, presence: true, inclusion: { in: STATUSES }
   validates :amount, presence: true, numericality: { greater_than: 0 }, if: :sale?
   validates :offered_gift_card, presence: true, if: :trade?
   validate :buyer_cannot_be_seller
@@ -46,11 +46,11 @@ class Transaction < ApplicationRecord
     return false unless pending?
 
     ActiveRecord::Base.transaction do
-      update!(status: "accepted")
       complete_transaction!
     end
     true
-  rescue ActiveRecord::RecordInvalid
+  rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound => e
+    Rails.logger.error("Transaction accept failed: #{e.message}")
     false
   end
 

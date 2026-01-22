@@ -1,8 +1,11 @@
 class TransactionsController < ApplicationController
   before_action :authenticate_user!
+  before_action :set_listing, only: [ :new, :create ]
   before_action :set_transaction, only: [ :show, :accept, :reject, :cancel ]
   before_action :authorize_buyer, only: [ :cancel ]
   before_action :authorize_seller, only: [ :accept, :reject ]
+
+  rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
 
   def index
     @received_offers = current_user.pending_offers_received.includes(listing: { gift_card: :brand }, buyer: [])
@@ -19,8 +22,6 @@ class TransactionsController < ApplicationController
   end
 
   def new
-    @listing = Listing.active.find(params[:listing_id])
-
     if @listing.user == current_user
       redirect_to @listing, alert: "You cannot purchase your own listing."
       return
@@ -38,7 +39,6 @@ class TransactionsController < ApplicationController
   end
 
   def create
-    @listing = Listing.find(params[:listing_id])
     @transaction = Transaction.new(transaction_params)
     @transaction.listing = @listing
     @transaction.seller = @listing.user
@@ -80,8 +80,13 @@ class TransactionsController < ApplicationController
 
   private
 
+  def set_listing
+    @listing = Listing.active.find(params[:listing_id])
+  end
+
   def set_transaction
-    @transaction = Transaction.find(params[:id])
+    @transaction = Transaction.includes(listing: { gift_card: :brand }, offered_gift_card: :brand)
+                              .find(params[:id])
   end
 
   def authorize_buyer
@@ -102,5 +107,9 @@ class TransactionsController < ApplicationController
     else
       "Trade offer sent! The seller will review your offer."
     end
+  end
+
+  def record_not_found
+    redirect_to transactions_path, alert: "Record not found."
   end
 end
