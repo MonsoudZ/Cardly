@@ -129,4 +129,65 @@ RSpec.describe Listing, type: :model do
       expect(listing.status).to eq("cancelled")
     end
   end
+
+  describe "price drop notifications" do
+    include ActiveJob::TestHelper
+
+    let(:seller) { create(:user) }
+    let(:watcher1) { create(:user) }
+    let(:watcher2) { create(:user) }
+    let(:listing) { create(:listing, :sale, user: seller, asking_price: 90.00) }
+
+    before do
+      create(:favorite, user: watcher1, listing: listing)
+      create(:favorite, user: watcher2, listing: listing)
+    end
+
+    context "when price drops" do
+      it "sends notifications to watchers" do
+        expect {
+          listing.update!(asking_price: 80.00)
+        }.to have_enqueued_job(ActionMailer::MailDeliveryJob)
+          .with("PriceDropMailer", "price_drop_alert", "deliver_now", anything)
+          .exactly(2).times
+      end
+
+      it "tracks the old price correctly" do
+        listing.update!(asking_price: 80.00)
+        # After notification, old_asking_price should be cleared
+        expect(listing.old_asking_price).to be_nil
+      end
+    end
+
+    context "when price increases" do
+      it "does not send notifications" do
+        expect {
+          listing.update!(asking_price: 95.00)
+        }.not_to have_enqueued_job(ActionMailer::MailDeliveryJob)
+          .with("PriceDropMailer", "price_drop_alert", "deliver_now", anything)
+      end
+    end
+
+    context "when listing is not active" do
+      before { listing.update_column(:status, "cancelled") }
+
+      it "does not send notifications" do
+        expect {
+          listing.update!(asking_price: 80.00, status: "cancelled")
+        }.not_to have_enqueued_job(ActionMailer::MailDeliveryJob)
+          .with("PriceDropMailer", "price_drop_alert", "deliver_now", anything)
+      end
+    end
+
+    context "when there are no watchers" do
+      before { Favorite.destroy_all }
+
+      it "does not send notifications" do
+        expect {
+          listing.update!(asking_price: 80.00)
+        }.not_to have_enqueued_job(ActionMailer::MailDeliveryJob)
+          .with("PriceDropMailer", "price_drop_alert", "deliver_now", anything)
+      end
+    end
+  end
 end

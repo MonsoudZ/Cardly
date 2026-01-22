@@ -1,0 +1,24 @@
+PRICE DROP ALERT!
+
+Hi <%= @user.display_name %>,
+
+Great news! A gift card on your watchlist just dropped in price.
+
+<%= @listing.brand_name %> Gift Card
+- Card Value: <%= number_to_currency(@listing.balance) %>
+- Was: <%= number_to_currency(@old_price) %>
+- Now: <%= number_to_currency(@new_price) %>
+- You Save: <%= number_to_currency(@savings) %> (<%= @savings_percentage %>% off previous price)
+
+Total savings from card value: <%= number_to_currency(@listing.balance - @new_price) %> (<%= @listing.discount_percentage&.round || 0 %>% off!)
+
+Don't miss out on this deal! This price won't last forever.
+
+View Listing: <%= listing_url(@listing) %>
+
+---
+You're receiving this email because this listing is on your watchlist.
+Manage your watchlist: <%= favorites_url %>
+
+---
+Cardly - Gift Card Marketplace
