@@ -38,6 +38,8 @@ Rails.application.routes.draw do
     end
     # Ratings for completed transactions
     resource :rating, only: [ :new, :create ]
+    # Messages between buyer and seller
+    resources :messages, only: [ :create ]
   end
 
   # Marketplace - browse listings

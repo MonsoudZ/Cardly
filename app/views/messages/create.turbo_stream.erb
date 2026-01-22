@@ -1,0 +1,11 @@
+<%= turbo_stream.append "messages" do %>
+  <%= render partial: "messages/message", locals: { message: @message, current_user: current_user } %>
+<% end %>
+
+<%= turbo_stream.replace "message_form" do %>
+  <%= render partial: "messages/form", locals: { transaction: @transaction, message: @transaction.messages.build } %>
+<% end %>
+
+<%= turbo_stream.replace "message_count" do %>
+  <span id="message_count"><%= @transaction.messages.count %></span>
+<% end %>

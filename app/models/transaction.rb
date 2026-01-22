@@ -8,6 +8,7 @@ class Transaction < ApplicationRecord
   belongs_to :offered_gift_card, class_name: "GiftCard", optional: true
 
   has_many :ratings, dependent: :destroy
+  has_many :messages, dependent: :destroy
 
   validates :transaction_type, presence: true, inclusion: { in: TYPES }
   validates :status, presence: true, inclusion: { in: STATUSES }
@@ -60,6 +61,26 @@ class Transaction < ApplicationRecord
 
   def can_be_rated_by?(user)
     completed? && [ buyer_id, seller_id ].include?(user.id) && !rated_by?(user)
+  end
+
+  def participant?(user)
+    [ buyer_id, seller_id ].include?(user.id)
+  end
+
+  def other_party(user)
+    user == buyer ? seller : buyer
+  end
+
+  def unread_messages_for(user)
+    messages.unread.where.not(sender: user)
+  end
+
+  def unread_message_count_for(user)
+    unread_messages_for(user).count
+  end
+
+  def mark_messages_read_for!(user)
+    unread_messages_for(user).update_all(read_at: Time.current)
   end
 
   def accept!

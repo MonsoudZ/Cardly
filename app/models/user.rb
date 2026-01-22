@@ -15,6 +15,9 @@ class User < ApplicationRecord
   has_many :ratings_given, class_name: "Rating", foreign_key: :rater_id, dependent: :destroy
   has_many :ratings_received, class_name: "Rating", foreign_key: :ratee_id, dependent: :destroy
 
+  # Messages
+  has_many :sent_messages, class_name: "Message", foreign_key: :sender_id, dependent: :destroy
+
   def wallet_balance
     gift_cards.active.with_balance.sum(:balance)
   end

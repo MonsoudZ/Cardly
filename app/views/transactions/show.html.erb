@@ -117,6 +117,37 @@
         <% end %>
       </div>
 
+      <!-- Messages Section -->
+      <div class="mt-6 pt-6 border-t border-gray-100" id="messages">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-semibold text-gray-900">
+            Messages
+            <% if @transaction.messages.any? %>
+              <span class="text-sm font-normal text-gray-500">(<span id="message_count"><%= @transaction.messages.count %></span>)</span>
+            <% end %>
+          </h3>
+          <% unread_count = @transaction.unread_message_count_for(current_user) %>
+          <% if unread_count > 0 %>
+            <span class="px-2 py-1 bg-rose-100 text-rose-700 text-xs font-medium rounded-full">
+              <%= unread_count %> new
+            </span>
+          <% end %>
+        </div>
+
+        <% if @transaction.messages.any? %>
+          <div id="messages" class="space-y-3 max-h-80 overflow-y-auto mb-4 p-2">
+            <% @transaction.messages.chronological.each do |message| %>
+              <%= render partial: "messages/message", locals: { message: message, current_user: current_user } %>
+            <% end %>
+          </div>
+          <% @transaction.mark_messages_read_for!(current_user) %>
+        <% else %>
+          <p class="text-sm text-gray-500 mb-4">No messages yet. Start the conversation!</p>
+        <% end %>
+
+        <%= render partial: "messages/form", locals: { transaction: @transaction, message: @transaction.messages.build } %>
+      </div>
+
       <% if @transaction.completed? %>
         <!-- Ratings Section -->
         <div class="mt-6 pt-6 border-t border-gray-100">
