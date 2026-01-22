@@ -11,6 +11,10 @@ class User < ApplicationRecord
   has_many :favorites, dependent: :destroy
   has_many :favorite_listings, through: :favorites, source: :listing
 
+  # Ratings
+  has_many :ratings_given, class_name: "Rating", foreign_key: :rater_id, dependent: :destroy
+  has_many :ratings_received, class_name: "Rating", foreign_key: :ratee_id, dependent: :destroy
+
   def wallet_balance
     gift_cards.active.with_balance.sum(:balance)
   end
@@ -49,5 +53,32 @@ class User < ApplicationRecord
 
   def favorited?(listing)
     favorites.exists?(listing_id: listing.id)
+  end
+
+  # Rating methods
+  def average_rating
+    return nil if ratings_received.empty?
+    ratings_received.average(:score).to_f.round(1)
+  end
+
+  def rating_count
+    ratings_received.count
+  end
+
+  def positive_rating_percentage
+    return nil if ratings_received.empty?
+    (ratings_received.positive.count.to_f / ratings_received.count * 100).round
+  end
+
+  def seller_rating
+    seller_ratings = ratings_received.as_seller
+    return nil if seller_ratings.empty?
+    seller_ratings.average(:score).to_f.round(1)
+  end
+
+  def buyer_rating
+    buyer_ratings = ratings_received.as_buyer
+    return nil if buyer_ratings.empty?
+    buyer_ratings.average(:score).to_f.round(1)
   end
 end

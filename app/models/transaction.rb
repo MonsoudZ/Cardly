@@ -7,6 +7,8 @@ class Transaction < ApplicationRecord
   belongs_to :listing
   belongs_to :offered_gift_card, class_name: "GiftCard", optional: true
 
+  has_many :ratings, dependent: :destroy
+
   validates :transaction_type, presence: true, inclusion: { in: TYPES }
   validates :status, presence: true, inclusion: { in: STATUSES }
   validates :amount, presence: true, numericality: { greater_than: 0 }, if: :sale?
@@ -42,6 +44,22 @@ class Transaction < ApplicationRecord
 
   def completed?
     status == "completed"
+  end
+
+  def buyer_rating
+    ratings.find_by(rater: buyer)
+  end
+
+  def seller_rating
+    ratings.find_by(rater: seller)
+  end
+
+  def rated_by?(user)
+    ratings.exists?(rater: user)
+  end
+
+  def can_be_rated_by?(user)
+    completed? && [ buyer_id, seller_id ].include?(user.id) && !rated_by?(user)
   end
 
   def accept!

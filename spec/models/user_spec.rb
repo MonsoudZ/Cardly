@@ -71,4 +71,57 @@ RSpec.describe User, type: :model do
       expect(user.display_name).to eq("john")
     end
   end
+
+  describe "ratings" do
+    let(:user) { create(:user) }
+    let(:other_user) { create(:user) }
+    let(:listing) { create(:listing, :sale, user: user) }
+
+    def create_rating_for_user(score:, role: "buyer")
+      transaction = create(:transaction, :completed, buyer: other_user, seller: user, listing: listing)
+      create(:rating,
+             transaction: transaction,
+             rater: other_user,
+             ratee: user,
+             score: score,
+             role: role)
+    end
+
+    describe "#average_rating" do
+      it "returns nil when no ratings" do
+        expect(user.average_rating).to be_nil
+      end
+
+      it "calculates average correctly" do
+        create_rating_for_user(score: 5)
+        listing2 = create(:listing, :sale, user: user)
+        transaction2 = create(:transaction, :completed, buyer: other_user, seller: user, listing: listing2)
+        create(:rating, transaction: transaction2, rater: other_user, ratee: user, score: 3, role: "buyer")
+
+        expect(user.average_rating).to eq(4.0)
+      end
+    end
+
+    describe "#rating_count" do
+      it "returns count of ratings received" do
+        create_rating_for_user(score: 5)
+        expect(user.rating_count).to eq(1)
+      end
+    end
+
+    describe "#positive_rating_percentage" do
+      it "returns nil when no ratings" do
+        expect(user.positive_rating_percentage).to be_nil
+      end
+
+      it "calculates percentage correctly" do
+        create_rating_for_user(score: 5)
+        listing2 = create(:listing, :sale, user: user)
+        transaction2 = create(:transaction, :completed, buyer: other_user, seller: user, listing: listing2)
+        create(:rating, transaction: transaction2, rater: other_user, ratee: user, score: 2, role: "buyer")
+
+        expect(user.positive_rating_percentage).to eq(50)
+      end
+    end
+  end
 end

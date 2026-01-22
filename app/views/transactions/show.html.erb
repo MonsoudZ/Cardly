@@ -116,6 +116,59 @@
           &middot; Completed <%= time_ago_in_words(@transaction.updated_at) %> ago
         <% end %>
       </div>
+
+      <% if @transaction.completed? %>
+        <!-- Ratings Section -->
+        <div class="mt-6 pt-6 border-t border-gray-100">
+          <h3 class="font-semibold text-gray-900 mb-4">Ratings</h3>
+
+          <% if @transaction.can_be_rated_by?(current_user) %>
+            <div class="bg-rose-50 border border-rose-100 rounded-lg p-4 mb-4">
+              <p class="text-sm text-rose-800 mb-3">Share your experience with this transaction.</p>
+              <%= link_to new_transaction_rating_path(@transaction), class: "inline-flex items-center px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-500 font-medium text-sm" do %>
+                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                </svg>
+                Rate this Transaction
+              <% end %>
+            </div>
+          <% end %>
+
+          <% if @transaction.ratings.any? %>
+            <div class="space-y-4">
+              <% @transaction.ratings.includes(:rater, :ratee).each do |rating| %>
+                <div class="bg-gray-50 rounded-lg p-4">
+                  <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center">
+                      <span class="font-medium text-gray-900"><%= rating.rater.display_name %></span>
+                      <span class="mx-2 text-gray-400">rated</span>
+                      <span class="font-medium text-gray-900"><%= rating.ratee.display_name %></span>
+                    </div>
+                    <div class="flex items-center">
+                      <% rating.score.times do %>
+                        <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                        </svg>
+                      <% end %>
+                      <% (5 - rating.score).times do %>
+                        <svg class="w-5 h-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                        </svg>
+                      <% end %>
+                    </div>
+                  </div>
+                  <% if rating.comment.present? %>
+                    <p class="text-gray-600 text-sm"><%= rating.comment %></p>
+                  <% end %>
+                  <p class="text-xs text-gray-400 mt-2"><%= time_ago_in_words(rating.created_at) %> ago</p>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <p class="text-sm text-gray-500">No ratings yet.</p>
+          <% end %>
+        </div>
+      <% end %>
     </div>
   </div>
 </div>
