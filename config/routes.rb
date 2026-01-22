@@ -1,6 +1,22 @@
 Rails.application.routes.draw do
   devise_for :users
 
+  # Admin namespace
+  namespace :admin do
+    root to: "dashboard#index"
+    resources :users do
+      member do
+        post :toggle_admin
+      end
+    end
+    resources :listings, only: [ :index, :show ] do
+      member do
+        post :cancel
+      end
+    end
+    resources :transactions, only: [ :index, :show ]
+  end
+
   # Profile routes (current user's own profile)
   resource :profile, only: [ :show, :edit, :update ]
 

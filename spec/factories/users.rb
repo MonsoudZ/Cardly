@@ -7,5 +7,9 @@ FactoryBot.define do
     trait :without_name do
       name { nil }
     end
+
+    trait :admin do
+      admin { true }
+    end
   end
 end
