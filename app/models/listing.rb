@@ -5,6 +5,8 @@ class Listing < ApplicationRecord
   belongs_to :gift_card
   belongs_to :user
   has_many :transactions, dependent: :destroy
+  has_many :favorites, dependent: :destroy
+  has_many :favorited_by, through: :favorites, source: :user
 
   validates :listing_type, presence: true, inclusion: { in: LISTING_TYPES }
   validates :status, inclusion: { in: STATUSES }

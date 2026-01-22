@@ -22,7 +22,12 @@ Rails.application.routes.draw do
     end
     # Transaction offers on a listing
     resources :transactions, only: [ :new, :create ]
+    # Favorites
+    resource :favorite, only: [ :create, :destroy ]
   end
+
+  # Watchlist
+  resources :favorites, only: [ :index ]
 
   # Transaction management
   resources :transactions, only: [ :index, :show ] do

@@ -8,6 +8,8 @@ class User < ApplicationRecord
   has_many :listings, dependent: :destroy
   has_many :purchases, class_name: "Transaction", foreign_key: :buyer_id, dependent: :destroy
   has_many :sales, class_name: "Transaction", foreign_key: :seller_id, dependent: :destroy
+  has_many :favorites, dependent: :destroy
+  has_many :favorite_listings, through: :favorites, source: :listing
 
   def wallet_balance
     gift_cards.active.with_balance.sum(:balance)
@@ -43,5 +45,9 @@ class User < ApplicationRecord
 
   def display_name
     name.presence || email.split("@").first
+  end
+
+  def favorited?(listing)
+    favorites.exists?(listing_id: listing.id)
   end
 end

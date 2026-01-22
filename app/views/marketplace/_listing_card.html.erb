@@ -1,5 +1,24 @@
-<%= link_to listing_path(listing), class: "block" do %>
-  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition group">
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition group relative" id="<%= dom_id(listing) %>">
+  <!-- Favorite Button -->
+  <% if user_signed_in? && listing.user != current_user %>
+    <div class="absolute top-3 right-3 z-10">
+      <% if current_user.favorited?(listing) %>
+        <%= button_to listing_favorite_path(listing), method: :delete, class: "p-1.5 bg-white/90 rounded-full shadow-sm hover:bg-white text-rose-500 hover:text-rose-600 transition", data: { turbo_frame: dom_id(listing) }, title: "Remove from watchlist" do %>
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+          </svg>
+        <% end %>
+      <% else %>
+        <%= button_to listing_favorite_path(listing), method: :post, class: "p-1.5 bg-white/90 rounded-full shadow-sm hover:bg-white text-gray-400 hover:text-rose-500 transition", data: { turbo_frame: dom_id(listing) }, title: "Add to watchlist" do %>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+          </svg>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%= link_to listing_path(listing), class: "block" do %>
     <div class="p-4">
       <div class="flex items-center justify-between mb-3">
         <div class="flex items-center space-x-3">
@@ -44,5 +63,5 @@
         <span class="text-rose-600 font-medium group-hover:text-rose-500">View Details</span>
       </div>
     </div>
-  </div>
-<% end %>
+  <% end %>
+</div>
