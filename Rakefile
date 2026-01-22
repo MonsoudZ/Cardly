@@ -4,3 +4,9 @@
 require_relative "config/application"
 
 Rails.application.load_tasks
+
+# Make RSpec the default test task
+if defined?(RSpec)
+  task(:default).clear
+  task default: :spec
+end

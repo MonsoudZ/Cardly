@@ -1,0 +1,27 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900">My Watchlist</h1>
+    <p class="mt-2 text-gray-600">Gift cards you're keeping an eye on.</p>
+  </div>
+
+  <% if @favorites.any? %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% @favorites.each do |favorite| %>
+        <%= render "marketplace/listing_card", listing: favorite.listing %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="text-center py-16 bg-gray-50 rounded-xl">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900">No favorites yet</h3>
+      <p class="mt-1 text-sm text-gray-500">Browse the marketplace and click the heart icon to save listings.</p>
+      <div class="mt-6">
+        <%= link_to marketplace_path, class: "inline-flex items-center px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-500" do %>
+          Browse Marketplace
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

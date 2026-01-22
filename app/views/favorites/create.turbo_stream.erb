@@ -1,0 +1,3 @@
+<%= turbo_stream.replace dom_id(@listing) do %>
+  <%= render "marketplace/listing_card", listing: @listing %>
+<% end %>
