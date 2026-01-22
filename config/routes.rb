@@ -20,6 +20,17 @@ Rails.application.routes.draw do
     member do
       post :cancel
     end
+    # Transaction offers on a listing
+    resources :transactions, only: [ :new, :create ]
+  end
+
+  # Transaction management
+  resources :transactions, only: [ :index, :show ] do
+    member do
+      post :accept
+      post :reject
+      post :cancel
+    end
   end
 
   # Marketplace - browse listings

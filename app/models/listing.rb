@@ -4,6 +4,7 @@ class Listing < ApplicationRecord
 
   belongs_to :gift_card
   belongs_to :user
+  has_many :transactions, dependent: :destroy
 
   validates :listing_type, presence: true, inclusion: { in: LISTING_TYPES }
   validates :status, inclusion: { in: STATUSES }

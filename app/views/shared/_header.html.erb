@@ -25,6 +25,17 @@
                 </span>
               </button>
               <div data-dropdown-target="menu" class="hidden absolute right-0 z-10 mt-2.5 w-48 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
+                <%= link_to transactions_path, class: "block px-3 py-1 text-sm leading-6 text-gray-900 hover:bg-rose-50", role: "menuitem" do %>
+                  <div class="flex items-center">
+                    <svg class="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg>
+                    Transactions
+                    <% if current_user.pending_offers_received.any? %>
+                      <span class="ml-2 px-1.5 py-0.5 text-xs font-medium bg-rose-100 text-rose-600 rounded-full"><%= current_user.pending_offers_received.count %></span>
+                    <% end %>
+                  </div>
+                <% end %>
                 <%= link_to profile_path, class: "block px-3 py-1 text-sm leading-6 text-gray-900 hover:bg-rose-50", role: "menuitem" do %>
                   <div class="flex items-center">
                     <svg class="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
