@@ -1,0 +1,44 @@
+<h1 style="color: #dc2626;">Gift Card Expired</h1>
+
+<p>Hi <%= @user.display_name %>,</p>
+
+<p>Unfortunately, your <strong><%= @brand.name %></strong> gift card has expired.</p>
+
+<div style="background: #fef2f2; border: 1px solid #fecaca; padding: 20px; border-radius: 12px; margin: 24px 0;">
+  <table style="width: 100%;">
+    <tr>
+      <td style="vertical-align: top; width: 60px;">
+        <img src="<%= @brand.display_logo %>" alt="<%= @brand.name %>" style="width: 50px; height: 50px; object-fit: contain; border-radius: 8px; background: white; padding: 4px; opacity: 0.5;">
+      </td>
+      <td style="padding-left: 16px;">
+        <p style="margin: 0; font-size: 18px; font-weight: 600; color: #991b1b;"><%= @brand.name %> Gift Card</p>
+        <p style="margin: 4px 0 0 0; font-size: 24px; font-weight: 700; color: #991b1b; text-decoration: line-through;"><%= number_to_currency(@gift_card.balance) %></p>
+        <p style="margin: 8px 0 0 0; font-size: 14px; color: #991b1b;">
+          Expired: <%= @gift_card.expiration_date.strftime("%B %d, %Y") %>
+        </p>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<p><strong>What you can try:</strong></p>
+
+<ul>
+  <li><strong>Contact the retailer</strong> - Some stores may offer extensions or store credit for recently expired cards</li>
+  <li><strong>Check state laws</strong> - In some states, gift card balances may be protected even after expiration</li>
+  <li><strong>Contact customer service</strong> - Explain the situation and ask if anything can be done</li>
+</ul>
+
+<div style="background: #f3f4f6; padding: 16px; border-radius: 8px; margin-top: 24px;">
+  <p style="margin: 0; color: #4b5563;">
+    <strong>Tip for next time:</strong> Add expiration dates to your gift cards and we'll send you reminders before they expire.
+  </p>
+</div>
+
+<p style="margin-top: 24px;">
+  <%= link_to "View Your Wallet", wallet_url, style: "display: inline-block; background: #6b7280; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;" %>
+</p>
+
+<p style="color: #6b7280; font-size: 14px; margin-top: 32px;">
+  We're sorry about the expired card. Let us know if there's anything we can do to help.
+</p>

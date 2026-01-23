@@ -1,0 +1,63 @@
+<% urgency_color = @days_remaining <= 1 ? "#dc2626" : (@days_remaining <= 7 ? "#f59e0b" : "#3b82f6") %>
+
+<h1 style="color: <%= urgency_color %>;">
+  <% if @days_remaining <= 1 %>
+    Your Gift Card Expires Tomorrow!
+  <% elsif @days_remaining <= 7 %>
+    Your Gift Card Expires Soon
+  <% else %>
+    Gift Card Expiration Reminder
+  <% end %>
+</h1>
+
+<p>Hi <%= @user.display_name %>,</p>
+
+<% if @days_remaining <= 1 %>
+  <p><strong>This is urgent!</strong> Your <strong><%= @brand.name %></strong> gift card expires <strong>tomorrow</strong>.</p>
+<% elsif @days_remaining <= 7 %>
+  <p>Your <strong><%= @brand.name %></strong> gift card will expire in <strong><%= @days_remaining %> days</strong>.</p>
+<% else %>
+  <p>Just a friendly reminder that your <strong><%= @brand.name %></strong> gift card will expire in <strong><%= @days_remaining %> days</strong>.</p>
+<% end %>
+
+<div style="background: #f3f4f6; padding: 20px; border-radius: 12px; margin: 24px 0;">
+  <table style="width: 100%;">
+    <tr>
+      <td style="vertical-align: top; width: 60px;">
+        <img src="<%= @brand.display_logo %>" alt="<%= @brand.name %>" style="width: 50px; height: 50px; object-fit: contain; border-radius: 8px; background: white; padding: 4px;">
+      </td>
+      <td style="padding-left: 16px;">
+        <p style="margin: 0; font-size: 18px; font-weight: 600; color: #111827;"><%= @brand.name %> Gift Card</p>
+        <p style="margin: 4px 0 0 0; font-size: 24px; font-weight: 700; color: #10b981;"><%= number_to_currency(@gift_card.balance) %></p>
+        <p style="margin: 8px 0 0 0; font-size: 14px; color: #6b7280;">
+          Expires: <strong style="color: <%= urgency_color %>;"><%= @gift_card.expiration_date.strftime("%B %d, %Y") %></strong>
+        </p>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<p>Don't let your balance go to waste! Here are some options:</p>
+
+<ul>
+  <li><strong>Use it</strong> - Shop at <%= @brand.name %> before it expires</li>
+  <li><strong>Sell it</strong> - List it on the Cardly marketplace and get cash</li>
+  <li><strong>Trade it</strong> - Exchange it for a card you'll use</li>
+</ul>
+
+<p style="margin-top: 24px;">
+  <%= link_to "View Card in Wallet", wallet_url, style: "display: inline-block; background: #f43f5e; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;" %>
+</p>
+
+<% if @days_remaining <= 7 %>
+  <div style="background: #fef3c7; border: 1px solid #f59e0b; padding: 16px; border-radius: 8px; margin-top: 24px;">
+    <p style="margin: 0; color: #92400e;">
+      <strong>Quick tip:</strong> If you can't use the full balance, consider buying a smaller item and keeping the remaining balance, or selling it on Cardly at a discount.
+    </p>
+  </div>
+<% end %>
+
+<p style="color: #6b7280; font-size: 14px; margin-top: 32px;">
+  You received this email because you have a gift card expiring soon.
+  To manage your notification preferences, visit your profile settings.
+</p>

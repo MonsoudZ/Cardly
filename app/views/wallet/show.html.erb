@@ -57,21 +57,76 @@
     </div>
   </div>
 
-  <!-- Expiring Soon Alert -->
-  <% if @expiring_soon.any? %>
+  <!-- Critical Expiration Alert (1 day or less) -->
+  <% critical_cards = @expiring_soon.select { |c| c.days_until_expiration && c.days_until_expiration <= 1 } %>
+  <% if critical_cards.any? %>
+    <div class="mb-4 bg-red-50 border-2 border-red-300 rounded-xl p-4 animate-pulse">
+      <div class="flex items-start">
+        <svg class="w-6 h-6 text-red-600 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+        </svg>
+        <div class="flex-1">
+          <h3 class="text-base font-bold text-red-800">URGENT: Cards Expiring Today/Tomorrow!</h3>
+          <div class="mt-2 space-y-2">
+            <% critical_cards.each do |card| %>
+              <div class="flex items-center justify-between bg-white rounded-lg p-3 border border-red-200">
+                <div class="flex items-center space-x-3">
+                  <img src="<%= card.brand_display_logo %>" alt="" class="w-10 h-6 object-contain">
+                  <div>
+                    <span class="font-semibold text-gray-900"><%= card.brand_name %></span>
+                    <span class="text-red-600 text-sm ml-2">
+                      <% if card.days_until_expiration == 0 %>
+                        Expires TODAY!
+                      <% else %>
+                        Expires TOMORROW!
+                      <% end %>
+                    </span>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <span class="text-lg font-bold text-gray-900"><%= number_to_currency(card.balance) %></span>
+                  <%= link_to "Use Now", gift_card_path(card), class: "ml-3 px-3 py-1 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-500" %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Expiring Soon Alert (2-30 days) -->
+  <% warning_cards = @expiring_soon.reject { |c| c.days_until_expiration && c.days_until_expiration <= 1 } %>
+  <% if warning_cards.any? %>
     <div class="mb-8 bg-amber-50 border border-amber-200 rounded-xl p-4">
       <div class="flex items-start">
-        <svg class="w-5 h-5 text-amber-600 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+        <svg class="w-5 h-5 text-amber-600 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
         </svg>
-        <div>
+        <div class="flex-1">
           <h3 class="text-sm font-medium text-amber-800">Cards Expiring Soon</h3>
           <div class="mt-2 text-sm text-amber-700">
-            <ul class="list-disc pl-5 space-y-1">
-              <% @expiring_soon.limit(3).each do |card| %>
-                <li><%= card.brand_name %> - <%= number_to_currency(card.balance) %> expires <%= card.expiration_date.strftime("%b %d, %Y") %></li>
+            <div class="space-y-2">
+              <% warning_cards.limit(5).each do |card| %>
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-2">
+                    <span class="font-medium"><%= card.brand_name %></span>
+                    <span class="text-amber-600">(<%= number_to_currency(card.balance) %>)</span>
+                  </div>
+                  <span class="<%= card.days_until_expiration && card.days_until_expiration <= 7 ? 'text-orange-600 font-medium' : 'text-amber-600' %>">
+                    <% days = card.days_until_expiration %>
+                    <% if days && days <= 7 %>
+                      <%= days %> day<%= days == 1 ? '' : 's' %> left
+                    <% else %>
+                      <%= card.expiration_date.strftime("%b %d") %>
+                    <% end %>
+                  </span>
+                </div>
               <% end %>
-            </ul>
+            </div>
+            <% if warning_cards.count > 5 %>
+              <p class="mt-2 text-amber-600">+ <%= warning_cards.count - 5 %> more cards expiring soon</p>
+            <% end %>
           </div>
         </div>
       </div>

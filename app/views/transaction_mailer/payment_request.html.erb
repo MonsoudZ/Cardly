@@ -1,0 +1,22 @@
+<h1>Complete Your Purchase</h1>
+
+<p>Hi <%= @buyer.display_name %>,</p>
+
+<p>Great news! Your offer for the <strong><%= @listing.brand_name %></strong> gift card has been accepted.</p>
+
+<div style="background: #f3f4f6; padding: 16px; border-radius: 8px; margin: 20px 0;">
+  <p><strong>Order Details:</strong></p>
+  <ul>
+    <li>Card Value: <%= number_to_currency(@listing.balance) %></li>
+    <li>Your Price: <%= number_to_currency(@transaction.current_offer_amount) %></li>
+    <li>You Save: <%= number_to_currency(@listing.balance - @transaction.current_offer_amount) %></li>
+  </ul>
+</div>
+
+<p>To receive your gift card, please complete payment within the next 48 hours.</p>
+
+<p>
+  <%= link_to "Complete Payment", transaction_url(@transaction), style: "display: inline-block; background: #10b981; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;" %>
+</p>
+
+<p>Thanks for using Cardly!</p>

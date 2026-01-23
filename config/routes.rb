@@ -75,7 +75,21 @@ Rails.application.routes.draw do
     resource :rating, only: [ :new, :create ]
     # Messages between buyer and seller
     resources :messages, only: [ :create ]
+    # Payments
+    resource :payment, only: [] do
+      post :checkout
+      get :success
+      get :cancel
+    end
   end
+
+  # Stripe Connect for sellers
+  get "connect/onboard", to: "stripe_connect#onboard", as: :stripe_connect_onboard
+  get "connect/return", to: "stripe_connect#return", as: :stripe_connect_return
+  get "connect/refresh", to: "stripe_connect#refresh", as: :stripe_connect_refresh
+
+  # Webhooks (no auth required)
+  post "webhooks/stripe", to: "webhooks#stripe"
 
   # Marketplace - browse listings
   get "marketplace", to: "marketplace#index"

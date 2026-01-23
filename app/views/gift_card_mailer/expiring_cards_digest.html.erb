@@ -1,0 +1,49 @@
+<h1>Gift Cards Expiring Soon</h1>
+
+<p>Hi <%= @user.display_name %>,</p>
+
+<p>You have <strong><%= @cards.count %> gift card<%= @cards.count > 1 ? 's' : '' %></strong> expiring soon with a total value of <strong><%= number_to_currency(@cards.sum(&:balance)) %></strong>.</p>
+
+<div style="margin: 24px 0;">
+  <% @cards.each do |card| %>
+    <%
+      days = card.days_until_expiration
+      urgency_color = days <= 1 ? "#dc2626" : (days <= 7 ? "#f59e0b" : "#3b82f6")
+      bg_color = days <= 1 ? "#fef2f2" : (days <= 7 ? "#fffbeb" : "#eff6ff")
+    %>
+    <div style="background: <%= bg_color %>; padding: 16px; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid <%= urgency_color %>;">
+      <table style="width: 100%;">
+        <tr>
+          <td style="vertical-align: middle; width: 50px;">
+            <img src="<%= card.brand_display_logo %>" alt="<%= card.brand_name %>" style="width: 40px; height: 40px; object-fit: contain; border-radius: 6px; background: white; padding: 2px;">
+          </td>
+          <td style="padding-left: 12px;">
+            <p style="margin: 0; font-weight: 600; color: #111827;"><%= card.brand_name %></p>
+            <p style="margin: 2px 0 0 0; font-size: 14px; color: #6b7280;">
+              <% if days <= 0 %>
+                <span style="color: #dc2626;">Expires today!</span>
+              <% elsif days == 1 %>
+                <span style="color: #dc2626;">Expires tomorrow</span>
+              <% else %>
+                <span style="color: <%= urgency_color %>;">Expires in <%= days %> days</span>
+              <% end %>
+            </p>
+          </td>
+          <td style="text-align: right;">
+            <p style="margin: 0; font-size: 18px; font-weight: 700; color: #10b981;"><%= number_to_currency(card.balance) %></p>
+          </td>
+        </tr>
+      </table>
+    </div>
+  <% end %>
+</div>
+
+<p>Don't let these balances go to waste! Use them, sell them, or trade them on Cardly.</p>
+
+<p style="margin-top: 24px;">
+  <%= link_to "View All Cards", wallet_url, style: "display: inline-block; background: #f43f5e; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;" %>
+</p>
+
+<p style="color: #6b7280; font-size: 14px; margin-top: 32px;">
+  You received this weekly digest because you have gift cards expiring soon.
+</p>

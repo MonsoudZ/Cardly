@@ -1,0 +1,24 @@
+<h1>Payment Failed</h1>
+
+<p>Hi <%= @buyer.display_name %>,</p>
+
+<p>Unfortunately, your payment of <strong><%= number_to_currency(@transaction.current_offer_amount) %></strong> for the <strong><%= @listing.brand_name %></strong> gift card could not be processed.</p>
+
+<div style="background: #fee2e2; padding: 16px; border-radius: 8px; margin: 20px 0;">
+  <p style="margin: 0; color: #991b1b;"><strong>Please try again with a different payment method.</strong></p>
+</div>
+
+<p>Common reasons for payment failures:</p>
+<ul>
+  <li>Insufficient funds</li>
+  <li>Card expired or invalid</li>
+  <li>Bank declined the transaction</li>
+</ul>
+
+<p>
+  <%= link_to "Try Payment Again", transaction_url(@transaction), style: "display: inline-block; background: #f43f5e; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;" %>
+</p>
+
+<p>If you continue to experience issues, please contact your bank or try a different card.</p>
+
+<p>Thanks for using Cardly!</p>

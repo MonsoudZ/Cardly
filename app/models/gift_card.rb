@@ -26,6 +26,14 @@ class GiftCard < ApplicationRecord
   scope :by_tag, ->(tag_id) { joins(:gift_card_tags).where(gift_card_tags: { tag_id: tag_id }) }
   scope :untagged, -> { left_joins(:gift_card_tags).where(gift_card_tags: { id: nil }) }
 
+  # Expiration reminder scopes
+  scope :expiring_in_30_days, -> { where(expiration_date: Date.current..30.days.from_now) }
+  scope :expiring_in_7_days, -> { where(expiration_date: Date.current..7.days.from_now) }
+  scope :expiring_tomorrow, -> { where(expiration_date: Date.current..1.day.from_now) }
+  scope :needs_30_day_reminder, -> { expiring_in_30_days.where(reminder_sent_at: nil).with_balance }
+  scope :needs_7_day_reminder, -> { expiring_in_7_days.where(reminder_7_day_sent_at: nil).with_balance }
+  scope :needs_1_day_reminder, -> { expiring_tomorrow.where(reminder_1_day_sent_at: nil).with_balance }
+
   delegate :name, :logo_url, :display_logo, to: :brand, prefix: true
 
   def expired?
@@ -34,6 +42,20 @@ class GiftCard < ApplicationRecord
 
   def expiring_soon?
     expiration_date.present? && expiration_date <= 30.days.from_now && !expired?
+  end
+
+  def days_until_expiration
+    return nil unless expiration_date.present?
+    (expiration_date - Date.current).to_i
+  end
+
+  def expiration_urgency
+    days = days_until_expiration
+    return :expired if days.nil? || days < 0
+    return :critical if days <= 1
+    return :warning if days <= 7
+    return :soon if days <= 30
+    :ok
   end
 
   def used?

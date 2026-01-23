@@ -100,4 +100,54 @@ class TransactionMailer < ApplicationMailer
       subject: "Your offer for #{@listing.brand_name} gift card has expired"
     )
   end
+
+  # Notify buyer to complete payment
+  def payment_request(transaction)
+    @transaction = transaction
+    @buyer = transaction.buyer
+    @listing = transaction.listing
+
+    mail(
+      to: @buyer.email,
+      subject: "Complete payment for your #{@listing.brand_name} gift card"
+    )
+  end
+
+  # Notify both parties when payment is complete
+  def payment_completed(transaction)
+    @transaction = transaction
+    @buyer = transaction.buyer
+    @seller = transaction.seller
+    @listing = transaction.listing
+
+    # Email to buyer
+    mail(
+      to: @buyer.email,
+      subject: "Payment confirmed! Your #{@listing.brand_name} gift card is ready"
+    )
+  end
+
+  # Notify seller about payout
+  def payout_initiated(transaction)
+    @transaction = transaction
+    @seller = transaction.seller
+    @listing = transaction.listing
+
+    mail(
+      to: @seller.email,
+      subject: "Payout initiated for your #{@listing.brand_name} gift card sale"
+    )
+  end
+
+  # Notify buyer when payment fails
+  def payment_failed(transaction)
+    @transaction = transaction
+    @buyer = transaction.buyer
+    @listing = transaction.listing
+
+    mail(
+      to: @buyer.email,
+      subject: "Payment failed for #{@listing.brand_name} gift card"
+    )
+  end
 end
