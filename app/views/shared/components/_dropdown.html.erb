@@ -1,0 +1,65 @@
+<%#
+  Dropdown Component
+
+  Usage:
+    <%= render 'shared/components/dropdown', trigger_text: 'Options' do %>
+      <%= link_to 'Edit', edit_path, class: 'dropdown-item' %>
+      <%= link_to 'Delete', delete_path, class: 'dropdown-item text-danger-600' %>
+    <% end %>
+
+    <%= render 'shared/components/dropdown', trigger_icon: 'dots-vertical', position: :right do %>
+      <div class="py-1">
+        <%= link_to 'View', view_path, class: 'dropdown-item' %>
+      </div>
+    <% end %>
+
+  Options:
+    - trigger_text: Text for trigger button (optional)
+    - trigger_icon: Icon name for trigger (optional)
+    - position: :left (default), :right
+    - width: Dropdown width class (default: 'w-48')
+%>
+
+<%
+  trigger_text ||= nil
+  trigger_icon ||= nil
+  position ||= :left
+  width ||= 'w-48'
+  html_class ||= ''
+
+  position_class = position == :right ? 'right-0' : 'left-0'
+%>
+
+<div class="relative inline-block text-left <%= html_class %>" data-controller="dropdown">
+  <% if trigger_text.present? %>
+    <button type="button" class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-button shadow-soft hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500" data-action="dropdown#toggle">
+      <%= trigger_text %>
+      <%= render 'shared/components/icon', name: 'chevron-down', size: :sm %>
+    </button>
+  <% elsif trigger_icon.present? %>
+    <button type="button" class="p-2 text-neutral-500 hover:text-neutral-700 hover:bg-neutral-100 rounded-button focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500" data-action="dropdown#toggle">
+      <%= render 'shared/components/icon', name: trigger_icon, size: :md %>
+    </button>
+  <% else %>
+    <button type="button" class="p-2 text-neutral-500 hover:text-neutral-700 hover:bg-neutral-100 rounded-button focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500" data-action="dropdown#toggle">
+      <%= render 'shared/components/icon', name: 'dots-vertical', size: :md %>
+    </button>
+  <% end %>
+
+  <div class="hidden absolute <%= position_class %> mt-2 <%= width %> origin-top-<%= position == :right ? 'right' : 'left' %> bg-white rounded-soft shadow-elevated ring-1 ring-black ring-opacity-5 focus:outline-none z-50 opacity-0 scale-95 transition-all duration-100" data-dropdown-target="menu">
+    <%= yield %>
+  </div>
+</div>
+
+<style>
+  .dropdown-item {
+    display: block;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    color: #44403c;
+    transition: background-color 150ms;
+  }
+  .dropdown-item:hover {
+    background-color: #f5f5f4;
+  }
+</style>

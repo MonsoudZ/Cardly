@@ -1,0 +1,129 @@
+<%#
+  Form Field Component
+
+  Usage:
+    <%= render 'shared/components/form_field', form: f, field: :email, label: 'Email Address' %>
+    <%= render 'shared/components/form_field', form: f, field: :password, type: :password, label: 'Password' %>
+    <%= render 'shared/components/form_field', form: f, field: :bio, type: :textarea, label: 'Bio', hint: 'Tell us about yourself' %>
+    <%= render 'shared/components/form_field', form: f, field: :amount, type: :number, label: 'Amount', prefix: '$' %>
+
+  Options:
+    - form: Form builder object (required)
+    - field: Field name (required)
+    - label: Field label (required)
+    - type: :text (default), :email, :password, :number, :date, :textarea, :select
+    - hint: Helper text below field
+    - placeholder: Placeholder text
+    - required: true/false
+    - disabled: true/false
+    - prefix: Text/icon prefix inside input
+    - suffix: Text/icon suffix inside input
+    - options: For select type - collection options
+    - rows: For textarea - number of rows
+%>
+
+<%
+  form ||= nil
+  field ||= nil
+  label ||= field.to_s.humanize
+  type ||= :text
+  hint ||= nil
+  placeholder ||= nil
+  required ||= false
+  disabled ||= false
+  prefix ||= nil
+  suffix ||= nil
+  options ||= []
+  rows ||= 3
+  html_class ||= ''
+
+  input_classes = "block w-full rounded-button border-neutral-300 shadow-inner-soft focus:border-primary-500 focus:ring-primary-500 transition-colors duration-200 text-neutral-900 placeholder:text-neutral-400"
+  input_classes += " pl-8" if prefix.present?
+  input_classes += " pr-8" if suffix.present?
+  input_classes += " opacity-50 cursor-not-allowed" if disabled
+
+  label_classes = "block text-sm font-medium text-neutral-700 mb-1"
+  hint_classes = "mt-1.5 text-xs text-neutral-500"
+  error_classes = "mt-1.5 text-xs text-danger-600"
+
+  has_error = form&.object&.errors&.[](field)&.any?
+  input_classes += " border-danger-300 focus:border-danger-500 focus:ring-danger-500" if has_error
+%>
+
+<div class="<%= html_class %>">
+  <%= form.label field, class: label_classes do %>
+    <%= label %>
+    <% if required %>
+      <span class="text-danger-500 ml-0.5">*</span>
+    <% end %>
+  <% end %>
+
+  <div class="relative">
+    <% if prefix.present? %>
+      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <span class="text-neutral-500 text-sm"><%= prefix %></span>
+      </div>
+    <% end %>
+
+    <% case type %>
+    <% when :textarea %>
+      <%= form.text_area field,
+          class: input_classes,
+          rows: rows,
+          placeholder: placeholder,
+          disabled: disabled,
+          required: required %>
+    <% when :select %>
+      <%= form.select field,
+          options,
+          {},
+          class: input_classes,
+          disabled: disabled,
+          required: required %>
+    <% when :email %>
+      <%= form.email_field field,
+          class: input_classes,
+          placeholder: placeholder,
+          disabled: disabled,
+          required: required %>
+    <% when :password %>
+      <%= form.password_field field,
+          class: input_classes,
+          placeholder: placeholder,
+          disabled: disabled,
+          required: required %>
+    <% when :number %>
+      <%= form.number_field field,
+          class: input_classes,
+          placeholder: placeholder,
+          disabled: disabled,
+          required: required,
+          step: 'any' %>
+    <% when :date %>
+      <%= form.date_field field,
+          class: input_classes,
+          disabled: disabled,
+          required: required %>
+    <% else %>
+      <%= form.text_field field,
+          class: input_classes,
+          placeholder: placeholder,
+          disabled: disabled,
+          required: required %>
+    <% end %>
+
+    <% if suffix.present? %>
+      <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+        <span class="text-neutral-500 text-sm"><%= suffix %></span>
+      </div>
+    <% end %>
+  </div>
+
+  <% if has_error %>
+    <p class="<%= error_classes %>">
+      <%= form.object.errors[field].first %>
+    </p>
+  <% elsif hint.present? %>
+    <p class="<%= hint_classes %>"><%= hint %></p>
+  <% end %>
+</div>
