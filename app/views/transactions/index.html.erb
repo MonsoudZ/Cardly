@@ -1,23 +1,25 @@
-<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-  <div class="mb-8">
-    <h1 class="text-3xl font-bold text-gray-900">My Transactions</h1>
-    <p class="mt-2 text-gray-600">Manage your purchase offers and trade requests.</p>
+<div class="page-container max-w-4xl">
+  <div class="section-header">
+    <div>
+      <h1 class="section-title">My Transactions</h1>
+      <p class="section-subtitle">Manage your purchase offers and trade requests</p>
+    </div>
   </div>
 
   <!-- Offers Received -->
   <% if @received_offers.any? %>
     <div class="mb-8">
-      <h2 class="text-xl font-semibold text-gray-900 mb-4">
+      <h2 class="text-lg font-semibold text-neutral-900 mb-4 flex items-center">
         Offers Received
-        <span class="ml-2 px-2.5 py-0.5 rounded-full text-sm font-medium bg-rose-100 text-rose-800"><%= @received_offers.count %></span>
+        <%= render 'shared/components/badge', text: @received_offers.count, variant: :primary, size: :sm, class: 'ml-2' %>
       </h2>
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 divide-y divide-gray-100">
+      <div class="card divide-y divide-neutral-100">
         <% @received_offers.each do |transaction| %>
           <div class="p-4 flex items-center justify-between">
             <div class="flex items-center space-x-4">
-              <img src="<%= transaction.listing.brand_display_logo %>" alt="" class="w-12 h-8 object-contain rounded bg-gray-50 p-1">
+              <img src="<%= transaction.listing.brand_display_logo %>" alt="" class="w-12 h-8 object-contain rounded bg-neutral-50 p-1">
               <div>
-                <p class="font-medium text-gray-900">
+                <p class="font-medium text-neutral-900">
                   <%= transaction.buyer.display_name %> wants to
                   <% if transaction.sale? %>
                     buy your <%= transaction.brand_name %> card
@@ -25,24 +27,24 @@
                     trade for your <%= transaction.brand_name %> card
                   <% end %>
                 </p>
-                <p class="text-sm text-gray-500">
+                <p class="text-sm text-neutral-500">
                   <% if transaction.sale? %>
                     Purchase price: <%= number_to_currency(transaction.amount) %>
                   <% else %>
                     Offering: <%= transaction.offered_gift_card.brand_name %> (<%= number_to_currency(transaction.offered_gift_card.balance) %>)
                   <% end %>
-                  &middot; <%= time_ago_in_words(transaction.created_at) %> ago
+                  · <%= time_ago_in_words(transaction.created_at) %> ago
                 </p>
               </div>
             </div>
             <div class="flex items-center space-x-2">
-              <%= link_to transaction_path(transaction), class: "px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200" do %>
+              <%= link_to transaction_path(transaction), class: "btn-ghost btn-sm" do %>
                 View
               <% end %>
-              <%= button_to accept_transaction_path(transaction), method: :post, class: "px-3 py-1.5 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-500" do %>
+              <%= button_to accept_transaction_path(transaction), method: :post, class: "btn-sm bg-success-600 text-white hover:bg-success-500 rounded-button font-medium" do %>
                 Accept
               <% end %>
-              <%= button_to reject_transaction_path(transaction), method: :post, class: "px-3 py-1.5 text-sm font-medium text-red-700 bg-red-100 rounded-lg hover:bg-red-200", data: { turbo_confirm: "Are you sure you want to reject this offer?" } do %>
+              <%= button_to reject_transaction_path(transaction), method: :post, class: "btn-sm bg-danger-100 text-danger-700 hover:bg-danger-200 rounded-button font-medium", data: { turbo_confirm: "Are you sure you want to reject this offer?" } do %>
                 Reject
               <% end %>
             </div>
@@ -55,38 +57,36 @@
   <!-- Offers Sent -->
   <% if @sent_offers.any? %>
     <div class="mb-8">
-      <h2 class="text-xl font-semibold text-gray-900 mb-4">
+      <h2 class="text-lg font-semibold text-neutral-900 mb-4 flex items-center">
         Offers Sent
-        <span class="ml-2 px-2.5 py-0.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800"><%= @sent_offers.count %></span>
+        <%= render 'shared/components/badge', text: @sent_offers.count, variant: :secondary, size: :sm, class: 'ml-2' %>
       </h2>
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 divide-y divide-gray-100">
+      <div class="card divide-y divide-neutral-100">
         <% @sent_offers.each do |transaction| %>
           <div class="p-4 flex items-center justify-between">
             <div class="flex items-center space-x-4">
-              <img src="<%= transaction.listing.brand_display_logo %>" alt="" class="w-12 h-8 object-contain rounded bg-gray-50 p-1">
+              <img src="<%= transaction.listing.brand_display_logo %>" alt="" class="w-12 h-8 object-contain rounded bg-neutral-50 p-1">
               <div>
-                <p class="font-medium text-gray-900">
+                <p class="font-medium text-neutral-900">
                   <% if transaction.sale? %>
                     Buying <%= transaction.brand_name %> card from <%= transaction.seller.display_name %>
                   <% else %>
                     Trading for <%= transaction.brand_name %> card with <%= transaction.seller.display_name %>
                   <% end %>
                 </p>
-                <p class="text-sm text-gray-500">
+                <p class="text-sm text-neutral-500">
                   <% if transaction.sale? %>
                     Price: <%= number_to_currency(transaction.amount) %>
                   <% else %>
                     Your offer: <%= transaction.offered_gift_card.brand_name %> (<%= number_to_currency(transaction.offered_gift_card.balance) %>)
                   <% end %>
-                  &middot; <%= time_ago_in_words(transaction.created_at) %> ago
+                  · <%= time_ago_in_words(transaction.created_at) %> ago
                 </p>
               </div>
             </div>
             <div class="flex items-center space-x-2">
-              <span class="px-3 py-1.5 text-sm font-medium text-amber-700 bg-amber-100 rounded-lg">
-                Pending
-              </span>
-              <%= button_to cancel_transaction_path(transaction), method: :post, class: "px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200", data: { turbo_confirm: "Are you sure you want to cancel this offer?" } do %>
+              <%= render 'shared/components/badge', text: "Pending", variant: :warning, size: :sm %>
+              <%= button_to cancel_transaction_path(transaction), method: :post, class: "btn-ghost btn-sm", data: { turbo_confirm: "Are you sure you want to cancel this offer?" } do %>
                 Cancel
               <% end %>
             </div>
@@ -98,51 +98,45 @@
 
   <!-- No Pending Offers -->
   <% if @received_offers.empty? && @sent_offers.empty? %>
-    <div class="text-center py-12 bg-gray-50 rounded-xl mb-8">
-      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
-      </svg>
-      <h3 class="mt-2 text-sm font-medium text-gray-900">No pending offers</h3>
-      <p class="mt-1 text-sm text-gray-500">Browse the marketplace to find gift cards to buy or trade.</p>
-      <div class="mt-6">
-        <%= link_to marketplace_path, class: "inline-flex items-center px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-500" do %>
-          Browse Marketplace
-        <% end %>
-      </div>
+    <div class="mb-8">
+      <%= render 'shared/components/empty_state',
+          icon: 'credit-card',
+          title: 'No pending offers',
+          description: 'Browse the marketplace to find gift cards to buy or trade.',
+          action_text: 'Browse Marketplace',
+          action_path: marketplace_path %>
     </div>
   <% end %>
 
   <!-- Recent Completed -->
   <% if @completed.any? %>
     <div>
-      <h2 class="text-xl font-semibold text-gray-900 mb-4">Recent Completed</h2>
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 divide-y divide-gray-100">
+      <h2 class="text-lg font-semibold text-neutral-900 mb-4">Recent Completed</h2>
+      <div class="card divide-y divide-neutral-100">
         <% @completed.each do |transaction| %>
           <div class="p-4 flex items-center justify-between">
             <div class="flex items-center space-x-4">
-              <img src="<%= transaction.listing.brand_display_logo %>" alt="" class="w-12 h-8 object-contain rounded bg-gray-50 p-1">
+              <img src="<%= transaction.listing.brand_display_logo %>" alt="" class="w-12 h-8 object-contain rounded bg-neutral-50 p-1">
               <div>
-                <p class="font-medium text-gray-900">
+                <p class="font-medium text-neutral-900">
                   <%= transaction.brand_name %> card
                   <% if transaction.buyer == current_user %>
-                    <span class="text-green-600">(Purchased)</span>
+                    <span class="text-success-600">(Purchased)</span>
                   <% else %>
-                    <span class="text-blue-600">(Sold)</span>
+                    <span class="text-secondary-600">(Sold)</span>
                   <% end %>
                 </p>
-                <p class="text-sm text-gray-500">
+                <p class="text-sm text-neutral-500">
                   <% if transaction.sale? %>
                     <%= number_to_currency(transaction.amount) %>
                   <% else %>
                     Traded
                   <% end %>
-                  &middot; <%= time_ago_in_words(transaction.updated_at) %> ago
+                  · <%= time_ago_in_words(transaction.updated_at) %> ago
                 </p>
               </div>
             </div>
-            <span class="px-3 py-1.5 text-sm font-medium text-green-700 bg-green-100 rounded-lg">
-              Completed
-            </span>
+            <%= render 'shared/components/badge', text: "Completed", variant: :success, size: :sm %>
           </div>
         <% end %>
       </div>

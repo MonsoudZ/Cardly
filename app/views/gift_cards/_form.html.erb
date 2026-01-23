@@ -1,13 +1,11 @@
 <%= form_with model: gift_card, class: "space-y-6" do |f| %>
   <% if gift_card.errors.any? %>
-    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+    <div class="alert-danger">
       <div class="flex">
-        <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-        </svg>
+        <%= render 'shared/components/icon', name: 'x', size: :md, color: 'text-danger-400' %>
         <div class="ml-3">
-          <h3 class="text-sm font-medium text-red-800">Please fix the following errors:</h3>
-          <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
+          <h3 class="text-sm font-medium text-danger-800">Please fix the following errors:</h3>
+          <ul class="mt-2 text-sm text-danger-700 list-disc list-inside space-y-1">
             <% gift_card.errors.full_messages.each do |message| %>
               <li><%= message %></li>
             <% end %>
@@ -17,121 +15,119 @@
     </div>
   <% end %>
 
-  <div class="bg-white shadow rounded-lg p-6">
-    <h3 class="text-lg font-medium text-gray-900 mb-4">Card Information</h3>
+  <div class="card p-6">
+    <h3 class="text-lg font-semibold text-neutral-900 mb-4">Card Information</h3>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div>
-        <%= f.label :brand_id, "Brand", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.label :brand_id, "Brand", class: "form-label" %>
         <%= f.collection_select :brand_id, Brand.active.order(:name), :id, :name,
             { prompt: "Select a brand" },
-            { class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-rose-500 focus:ring-rose-500" } %>
+            { class: "form-input" } %>
       </div>
 
       <div>
-        <%= f.label :original_value, "Original Value", class: "block text-sm font-medium text-gray-700" %>
-        <div class="mt-1 relative rounded-md shadow-sm">
+        <%= f.label :original_value, "Original Value", class: "form-label" %>
+        <div class="relative">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <span class="text-gray-500 sm:text-sm">$</span>
+            <span class="text-neutral-500 text-sm">$</span>
           </div>
-          <%= f.number_field :original_value, step: 0.01, min: 0.01, class: "block w-full pl-7 rounded-md border-gray-300 focus:border-rose-500 focus:ring-rose-500" %>
+          <%= f.number_field :original_value, step: 0.01, min: 0.01, class: "form-input pl-7" %>
         </div>
       </div>
 
       <div>
-        <%= f.label :balance, "Current Balance", class: "block text-sm font-medium text-gray-700" %>
-        <div class="mt-1 relative rounded-md shadow-sm">
+        <%= f.label :balance, "Current Balance", class: "form-label" %>
+        <div class="relative">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <span class="text-gray-500 sm:text-sm">$</span>
+            <span class="text-neutral-500 text-sm">$</span>
           </div>
-          <%= f.number_field :balance, step: 0.01, min: 0, class: "block w-full pl-7 rounded-md border-gray-300 focus:border-rose-500 focus:ring-rose-500" %>
+          <%= f.number_field :balance, step: 0.01, min: 0, class: "form-input pl-7" %>
         </div>
       </div>
 
       <div>
-        <%= f.label :expiration_date, "Expiration Date", class: "block text-sm font-medium text-gray-700" %>
-        <%= f.date_field :expiration_date, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-rose-500 focus:ring-rose-500" %>
-        <p class="mt-1 text-xs text-gray-500">We'll send you reminders before your card expires.</p>
+        <%= f.label :expiration_date, "Expiration Date", class: "form-label" %>
+        <%= f.date_field :expiration_date, class: "form-input" %>
+        <p class="form-hint">We'll send you reminders before your card expires.</p>
       </div>
     </div>
   </div>
 
-  <div class="bg-white shadow rounded-lg p-6">
-    <h3 class="text-lg font-medium text-gray-900 mb-4">Card Details</h3>
+  <div class="card p-6">
+    <h3 class="text-lg font-semibold text-neutral-900 mb-4">Card Details</h3>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div>
-        <%= f.label :card_number, "Card Number", class: "block text-sm font-medium text-gray-700" %>
-        <%= f.text_field :card_number, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-rose-500 focus:ring-rose-500", placeholder: "Enter card number" %>
-        <p class="mt-1 text-xs text-gray-500">This will be securely stored and partially masked when displayed.</p>
+        <%= f.label :card_number, "Card Number", class: "form-label" %>
+        <%= f.text_field :card_number, class: "form-input font-mono", placeholder: "Enter card number" %>
+        <p class="form-hint">This will be securely stored and partially masked when displayed.</p>
       </div>
 
       <div>
-        <%= f.label :pin, "PIN", class: "block text-sm font-medium text-gray-700" %>
-        <%= f.text_field :pin, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-rose-500 focus:ring-rose-500", placeholder: "Enter PIN if applicable" %>
+        <%= f.label :pin, "PIN", class: "form-label" %>
+        <%= f.text_field :pin, class: "form-input font-mono", placeholder: "Enter PIN if applicable" %>
       </div>
 
       <div class="md:col-span-2">
-        <%= f.label :barcode_data, "Barcode Data", class: "block text-sm font-medium text-gray-700" %>
-        <%= f.text_field :barcode_data, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-rose-500 focus:ring-rose-500", placeholder: "Barcode number or data" %>
+        <%= f.label :barcode_data, "Barcode Data", class: "form-label" %>
+        <%= f.text_field :barcode_data, class: "form-input font-mono", placeholder: "Barcode number or data" %>
       </div>
     </div>
   </div>
 
-  <div class="bg-white shadow rounded-lg p-6">
-    <h3 class="text-lg font-medium text-gray-900 mb-4">Additional Information</h3>
+  <div class="card p-6">
+    <h3 class="text-lg font-semibold text-neutral-900 mb-4">Additional Information</h3>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div>
-        <%= f.label :acquired_date, "Acquired Date", class: "block text-sm font-medium text-gray-700" %>
-        <%= f.date_field :acquired_date, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-rose-500 focus:ring-rose-500" %>
+        <%= f.label :acquired_date, "Acquired Date", class: "form-label" %>
+        <%= f.date_field :acquired_date, class: "form-input" %>
       </div>
 
       <div>
-        <%= f.label :acquired_from, "How did you get this card?", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.label :acquired_from, "How did you get this card?", class: "form-label" %>
         <%= f.select :acquired_from, GiftCard::ACQUIRED_FROM.map { |a| [a.titleize, a] },
             {},
-            { class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-rose-500 focus:ring-rose-500" } %>
+            { class: "form-input" } %>
       </div>
 
       <div class="md:col-span-2">
-        <%= f.label :notes, "Notes", class: "block text-sm font-medium text-gray-700" %>
-        <%= f.text_area :notes, rows: 3, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-rose-500 focus:ring-rose-500", placeholder: "Any additional notes about this card..." %>
+        <%= f.label :notes, "Notes", class: "form-label" %>
+        <%= f.text_area :notes, rows: 3, class: "form-input", placeholder: "Any additional notes about this card..." %>
       </div>
     </div>
   </div>
 
   <% if current_user.tags.any? %>
-    <div class="bg-white shadow rounded-lg p-6">
+    <div class="card p-6">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-medium text-gray-900">Categories</h3>
-        <%= link_to "Manage Tags", tags_path, class: "text-sm text-rose-600 hover:text-rose-700" %>
+        <h3 class="text-lg font-semibold text-neutral-900">Categories</h3>
+        <%= link_to "Manage Tags", tags_path, class: "text-sm text-primary-600 hover:text-primary-700 font-medium" %>
       </div>
 
       <div class="flex flex-wrap gap-2">
         <% current_user.tags.alphabetical.each do |tag| %>
           <label class="inline-flex items-center cursor-pointer">
             <%= f.check_box :tag_ids, { multiple: true, class: "sr-only peer", checked: gift_card.tags.include?(tag) }, tag.id, nil %>
-            <span class="px-3 py-1.5 rounded-full text-sm font-medium border-2 transition-all peer-checked:ring-2 peer-checked:ring-offset-1" style="border-color: <%= tag.color %>; color: <%= tag.color %>; --tw-ring-color: <%= tag.color %>">
+            <span class="px-3 py-1.5 rounded-button text-sm font-medium border-2 transition-all peer-checked:ring-2 peer-checked:ring-offset-1" style="border-color: <%= tag.color %>; color: <%= tag.color %>; --tw-ring-color: <%= tag.color %>">
               <span class="peer-checked:hidden"><%= tag.name %></span>
               <span class="hidden peer-checked:inline" style="background-color: <%= tag.color %>; color: white; margin: -6px -12px; padding: 6px 12px; border-radius: 9999px;"><%= tag.name %></span>
             </span>
           </label>
         <% end %>
       </div>
-      <p class="mt-2 text-xs text-gray-500">Click to select categories for this card</p>
+      <p class="form-hint mt-2">Click to select categories for this card</p>
     </div>
   <% else %>
-    <div class="bg-gray-50 border-2 border-dashed border-gray-200 rounded-lg p-6 text-center">
-      <svg class="mx-auto h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
-      </svg>
-      <p class="mt-2 text-sm text-gray-500">No tags yet. <%= link_to "Create tags", tags_path, class: "text-rose-600 hover:text-rose-700" %> to organize your cards.</p>
+    <div class="card-bordered border-dashed p-6 text-center">
+      <%= render 'shared/components/icon', name: 'tag', size: :lg, color: 'text-neutral-400' %>
+      <p class="mt-2 text-sm text-neutral-500">No tags yet. <%= link_to "Create tags", tags_path, class: "text-primary-600 hover:text-primary-700 font-medium" %> to organize your cards.</p>
     </div>
   <% end %>
 
   <div class="flex justify-end space-x-3">
-    <%= link_to "Cancel", gift_cards_path, class: "px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50" %>
-    <%= f.submit gift_card.new_record? ? "Add Gift Card" : "Update Gift Card", class: "px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-rose-600 hover:bg-rose-500 cursor-pointer" %>
+    <%= link_to "Cancel", gift_cards_path, class: "btn-ghost btn-md" %>
+    <%= f.submit gift_card.new_record? ? "Add Gift Card" : "Update Gift Card", class: "btn-primary btn-md cursor-pointer" %>
   </div>
 <% end %>
