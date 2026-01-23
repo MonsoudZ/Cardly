@@ -5,7 +5,8 @@ RSpec.describe Transaction, type: :model do
     describe "sale transaction" do
       let(:buyer) { create(:user) }
       let(:seller) { create(:user) }
-      let(:listing) { create(:listing, :sale, user: seller) }
+      let(:gift_card) { create(:gift_card, :listed, user: seller) }
+      let(:listing) { create(:listing, :sale, user: seller, gift_card: gift_card) }
 
       subject do
         build(:transaction, :sale, buyer: buyer, seller: seller, listing: listing)
@@ -31,7 +32,8 @@ RSpec.describe Transaction, type: :model do
     describe "trade transaction" do
       let(:buyer) { create(:user) }
       let(:seller) { create(:user) }
-      let(:listing) { create(:listing, :trade, user: seller) }
+      let(:seller_gift_card) { create(:gift_card, :listed, user: seller) }
+      let(:listing) { create(:listing, :trade, user: seller, gift_card: seller_gift_card) }
       let(:offered_card) { create(:gift_card, user: buyer) }
 
       subject do
@@ -91,15 +93,30 @@ RSpec.describe Transaction, type: :model do
     let(:gift_card) { create(:gift_card, :listed, user: seller) }
     let(:listing) { create(:listing, :sale, gift_card: gift_card, user: seller) }
 
-    it "completes a sale transaction and transfers ownership" do
+    it "marks sale transaction as accepted and awaits payment" do
       transaction = create(:transaction, :sale,
                            buyer: buyer,
                            seller: seller,
                            listing: listing)
 
       expect(transaction.accept!).to be true
+      expect(transaction.reload.status).to eq("accepted")
+      # Card is not transferred until payment is completed
+      expect(gift_card.reload.user).to eq(seller)
+    end
+
+    it "completes trade transaction immediately" do
+      seller_gift_card = create(:gift_card, :listed, user: seller)
+      trade_listing = create(:listing, :trade, gift_card: seller_gift_card, user: seller)
+      offered_card = create(:gift_card, user: buyer)
+      transaction = create(:transaction, :trade,
+                           buyer: buyer,
+                           seller: seller,
+                           listing: trade_listing,
+                           offered_gift_card: offered_card)
+
+      expect(transaction.accept!).to be true
       expect(transaction.reload.status).to eq("completed")
-      expect(gift_card.reload.user).to eq(buyer)
     end
   end
 
@@ -129,7 +146,8 @@ RSpec.describe Transaction, type: :model do
   describe "counteroffers" do
     let(:buyer) { create(:user) }
     let(:seller) { create(:user) }
-    let(:listing) { create(:listing, :sale, user: seller) }
+    let(:gift_card) { create(:gift_card, :listed, user: seller) }
+    let(:listing) { create(:listing, :sale, user: seller, gift_card: gift_card) }
 
     describe "#counter!" do
       it "creates a counteroffer" do
@@ -154,7 +172,8 @@ RSpec.describe Transaction, type: :model do
       end
 
       it "fails for trade transactions" do
-        trade_listing = create(:listing, :trade, user: seller)
+        seller_gift_card = create(:gift_card, :listed, user: seller)
+        trade_listing = create(:listing, :trade, user: seller, gift_card: seller_gift_card)
         offered_card = create(:gift_card, user: buyer)
         transaction = create(:transaction, :trade, buyer: buyer, seller: seller, listing: trade_listing, offered_gift_card: offered_card)
         expect(transaction.counter!(90.00)).to be false
@@ -162,15 +181,14 @@ RSpec.describe Transaction, type: :model do
     end
 
     describe "#accept_counter!" do
-      it "completes the transaction at counter amount" do
-        gift_card = create(:gift_card, :listed, user: seller)
-        listing_with_card = create(:listing, :sale, gift_card: gift_card, user: seller)
-        transaction = create(:transaction, :sale, :countered, buyer: buyer, seller: seller, listing: listing_with_card, amount: 80.00, counter_amount: 90.00)
+      it "accepts the counter and awaits payment" do
+        transaction = create(:transaction, :sale, :countered, buyer: buyer, seller: seller, listing: listing, amount: 80.00, counter_amount: 90.00)
 
         expect(transaction.accept_counter!).to be true
-        expect(transaction.status).to eq("completed")
+        expect(transaction.status).to eq("accepted")
         expect(transaction.amount).to eq(90.00)
-        expect(gift_card.reload.user).to eq(buyer)
+        # Card is not transferred until payment is completed
+        expect(gift_card.reload.user).to eq(seller)
       end
 
       it "fails for non-countered transactions" do
@@ -230,7 +248,8 @@ RSpec.describe Transaction, type: :model do
 
     let(:buyer) { create(:user) }
     let(:seller) { create(:user) }
-    let(:listing) { create(:listing, :sale, user: seller) }
+    let(:gift_card) { create(:gift_card, :listed, user: seller) }
+    let(:listing) { create(:listing, :sale, user: seller, gift_card: gift_card) }
 
     describe "on create" do
       it "sends new offer notification to seller" do
@@ -291,9 +310,7 @@ RSpec.describe Transaction, type: :model do
 
     describe "on accept_counter" do
       it "sends counter accepted notification to seller" do
-        gift_card = create(:gift_card, :listed, user: seller)
-        listing_with_card = create(:listing, :sale, gift_card: gift_card, user: seller)
-        transaction = create(:transaction, :sale, :countered, buyer: buyer, seller: seller, listing: listing_with_card)
+        transaction = create(:transaction, :sale, :countered, buyer: buyer, seller: seller, listing: listing)
         clear_enqueued_jobs
 
         expect {

@@ -1,21 +1,21 @@
 FactoryBot.define do
   factory :message do
-    transaction
+    association :card_transaction, factory: :transaction
     body { "Hello, I have a question about this card." }
 
     after(:build) do |message|
-      message.sender ||= message.transaction&.buyer
+      message.sender ||= message.card_transaction&.buyer
     end
 
     trait :from_buyer do
       after(:build) do |message|
-        message.sender = message.transaction.buyer
+        message.sender = message.card_transaction.buyer
       end
     end
 
     trait :from_seller do
       after(:build) do |message|
-        message.sender = message.transaction.seller
+        message.sender = message.card_transaction.seller
       end
     end
 

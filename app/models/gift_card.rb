@@ -6,7 +6,7 @@ class GiftCard < ApplicationRecord
   encrypts :card_number, deterministic: true
   encrypts :pin
 
-  belongs_to :user
+  belongs_to :user, counter_cache: true
   belongs_to :brand
   has_one :listing, dependent: :destroy
   has_many :card_activities, dependent: :destroy

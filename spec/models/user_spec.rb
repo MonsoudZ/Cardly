@@ -75,12 +75,14 @@ RSpec.describe User, type: :model do
   describe "ratings" do
     let(:user) { create(:user) }
     let(:other_user) { create(:user) }
-    let(:listing) { create(:listing, :sale, user: user) }
+    let(:brand) { create(:brand) }
+    let(:gift_card) { create(:gift_card, :listed, user: user, brand: brand) }
+    let(:listing) { create(:listing, :sale, user: user, gift_card: gift_card) }
 
     def create_rating_for_user(score:, role: "buyer")
       transaction = create(:transaction, :completed, buyer: other_user, seller: user, listing: listing)
       create(:rating,
-             transaction: transaction,
+             card_transaction: transaction,
              rater: other_user,
              ratee: user,
              score: score,
@@ -94,9 +96,10 @@ RSpec.describe User, type: :model do
 
       it "calculates average correctly" do
         create_rating_for_user(score: 5)
-        listing2 = create(:listing, :sale, user: user)
+        gift_card2 = create(:gift_card, :listed, user: user, brand: brand)
+        listing2 = create(:listing, :sale, user: user, gift_card: gift_card2)
         transaction2 = create(:transaction, :completed, buyer: other_user, seller: user, listing: listing2)
-        create(:rating, transaction: transaction2, rater: other_user, ratee: user, score: 3, role: "buyer")
+        create(:rating, card_transaction: transaction2, rater: other_user, ratee: user, score: 3, role: "buyer")
 
         expect(user.average_rating).to eq(4.0)
       end
@@ -116,9 +119,10 @@ RSpec.describe User, type: :model do
 
       it "calculates percentage correctly" do
         create_rating_for_user(score: 5)
-        listing2 = create(:listing, :sale, user: user)
+        gift_card2 = create(:gift_card, :listed, user: user, brand: brand)
+        listing2 = create(:listing, :sale, user: user, gift_card: gift_card2)
         transaction2 = create(:transaction, :completed, buyer: other_user, seller: user, listing: listing2)
-        create(:rating, transaction: transaction2, rater: other_user, ratee: user, score: 2, role: "buyer")
+        create(:rating, card_transaction: transaction2, rater: other_user, ratee: user, score: 2, role: "buyer")
 
         expect(user.positive_rating_percentage).to eq(50)
       end
@@ -167,26 +171,30 @@ RSpec.describe User, type: :model do
     end
 
     describe "#seller_rating_count" do
-      it "returns count of ratings received as seller" do
+      it "returns count of ratings received from sellers" do
         brand = create(:brand)
         gift_card = create(:gift_card, user: seller, brand: brand, balance: 100)
         listing = create(:listing, :for_sale, user: seller, gift_card: gift_card, asking_price: 85)
         transaction = create(:transaction, :completed, listing: listing, seller: seller, buyer: buyer)
-        create(:rating, :from_buyer, transaction: transaction, rater: buyer, ratee: seller)
+        # Seller rates buyer (role: seller), so buyer receives a rating with role: seller
+        create(:rating, :from_seller, card_transaction: transaction, rater: seller, ratee: buyer)
 
-        expect(seller.seller_rating_count).to eq(1)
+        # buyer.seller_rating_count = ratings received where rater role was "seller"
+        expect(buyer.seller_rating_count).to eq(1)
       end
     end
 
     describe "#buyer_rating_count" do
-      it "returns count of ratings received as buyer" do
+      it "returns count of ratings received from buyers" do
         brand = create(:brand)
         gift_card = create(:gift_card, user: seller, brand: brand, balance: 100)
         listing = create(:listing, :for_sale, user: seller, gift_card: gift_card, asking_price: 85)
         transaction = create(:transaction, :completed, listing: listing, seller: seller, buyer: buyer)
-        create(:rating, :from_seller, transaction: transaction, rater: seller, ratee: buyer)
+        # Buyer rates seller (role: buyer), so seller receives a rating with role: buyer
+        create(:rating, :from_buyer, card_transaction: transaction, rater: buyer, ratee: seller)
 
-        expect(buyer.buyer_rating_count).to eq(1)
+        # seller.buyer_rating_count = ratings received where rater role was "buyer"
+        expect(seller.buyer_rating_count).to eq(1)
       end
     end
 

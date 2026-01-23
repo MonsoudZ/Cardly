@@ -3,13 +3,14 @@ require "rails_helper"
 RSpec.describe Rating, type: :model do
   let(:buyer) { create(:user) }
   let(:seller) { create(:user) }
-  let(:listing) { create(:listing, :sale, user: seller) }
+  let(:gift_card) { create(:gift_card, :listed, user: seller) }
+  let(:listing) { create(:listing, :sale, user: seller, gift_card: gift_card) }
   let(:completed_transaction) { create(:transaction, :completed, buyer: buyer, seller: seller, listing: listing) }
 
   describe "validations" do
     subject do
       build(:rating,
-            transaction: completed_transaction,
+            card_transaction: completed_transaction,
             rater: buyer,
             ratee: seller,
             role: "buyer")
@@ -48,14 +49,14 @@ RSpec.describe Rating, type: :model do
 
     it "requires transaction to be completed" do
       pending_transaction = create(:transaction, :pending, buyer: buyer, seller: seller, listing: listing)
-      subject.transaction = pending_transaction
+      subject.card_transaction = pending_transaction
       expect(subject).not_to be_valid
-      expect(subject.errors[:transaction]).to include("must be completed before rating")
+      expect(subject.errors[:card_transaction]).to include("must be completed before rating")
     end
 
     it "prevents duplicate ratings per transaction" do
-      create(:rating, transaction: completed_transaction, rater: buyer, ratee: seller, role: "buyer")
-      duplicate = build(:rating, transaction: completed_transaction, rater: buyer, ratee: seller, role: "buyer")
+      create(:rating, card_transaction: completed_transaction, rater: buyer, ratee: seller, role: "buyer")
+      duplicate = build(:rating, card_transaction: completed_transaction, rater: buyer, ratee: seller, role: "buyer")
       expect(duplicate).not_to be_valid
       expect(duplicate.errors[:transaction_id]).to include("already rated")
     end
@@ -82,11 +83,11 @@ RSpec.describe Rating, type: :model do
   end
 
   describe "scopes" do
-    let!(:buyer_rating) { create(:rating, :from_buyer, transaction: completed_transaction) }
+    let!(:buyer_rating) { create(:rating, :from_buyer, card_transaction: completed_transaction) }
 
     before do
       another_transaction = create(:transaction, :completed, buyer: seller, seller: buyer)
-      create(:rating, :from_seller, transaction: another_transaction, rater: buyer, ratee: seller)
+      create(:rating, :from_seller, card_transaction: another_transaction, rater: buyer, ratee: seller)
     end
 
     describe ".as_buyer" do

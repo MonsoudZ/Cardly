@@ -1,19 +1,19 @@
 FactoryBot.define do
   factory :rating do
-    association :transaction, :completed
+    association :card_transaction, factory: [:transaction, :completed]
     score { 4 }
     comment { "Great transaction!" }
     role { "buyer" }
 
     # Set rater and ratee based on the transaction
     after(:build) do |rating|
-      if rating.transaction.present?
+      if rating.card_transaction.present?
         if rating.role == "buyer"
-          rating.rater ||= rating.transaction.buyer
-          rating.ratee ||= rating.transaction.seller
+          rating.rater ||= rating.card_transaction.buyer
+          rating.ratee ||= rating.card_transaction.seller
         else
-          rating.rater ||= rating.transaction.seller
-          rating.ratee ||= rating.transaction.buyer
+          rating.rater ||= rating.card_transaction.seller
+          rating.ratee ||= rating.card_transaction.buyer
         end
       end
     end

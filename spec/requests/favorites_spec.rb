@@ -3,7 +3,8 @@ require "rails_helper"
 RSpec.describe "Favorites", type: :request do
   let(:user) { create(:user) }
   let(:other_user) { create(:user) }
-  let(:listing) { create(:listing, user: other_user) }
+  let(:gift_card) { create(:gift_card, :listed, user: other_user) }
+  let(:listing) { create(:listing, user: other_user, gift_card: gift_card) }
 
   describe "GET /favorites" do
     context "when not authenticated" do

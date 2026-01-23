@@ -3,7 +3,8 @@ require "rails_helper"
 RSpec.describe "Messages", type: :request do
   let(:buyer) { create(:user) }
   let(:seller) { create(:user) }
-  let(:listing) { create(:listing, :sale, user: seller) }
+  let(:gift_card) { create(:gift_card, :listed, user: seller) }
+  let(:listing) { create(:listing, :sale, user: seller, gift_card: gift_card) }
   let(:transaction) { create(:transaction, buyer: buyer, seller: seller, listing: listing) }
 
   describe "POST /transactions/:transaction_id/messages" do
