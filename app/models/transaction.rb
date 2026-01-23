@@ -1,6 +1,8 @@
 class Transaction < ApplicationRecord
   TYPES = %w[sale trade].freeze
   STATUSES = %w[pending countered accepted rejected completed cancelled expired].freeze
+  PAYMENT_STATUSES = %w[unpaid pending completed failed cancelled refunded].freeze
+  PAYOUT_STATUSES = %w[pending processing completed failed].freeze
 
   belongs_to :buyer, class_name: "User"
   belongs_to :seller, class_name: "User"
@@ -15,6 +17,8 @@ class Transaction < ApplicationRecord
   validates :amount, presence: true, numericality: { greater_than: 0 }, if: :sale?
   validates :counter_amount, numericality: { greater_than: 0 }, allow_nil: true
   validates :offered_gift_card, presence: true, if: :trade?
+  validates :payment_status, inclusion: { in: PAYMENT_STATUSES }, allow_nil: true
+  validates :payout_status, inclusion: { in: PAYOUT_STATUSES }, allow_nil: true
   validate :buyer_cannot_be_seller
   validate :offered_card_belongs_to_buyer, if: :trade?
   validate :offered_card_has_balance, if: :trade?
@@ -29,6 +33,9 @@ class Transaction < ApplicationRecord
   scope :for_seller, ->(user) { where(seller: user) }
   scope :for_buyer, ->(user) { where(buyer: user) }
   scope :not_expired, -> { where("expires_at IS NULL OR expires_at > ?", Time.current) }
+  scope :awaiting_payment, -> { where(status: "accepted", payment_status: %w[unpaid pending]) }
+  scope :paid, -> { where(payment_status: "completed") }
+  scope :awaiting_payout, -> { where(payment_status: "completed", payout_status: "pending") }
 
   delegate :gift_card, :brand_name, to: :listing
 
@@ -58,6 +65,34 @@ class Transaction < ApplicationRecord
 
   def expired?
     status == "expired" || (expires_at.present? && expires_at < Time.current)
+  end
+
+  def payment_pending?
+    payment_status == "pending"
+  end
+
+  def payment_completed?
+    payment_status == "completed"
+  end
+
+  def awaiting_payment?
+    accepted? && sale? && !payment_completed?
+  end
+
+  def ready_for_payout?
+    payment_completed? && payout_status == "pending" && seller.stripe_connect_payouts_enabled?
+  end
+
+  def payment_amount
+    (payment_amount_cents || 0) / 100.0
+  end
+
+  def platform_fee
+    (platform_fee_cents || 0) / 100.0
+  end
+
+  def seller_payout
+    (seller_payout_cents || 0) / 100.0
   end
 
   def awaiting_buyer_response?
@@ -116,11 +151,20 @@ class Transaction < ApplicationRecord
   def accept!
     return false unless pending?
 
-    ActiveRecord::Base.transaction do
-      complete_transaction!
+    if sale?
+      # For sales, mark as accepted and await payment
+      update!(status: "accepted")
+      send_offer_accepted_notification
+      send_payment_request_notification
+      true
+    else
+      # For trades, complete immediately (no payment needed)
+      ActiveRecord::Base.transaction do
+        complete_transaction!
+      end
+      send_offer_accepted_notification
+      true
     end
-    send_offer_accepted_notification
-    true
   rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound => e
     Rails.logger.error("Transaction accept failed: #{e.message}")
     false
@@ -162,14 +206,63 @@ class Transaction < ApplicationRecord
     # Update amount to the counter amount
     update!(amount: counter_amount)
 
-    ActiveRecord::Base.transaction do
-      complete_transaction!
+    if sale?
+      # For sales, mark as accepted and await payment
+      update!(status: "accepted")
+      send_counter_accepted_notification
+      send_payment_request_notification
+      true
+    else
+      # For trades, complete immediately
+      ActiveRecord::Base.transaction do
+        complete_transaction!
+      end
+      send_counter_accepted_notification
+      true
     end
-    send_counter_accepted_notification
-    true
   rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound => e
     Rails.logger.error("Accept counter failed: #{e.message}")
     false
+  end
+
+  def complete_payment!(payment_intent_id)
+    return false unless accepted? && sale?
+
+    ActiveRecord::Base.transaction do
+      update!(
+        stripe_payment_intent_id: payment_intent_id,
+        payment_status: "completed",
+        paid_at: Time.current
+      )
+      complete_transaction!
+      initiate_seller_payout if seller.stripe_connect_payouts_enabled?
+    end
+    send_payment_completed_notification
+    true
+  rescue ActiveRecord::RecordInvalid => e
+    Rails.logger.error("Complete payment failed: #{e.message}")
+    false
+  end
+
+  def initiate_seller_payout
+    return unless payment_completed? && payout_status == "pending"
+    return unless seller.stripe_connect_account_id.present?
+
+    transfer = Stripe::Transfer.create(
+      amount: seller_payout_cents,
+      currency: "usd",
+      destination: seller.stripe_connect_account_id,
+      transfer_group: "transaction_#{id}",
+      metadata: { transaction_id: id }
+    )
+
+    update!(
+      stripe_transfer_id: transfer.id,
+      payout_status: "processing"
+    )
+  rescue Stripe::StripeError => e
+    Rails.logger.error("Seller payout failed for transaction #{id}: #{e.message}")
+    update!(payout_status: "failed")
   end
 
   def reject_counter!
@@ -277,5 +370,13 @@ class Transaction < ApplicationRecord
 
   def send_offer_expired_notification
     TransactionMailer.offer_expired(self).deliver_later
+  end
+
+  def send_payment_request_notification
+    TransactionMailer.payment_request(self).deliver_later
+  end
+
+  def send_payment_completed_notification
+    TransactionMailer.payment_completed(self).deliver_later
   end
 end

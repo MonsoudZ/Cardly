@@ -70,6 +70,17 @@
               <span class="text-green-700 font-medium">Final Sale Price</span>
               <span class="font-bold text-green-700"><%= number_to_currency(@transaction.amount) %></span>
             </div>
+            <% if @transaction.payment_completed? %>
+              <div class="flex justify-between py-3 items-center">
+                <span class="text-gray-600 flex items-center">
+                  <svg class="w-4 h-4 text-green-500 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                  </svg>
+                  Payment
+                </span>
+                <span class="text-sm text-green-600 font-medium">Paid <%= @transaction.paid_at&.strftime("%b %d, %Y") %></span>
+              </div>
+            <% end %>
           <% end %>
         </div>
       <% else %>
@@ -218,6 +229,71 @@
             <%= button_to cancel_transaction_path(@transaction), method: :post, class: "w-full inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium", data: { turbo_confirm: "Are you sure you want to cancel this offer?" } do %>
               Cancel Offer
             <% end %>
+          <% end %>
+        </div>
+      <% elsif @transaction.awaiting_payment? %>
+        <!-- Payment Section -->
+        <div class="pt-6 border-t border-gray-100">
+          <% if @transaction.buyer == current_user %>
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+              <div class="flex items-center mb-2">
+                <svg class="w-5 h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <span class="font-medium text-green-800">Offer Accepted!</span>
+              </div>
+              <p class="text-sm text-green-700 mb-4">
+                <%= @transaction.seller.display_name %> accepted your offer. Complete payment to receive your gift card.
+              </p>
+
+              <div class="bg-white rounded-lg p-4 mb-4">
+                <div class="flex justify-between py-2 border-b border-gray-100">
+                  <span class="text-gray-600">Card Value</span>
+                  <span class="font-medium text-gray-900"><%= number_to_currency(@transaction.listing.balance) %></span>
+                </div>
+                <div class="flex justify-between py-2 border-b border-gray-100">
+                  <span class="text-gray-600">Your Price</span>
+                  <span class="font-medium text-gray-900"><%= number_to_currency(@transaction.current_offer_amount) %></span>
+                </div>
+                <div class="flex justify-between py-2 text-green-700">
+                  <span class="font-medium">You Save</span>
+                  <span class="font-bold"><%= number_to_currency(@transaction.listing.balance - @transaction.current_offer_amount) %> (<%= number_to_percentage(((@transaction.listing.balance - @transaction.current_offer_amount) / @transaction.listing.balance) * 100, precision: 0) %> off)</span>
+                </div>
+              </div>
+
+              <%= button_to checkout_transaction_payment_path(@transaction), method: :post, class: "w-full inline-flex items-center justify-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-500 font-semibold text-lg" do %>
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                </svg>
+                Pay <%= number_to_currency(@transaction.current_offer_amount) %> Now
+              <% end %>
+              <p class="text-xs text-gray-500 mt-2 text-center">Secure payment powered by Stripe</p>
+            </div>
+          <% else %>
+            <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
+              <div class="flex items-center mb-2">
+                <svg class="w-5 h-5 text-amber-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                </svg>
+                <span class="font-medium text-amber-800">Awaiting Payment</span>
+              </div>
+              <p class="text-sm text-amber-700">
+                You accepted this offer. Waiting for <%= @transaction.buyer.display_name %> to complete payment of <strong><%= number_to_currency(@transaction.current_offer_amount) %></strong>.
+              </p>
+              <% unless current_user.stripe_connect_onboarded? %>
+                <div class="mt-4 p-3 bg-white rounded-lg border border-amber-300">
+                  <p class="text-sm text-amber-800 mb-2">
+                    <strong>Set up seller account</strong> to receive payouts automatically.
+                  </p>
+                  <%= link_to stripe_connect_onboard_path, class: "inline-flex items-center text-sm text-amber-700 hover:text-amber-900 font-medium" do %>
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                    </svg>
+                    Set up Stripe Connect
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
           <% end %>
         </div>
       <% end %>

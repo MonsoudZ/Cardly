@@ -1,0 +1,25 @@
+<h1>Payment Confirmed!</h1>
+
+<p>Hi <%= @buyer.display_name %>,</p>
+
+<p>Your payment of <strong><%= number_to_currency(@transaction.amount) %></strong> has been processed successfully.</p>
+
+<div style="background: #d1fae5; padding: 16px; border-radius: 8px; margin: 20px 0;">
+  <p style="margin: 0; color: #065f46;"><strong>Your <%= @listing.brand_name %> gift card is now in your wallet!</strong></p>
+</div>
+
+<div style="background: #f3f4f6; padding: 16px; border-radius: 8px; margin: 20px 0;">
+  <p><strong>Purchase Summary:</strong></p>
+  <ul>
+    <li>Card: <%= @listing.brand_name %> Gift Card</li>
+    <li>Value: <%= number_to_currency(@listing.balance) %></li>
+    <li>Paid: <%= number_to_currency(@transaction.amount) %></li>
+    <li>Savings: <%= number_to_currency(@listing.balance - @transaction.amount) %></li>
+  </ul>
+</div>
+
+<p>
+  <%= link_to "View in Your Wallet", wallet_url, style: "display: inline-block; background: #f43f5e; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;" %>
+</p>
+
+<p>Thank you for shopping with Cardly!</p>
