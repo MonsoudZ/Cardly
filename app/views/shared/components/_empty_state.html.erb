@@ -1,0 +1,53 @@
+<%#
+  Empty State Component
+
+  Usage:
+    <%= render 'shared/components/empty_state',
+        title: 'No gift cards yet',
+        description: 'Get started by adding your first gift card.' %>
+
+    <%= render 'shared/components/empty_state',
+        icon: 'gift',
+        title: 'No cards found',
+        description: 'Try adjusting your search filters.',
+        action_text: 'Clear filters',
+        action_url: gift_cards_path %>
+
+  Options:
+    - title: Main heading (required)
+    - description: Supporting text (optional)
+    - icon: Icon name (optional, default: 'photograph')
+    - action_text: Button text (optional)
+    - action_url: Button URL (optional)
+    - action_variant: Button variant (default: :primary)
+%>
+
+<%
+  title ||= 'Nothing here yet'
+  description ||= nil
+  icon ||= 'photograph'
+  action_text ||= nil
+  action_url ||= nil
+  action_variant ||= :primary
+  html_class ||= ''
+%>
+
+<div class="text-center py-12 px-6 <%= html_class %>">
+  <div class="mx-auto w-16 h-16 rounded-full bg-neutral-100 flex items-center justify-center mb-4">
+    <%= render 'shared/components/icon', name: icon, size: :xl, color: 'text-neutral-400' %>
+  </div>
+
+  <h3 class="text-lg font-medium text-neutral-900 mb-1"><%= title %></h3>
+
+  <% if description.present? %>
+    <p class="text-sm text-neutral-500 max-w-sm mx-auto mb-6"><%= description %></p>
+  <% end %>
+
+  <% if action_text.present? && action_url.present? %>
+    <%= render 'shared/components/button',
+        text: action_text,
+        type: :link,
+        href: action_url,
+        variant: action_variant %>
+  <% end %>
+</div>

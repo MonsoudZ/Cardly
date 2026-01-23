@@ -1,0 +1,85 @@
+<%#
+  Card Component
+
+  Usage:
+    <%= render 'shared/components/card' do %>
+      Card content here
+    <% end %>
+
+    <%= render 'shared/components/card', title: 'My Card', subtitle: 'Optional subtitle' do %>
+      Card content
+    <% end %>
+
+    <%= render 'shared/components/card', variant: :elevated, padding: :lg do %>
+      Premium content
+    <% end %>
+
+  Options:
+    - title: Card header title (optional)
+    - subtitle: Card header subtitle (optional)
+    - variant: :default, :elevated, :bordered, :flat
+    - padding: :none, :sm, :md (default), :lg
+    - rounded: :sm, :md (default), :lg
+    - header_actions: Block for header actions
+%>
+
+<%
+  title ||= nil
+  subtitle ||= nil
+  variant ||= :default
+  padding ||= :md
+  rounded ||= :md
+  html_class ||= ''
+
+  base_classes = "bg-white overflow-hidden"
+
+  variant_classes = {
+    default: "shadow-soft",
+    elevated: "shadow-card hover:shadow-elevated transition-shadow duration-300",
+    bordered: "border border-neutral-200",
+    flat: ""
+  }
+
+  padding_classes = {
+    none: "",
+    sm: "p-4",
+    md: "p-6",
+    lg: "p-8"
+  }
+
+  rounded_classes = {
+    sm: "rounded-soft",
+    md: "rounded-card",
+    lg: "rounded-2xl"
+  }
+
+  classes = [base_classes, variant_classes[variant], rounded_classes[rounded], html_class].compact.join(' ')
+  content_padding = padding_classes[padding]
+%>
+
+<div class="<%= classes %>">
+  <% if title.present? %>
+    <div class="<%= content_padding %> border-b border-neutral-100">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-semibold text-neutral-900"><%= title %></h3>
+          <% if subtitle.present? %>
+            <p class="mt-1 text-sm text-neutral-500"><%= subtitle %></p>
+          <% end %>
+        </div>
+        <% if defined?(header_actions) && header_actions %>
+          <div class="flex items-center gap-2">
+            <%= header_actions %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+    <div class="<%= content_padding %>">
+      <%= yield %>
+    </div>
+  <% else %>
+    <div class="<%= content_padding %>">
+      <%= yield %>
+    </div>
+  <% end %>
+</div>

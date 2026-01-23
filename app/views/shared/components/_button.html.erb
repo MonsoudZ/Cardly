@@ -1,0 +1,72 @@
+<%#
+  Button Component
+
+  Usage:
+    <%= render 'shared/components/button', text: 'Click Me' %>
+    <%= render 'shared/components/button', text: 'Submit', variant: :primary, size: :lg %>
+    <%= render 'shared/components/button', text: 'Cancel', variant: :secondary, type: :link, href: root_path %>
+    <%= render 'shared/components/button', text: 'Delete', variant: :danger, icon: 'trash' %>
+
+  Options:
+    - text: Button label (required)
+    - variant: :primary (default), :secondary, :success, :warning, :danger, :ghost
+    - size: :sm, :md (default), :lg
+    - type: :button (default), :submit, :link
+    - href: URL for link type
+    - icon: Icon name (optional)
+    - disabled: true/false
+    - full_width: true/false
+    - data: Hash of data attributes
+%>
+
+<%
+  text ||= 'Button'
+  variant ||= :primary
+  size ||= :md
+  type ||= :button
+  href ||= '#'
+  icon ||= nil
+  disabled ||= false
+  full_width ||= false
+  data ||= {}
+  html_class ||= ''
+
+  base_classes = "inline-flex items-center justify-center font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+
+  variant_classes = {
+    primary: "bg-primary-500 text-white hover:bg-primary-600 focus:ring-primary-500 shadow-soft hover:shadow-card",
+    secondary: "bg-secondary-500 text-white hover:bg-secondary-600 focus:ring-secondary-500 shadow-soft hover:shadow-card",
+    success: "bg-success-500 text-white hover:bg-success-600 focus:ring-success-500 shadow-soft hover:shadow-card",
+    warning: "bg-warning-500 text-white hover:bg-warning-600 focus:ring-warning-500 shadow-soft hover:shadow-card",
+    danger: "bg-danger-500 text-white hover:bg-danger-600 focus:ring-danger-500 shadow-soft hover:shadow-card",
+    ghost: "bg-transparent text-neutral-700 hover:bg-neutral-100 focus:ring-neutral-500 border border-neutral-300",
+    outline_primary: "bg-transparent text-primary-600 hover:bg-primary-50 focus:ring-primary-500 border-2 border-primary-500",
+    outline_secondary: "bg-transparent text-secondary-600 hover:bg-secondary-50 focus:ring-secondary-500 border-2 border-secondary-500"
+  }
+
+  size_classes = {
+    sm: "px-3 py-1.5 text-sm rounded-button gap-1.5",
+    md: "px-4 py-2 text-sm rounded-button gap-2",
+    lg: "px-6 py-3 text-base rounded-button gap-2"
+  }
+
+  width_class = full_width ? "w-full" : ""
+
+  classes = [base_classes, variant_classes[variant], size_classes[size], width_class, html_class].compact.join(' ')
+%>
+
+<% if type == :link %>
+  <%= link_to href, class: classes, data: data do %>
+    <% if icon %>
+      <%= render 'shared/components/icon', name: icon, size: size == :sm ? :xs : :sm %>
+    <% end %>
+    <%= text %>
+  <% end %>
+<% else %>
+  <button type="<%= type %>" class="<%= classes %>" <%= 'disabled' if disabled %> <%= data.map { |k, v| "data-#{k}=\"#{v}\"" }.join(' ').html_safe %>>
+    <% if icon %>
+      <%= render 'shared/components/icon', name: icon, size: size == :sm ? :xs : :sm %>
+    <% end %>
+    <%= text %>
+  </button>
+<% end %>

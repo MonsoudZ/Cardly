@@ -18,6 +18,7 @@
         <%= link_to "Get started free", new_user_registration_path, class: "rounded-md bg-rose-600 px-6 py-3 text-lg font-semibold text-white shadow-sm hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600" %>
         <a href="#features" class="text-lg font-semibold leading-6 text-gray-900">Learn more <span aria-hidden="true">→</span></a>
       </div>
+      <p class="mt-4 text-sm text-gray-500">No credit card required</p>
     </div>
     <div class="mt-20 w-full max-w-5xl mx-auto">
       <div class="relative rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10">
@@ -34,6 +35,7 @@
                 <p class="font-medium text-gray-900">Starbucks</p>
                 <p class="text-sm text-gray-500">$45.23 balance</p>
               </div>
+              <span class="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">Active</span>
             </div>
             <div class="bg-gray-50 rounded-xl p-4 flex items-center space-x-4">
               <div class="w-12 h-8 bg-orange-500 rounded flex items-center justify-center text-white text-xs font-bold">AMZ</div>
@@ -41,6 +43,7 @@
                 <p class="font-medium text-gray-900">Amazon</p>
                 <p class="text-sm text-gray-500">$150.00 balance</p>
               </div>
+              <span class="text-xs px-2 py-1 bg-amber-100 text-amber-700 rounded-full">Expiring</span>
             </div>
           </div>
         </div>
@@ -176,6 +179,169 @@
   </div>
 </div>
 
+<!-- Testimonials Section -->
+<div class="relative isolate overflow-hidden w-full py-24 bg-gray-50">
+  <div class="w-full px-6">
+    <div class="w-full text-center mb-16">
+      <h2 class="text-4xl font-bold tracking-tight text-gray-900">Loved by thousands</h2>
+      <p class="mt-6 text-xl leading-8 text-gray-600 max-w-3xl mx-auto">See what our users have to say about Cardly</p>
+    </div>
+    <div class="w-full max-w-6xl mx-auto">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="bg-white rounded-2xl p-8 shadow-lg ring-1 ring-gray-100">
+          <div class="flex items-center mb-4">
+            <% 5.times do %>
+              <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+              </svg>
+            <% end %>
+          </div>
+          <p class="text-gray-600 mb-6">"I had over $500 in forgotten gift cards. Cardly helped me find them all and even sold a few I didn't need. Amazing!"</p>
+          <div class="flex items-center">
+            <div class="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 font-bold">S</div>
+            <div class="ml-3">
+              <p class="font-semibold text-gray-900">Sarah M.</p>
+              <p class="text-sm text-gray-500">Saved $523</p>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white rounded-2xl p-8 shadow-lg ring-1 ring-gray-100">
+          <div class="flex items-center mb-4">
+            <% 5.times do %>
+              <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+              </svg>
+            <% end %>
+          </div>
+          <p class="text-gray-600 mb-6">"The expiration alerts are a lifesaver. I almost lost a $100 Best Buy card but Cardly reminded me just in time!"</p>
+          <div class="flex items-center">
+            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">M</div>
+            <div class="ml-3">
+              <p class="font-semibold text-gray-900">Mike T.</p>
+              <p class="text-sm text-gray-500">Never missed an expiration</p>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white rounded-2xl p-8 shadow-lg ring-1 ring-gray-100">
+          <div class="flex items-center mb-4">
+            <% 5.times do %>
+              <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+              </svg>
+            <% end %>
+          </div>
+          <p class="text-gray-600 mb-6">"Traded my unwanted restaurant cards for Amazon cards. The marketplace is super easy to use and secure."</p>
+          <div class="flex items-center">
+            <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-bold">J</div>
+            <div class="ml-3">
+              <p class="font-semibold text-gray-900">Jennifer L.</p>
+              <p class="text-sm text-gray-500">Active trader</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Marketplace Preview Section -->
+<div class="relative isolate overflow-hidden w-full py-24 bg-white">
+  <div class="w-full px-6">
+    <div class="w-full max-w-6xl mx-auto">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div>
+          <span class="text-rose-600 font-semibold">Marketplace</span>
+          <h2 class="mt-2 text-4xl font-bold tracking-tight text-gray-900">Buy cards at a discount, sell cards for cash</h2>
+          <p class="mt-6 text-lg leading-8 text-gray-600">
+            Don't let unwanted gift cards collect dust. Our secure marketplace lets you sell cards you won't use or buy discounted cards for your favorite stores.
+          </p>
+          <ul class="mt-8 space-y-4">
+            <li class="flex items-start">
+              <svg class="w-6 h-6 text-green-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+              <span class="text-gray-600"><strong class="text-gray-900">Save up to 20%</strong> buying discounted gift cards</span>
+            </li>
+            <li class="flex items-start">
+              <svg class="w-6 h-6 text-green-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+              <span class="text-gray-600"><strong class="text-gray-900">Secure payments</strong> with Stripe protection</span>
+            </li>
+            <li class="flex items-start">
+              <svg class="w-6 h-6 text-green-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+              <span class="text-gray-600"><strong class="text-gray-900">Make offers</strong> or list at your price</span>
+            </li>
+            <li class="flex items-start">
+              <svg class="w-6 h-6 text-green-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+              <span class="text-gray-600"><strong class="text-gray-900">User ratings</strong> help you trade with confidence</span>
+            </li>
+          </ul>
+          <div class="mt-10">
+            <%= link_to marketplace_path, class: "inline-flex items-center rounded-md bg-rose-600 px-6 py-3 text-lg font-semibold text-white shadow-sm hover:bg-rose-500" do %>
+              Browse Marketplace
+              <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+              </svg>
+            <% end %>
+          </div>
+        </div>
+        <div class="bg-gray-50 rounded-2xl p-6 shadow-lg ring-1 ring-gray-200">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="font-semibold text-gray-900">Recent Listings</h3>
+            <span class="text-sm text-rose-600">Live</span>
+          </div>
+          <div class="space-y-4">
+            <div class="bg-white rounded-xl p-4 shadow-sm flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center text-white text-xs font-bold">WM</div>
+                <div>
+                  <p class="font-medium text-gray-900">Walmart</p>
+                  <p class="text-sm text-gray-500">$100 value</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="font-bold text-green-600">$85</p>
+                <p class="text-xs text-green-600">15% off</p>
+              </div>
+            </div>
+            <div class="bg-white rounded-xl p-4 shadow-sm flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center text-white text-xs font-bold">TG</div>
+                <div>
+                  <p class="font-medium text-gray-900">Target</p>
+                  <p class="text-sm text-gray-500">$50 value</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="font-bold text-green-600">$45</p>
+                <p class="text-xs text-green-600">10% off</p>
+              </div>
+            </div>
+            <div class="bg-white rounded-xl p-4 shadow-sm flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center text-white text-xs font-bold">SB</div>
+                <div>
+                  <p class="font-medium text-gray-900">Starbucks</p>
+                  <p class="text-sm text-gray-500">$25 value</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="font-bold text-blue-600">Trade</p>
+                <p class="text-xs text-gray-500">For Amazon</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Popular Brands Section -->
 <div class="relative isolate overflow-hidden w-full py-24 bg-rose-50">
   <div class="w-full px-6">
@@ -200,18 +366,63 @@
   </div>
 </div>
 
+<!-- FAQ Section -->
+<div class="relative isolate overflow-hidden w-full py-24 bg-gray-50">
+  <div class="w-full px-6">
+    <div class="w-full text-center mb-16">
+      <h2 class="text-4xl font-bold tracking-tight text-gray-900">Frequently asked questions</h2>
+      <p class="mt-6 text-xl leading-8 text-gray-600 max-w-3xl mx-auto">Everything you need to know about Cardly</p>
+    </div>
+    <div class="w-full max-w-3xl mx-auto">
+      <dl class="space-y-6">
+        <div class="bg-white rounded-xl p-6 shadow-sm ring-1 ring-gray-100">
+          <dt class="text-lg font-semibold text-gray-900">Is Cardly free to use?</dt>
+          <dd class="mt-2 text-gray-600">Yes! Creating an account and tracking your gift cards is completely free. We only charge a small fee (5%) when you sell cards on the marketplace.</dd>
+        </div>
+        <div class="bg-white rounded-xl p-6 shadow-sm ring-1 ring-gray-100">
+          <dt class="text-lg font-semibold text-gray-900">Is my card information secure?</dt>
+          <dd class="mt-2 text-gray-600">Absolutely. All card numbers and PINs are encrypted using industry-standard encryption. We never share your data with third parties.</dd>
+        </div>
+        <div class="bg-white rounded-xl p-6 shadow-sm ring-1 ring-gray-100">
+          <dt class="text-lg font-semibold text-gray-900">How do I get paid when I sell a card?</dt>
+          <dd class="mt-2 text-gray-600">When you sell a card, payment is processed securely through Stripe. Funds are deposited directly to your bank account within 2-3 business days.</dd>
+        </div>
+        <div class="bg-white rounded-xl p-6 shadow-sm ring-1 ring-gray-100">
+          <dt class="text-lg font-semibold text-gray-900">What if a card I buy doesn't work?</dt>
+          <dd class="mt-2 text-gray-600">All transactions are protected. If a card doesn't have the stated balance, contact us and we'll help resolve the issue with a refund or replacement.</dd>
+        </div>
+        <div class="bg-white rounded-xl p-6 shadow-sm ring-1 ring-gray-100">
+          <dt class="text-lg font-semibold text-gray-900">How do expiration reminders work?</dt>
+          <dd class="mt-2 text-gray-600">When you add a card with an expiration date, we'll automatically email you 30 days, 7 days, and 1 day before it expires so you never lose value.</dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+</div>
+
 <!-- CTA Section -->
-<div class="relative isolate overflow-hidden w-full py-24 bg-white">
+<div class="relative isolate overflow-hidden w-full py-24 bg-gradient-to-r from-rose-600 to-rose-500">
   <div class="w-full px-6">
     <div class="w-full text-center">
-      <h2 class="text-4xl font-bold tracking-tight text-gray-900">Start managing your gift cards today</h2>
-      <p class="mt-6 text-xl leading-8 text-gray-600 max-w-3xl mx-auto">Join thousands of users who never lose track of their gift card balances.</p>
-      <div class="mt-10 flex items-center justify-center gap-x-6">
-        <%= link_to "Create free account", new_user_registration_path, class: "rounded-md bg-rose-600 px-6 py-3 text-lg font-semibold text-white shadow-sm hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600" %>
-        <%= link_to marketplace_path, class: "text-lg font-semibold leading-6 text-gray-900" do %>
+      <h2 class="text-4xl font-bold tracking-tight text-white">Ready to organize your gift cards?</h2>
+      <p class="mt-6 text-xl leading-8 text-rose-100 max-w-3xl mx-auto">Join thousands of users who save money and never lose track of their gift card balances.</p>
+      <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+        <%= link_to "Create free account", new_user_registration_path, class: "rounded-md bg-white px-8 py-4 text-lg font-semibold text-rose-600 shadow-sm hover:bg-rose-50 transition" %>
+        <%= link_to marketplace_path, class: "text-lg font-semibold leading-6 text-white hover:text-rose-100 transition" do %>
           Browse marketplace <span aria-hidden="true">→</span>
         <% end %>
       </div>
+      <p class="mt-6 text-sm text-rose-200">Free forever for personal use. No credit card required.</p>
     </div>
+  </div>
+  <div class="absolute inset-0 -z-10 overflow-hidden">
+    <svg class="absolute left-[max(50%,25rem)] top-0 h-[64rem] w-[128rem] -translate-x-1/2 stroke-rose-400/20 [mask-image:radial-gradient(64rem_64rem_at_top,white,transparent)]" aria-hidden="true">
+      <defs>
+        <pattern id="cta-pattern" width="200" height="200" x="50%" y="-1" patternUnits="userSpaceOnUse">
+          <path d="M100 200V.5M.5 .5H200" fill="none"/>
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" stroke-width="0" fill="url(#cta-pattern)"/>
+    </svg>
   </div>
 </div>
