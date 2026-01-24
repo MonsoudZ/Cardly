@@ -18,23 +18,43 @@ class WebhooksController < ApplicationController
       return
     end
 
-    # Handle the event
-    case event.type
-    when "checkout.session.completed"
-      handle_checkout_completed(event.data.object)
-    when "payment_intent.succeeded"
-      handle_payment_succeeded(event.data.object)
-    when "payment_intent.payment_failed"
-      handle_payment_failed(event.data.object)
-    when "account.updated"
-      handle_connect_account_updated(event.data.object)
-    when "transfer.created"
-      handle_transfer_created(event.data.object)
-    else
-      Rails.logger.info "Unhandled Stripe event type: #{event.type}"
+    # Check if event was already processed (idempotency)
+    webhook_event = StripeWebhookEvent.find_or_create_by(stripe_event_id: event.id) do |we|
+      we.event_type = event.type
+      we.payload = event.to_json
     end
 
-    render json: { received: true }, status: :ok
+    # Return early if already processed
+    if webhook_event.processed?
+      Rails.logger.info "Stripe webhook event #{event.id} already processed (idempotency)"
+      render json: { received: true, message: "Event already processed" }, status: :ok
+      return
+    end
+
+    # Process the event
+    begin
+      case event.type
+      when "checkout.session.completed"
+        handle_checkout_completed(event.data.object)
+      when "payment_intent.succeeded"
+        handle_payment_succeeded(event.data.object)
+      when "payment_intent.payment_failed"
+        handle_payment_failed(event.data.object)
+      when "account.updated"
+        handle_connect_account_updated(event.data.object)
+      when "transfer.created"
+        handle_transfer_created(event.data.object)
+      else
+        Rails.logger.info "Unhandled Stripe event type: #{event.type}"
+      end
+
+      webhook_event.mark_as_processed!
+      render json: { received: true }, status: :ok
+    rescue => e
+      Rails.logger.error("Error processing webhook event #{event.id}: #{e.message}")
+      webhook_event.mark_as_failed!(e.message)
+      render json: { error: "Processing failed" }, status: :internal_server_error
+    end
   end
 
   private
@@ -43,9 +63,11 @@ class WebhooksController < ApplicationController
     transaction = Transaction.find_by(stripe_checkout_session_id: session.id)
     return unless transaction
 
-    if session.payment_status == "paid"
+    if session.payment_status == "paid" && !transaction.payment_completed?
       transaction.complete_payment!(session.payment_intent)
       Rails.logger.info "Payment completed for transaction #{transaction.id}"
+    elsif transaction.payment_completed?
+      Rails.logger.info "Payment already completed for transaction #{transaction.id} (idempotency)"
     end
   end
 
@@ -56,6 +78,8 @@ class WebhooksController < ApplicationController
     unless transaction.payment_status == "completed"
       transaction.complete_payment!(payment_intent.id)
       Rails.logger.info "Payment intent succeeded for transaction #{transaction.id}"
+    else
+      Rails.logger.info "Payment already completed for transaction #{transaction.id} (idempotency)"
     end
   end
 

@@ -45,8 +45,16 @@ module Admin
     end
 
     def resolve
-      resolution = params[:resolution]
-      resolution_notes = params[:resolution_notes]
+      resolution_params = dispute_resolution_params
+      resolution = resolution_params[:resolution]
+      resolution_notes = resolution_params[:resolution_notes]
+
+      # Validate resolution type at controller level
+      unless Dispute::RESOLUTIONS.include?(resolution)
+        redirect_to admin_dispute_path(@dispute),
+                    alert: "Invalid resolution type. Please select a valid resolution."
+        return
+      end
 
       if @dispute.resolve!(resolution, resolution_notes, current_user)
         redirect_to admin_dispute_path(@dispute),
@@ -58,7 +66,7 @@ module Admin
     end
 
     def close
-      admin_notes = params[:admin_notes]
+      admin_notes = dispute_close_params[:admin_notes]
       if @dispute.close!(admin_notes)
         redirect_to admin_disputes_path,
                     notice: "Dispute closed."
@@ -80,9 +88,10 @@ module Admin
 
     def add_message
       @message = @dispute.dispute_messages.new(
-        content: params[:dispute_message][:content],
-        sender: current_user,
-        is_admin_message: true
+        dispute_message_params.merge(
+          sender: current_user,
+          is_admin_message: true
+        )
       )
 
       if @message.save
@@ -97,6 +106,18 @@ module Admin
 
     def set_dispute
       @dispute = Dispute.find(params[:id])
+    end
+
+    def dispute_resolution_params
+      params.permit(:resolution, :resolution_notes)
+    end
+
+    def dispute_close_params
+      params.permit(:admin_notes)
+    end
+
+    def dispute_message_params
+      params.require(:dispute_message).permit(:content)
     end
   end
 end

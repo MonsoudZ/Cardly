@@ -182,9 +182,38 @@ class Dispute < ApplicationRecord
 
   def handle_buyer_favor_resolution
     # Refund buyer if payment was made
-    if card_transaction.sale? && card_transaction.payment_completed?
-      card_transaction.update!(payment_status: "refunded")
-      # Return gift card to seller
+    return unless card_transaction.sale? && card_transaction.payment_completed?
+    
+    # Process actual Stripe refund
+    begin
+      refund = Stripe::Refund.create(
+        payment_intent: card_transaction.stripe_payment_intent_id,
+        amount: card_transaction.payment_amount_cents,
+        reason: "dispute_resolution",
+        metadata: {
+          dispute_id: id,
+          transaction_id: card_transaction.id,
+          reason: "buyer_favor"
+        }
+      )
+      
+      ActiveRecord::Base.transaction do
+        card_transaction.update!(
+          payment_status: "refunded",
+          stripe_refund_id: refund.id
+        )
+        # Return gift card to seller
+        card_transaction.gift_card.update!(user: seller, status: "active")
+      end
+      
+      Rails.logger.info "Refund processed for dispute #{id}: #{refund.id}"
+    rescue Stripe::StripeError => e
+      Rails.logger.error("Refund failed for dispute #{id}: #{e.message}")
+      # Mark for manual review - don't fail the resolution
+      update!(
+        admin_notes: "#{admin_notes}\n\nRefund failed: #{e.message}. Manual review required."
+      )
+      # Still return card to seller as resolution stands
       card_transaction.gift_card.update!(user: seller, status: "active")
     end
   end

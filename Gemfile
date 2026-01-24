@@ -27,6 +27,9 @@ gem "kaminari"
 # Rate limiting
 gem "rack-attack"
 
+# Background job processing
+gem "sidekiq"
+
 # Payment processing
 gem "stripe"
 

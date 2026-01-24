@@ -162,20 +162,37 @@ class Transaction < ApplicationRecord
 
   def accept!
     return false unless pending?
+    
+    # Re-validate listing is still active
+    unless listing.active?
+      errors.add(:listing, "is no longer available")
+      return false
+    end
 
-    if sale?
-      # For sales, mark as accepted and await payment
-      update!(status: "accepted")
-      send_offer_accepted_notification
-      send_payment_request_notification
-      true
-    else
-      # For trades, complete immediately (no payment needed)
-      ActiveRecord::Base.transaction do
-        complete_transaction!
+    with_lock do
+      # Re-check status after acquiring lock to prevent race conditions
+      return false unless pending?
+      
+      # Re-validate listing is still active after lock
+      unless listing.active?
+        errors.add(:listing, "is no longer available")
+        return false
       end
-      send_offer_accepted_notification
-      true
+
+      if sale?
+        # For sales, mark as accepted and await payment
+        update!(status: "accepted")
+        send_offer_accepted_notification
+        send_payment_request_notification
+        true
+      else
+        # For trades, complete immediately (no payment needed)
+        ActiveRecord::Base.transaction do
+          complete_transaction!
+        end
+        send_offer_accepted_notification
+        true
+      end
     end
   rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound => e
     Rails.logger.error("Transaction accept failed: #{e.message}")
@@ -214,23 +231,40 @@ class Transaction < ApplicationRecord
 
   def accept_counter!
     return false unless countered?
+    
+    # Re-validate listing is still active
+    unless listing.active?
+      errors.add(:listing, "is no longer available")
+      return false
+    end
 
-    # Update amount to the counter amount
-    update!(amount: counter_amount)
-
-    if sale?
-      # For sales, mark as accepted and await payment
-      update!(status: "accepted")
-      send_counter_accepted_notification
-      send_payment_request_notification
-      true
-    else
-      # For trades, complete immediately
-      ActiveRecord::Base.transaction do
-        complete_transaction!
+    with_lock do
+      # Re-check status after acquiring lock
+      return false unless countered?
+      
+      # Re-validate listing is still active after lock
+      unless listing.active?
+        errors.add(:listing, "is no longer available")
+        return false
       end
-      send_counter_accepted_notification
-      true
+
+      # Update amount to the counter amount
+      update!(amount: counter_amount)
+
+      if sale?
+        # For sales, mark as accepted and await payment
+        update!(status: "accepted")
+        send_counter_accepted_notification
+        send_payment_request_notification
+        true
+      else
+        # For trades, complete immediately
+        ActiveRecord::Base.transaction do
+          complete_transaction!
+        end
+        send_counter_accepted_notification
+        true
+      end
     end
   rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound => e
     Rails.logger.error("Accept counter failed: #{e.message}")
@@ -239,18 +273,32 @@ class Transaction < ApplicationRecord
 
   def complete_payment!(payment_intent_id)
     return false unless accepted? && sale?
+    
+    # Idempotency check: return true if already completed
+    return true if payment_completed?
 
-    ActiveRecord::Base.transaction do
-      update!(
-        stripe_payment_intent_id: payment_intent_id,
-        payment_status: "completed",
-        paid_at: Time.current
-      )
-      complete_transaction!
-      initiate_seller_payout if seller.stripe_connect_payouts_enabled?
+    with_lock do
+      # Re-check after acquiring lock (idempotency)
+      return true if payment_completed?
+      
+      # Verify listing is still active
+      unless listing.active?
+        Rails.logger.error("Cannot complete payment: listing #{listing.id} is no longer active")
+        return false
+      end
+
+      ActiveRecord::Base.transaction do
+        update!(
+          stripe_payment_intent_id: payment_intent_id,
+          payment_status: "completed",
+          paid_at: Time.current
+        )
+        complete_transaction!
+        initiate_seller_payout if seller.stripe_connect_payouts_enabled?
+      end
+      send_payment_completed_notification
+      true
     end
-    send_payment_completed_notification
-    true
   rescue ActiveRecord::RecordInvalid => e
     Rails.logger.error("Complete payment failed: #{e.message}")
     false
@@ -305,8 +353,20 @@ class Transaction < ApplicationRecord
   def complete_sale!
     # Transfer gift card ownership to buyer
     gift_card = listing.gift_card
-    gift_card.update!(user: buyer, status: "active", acquired_from: "bought_on_cardly")
-    listing.mark_as_sold!
+    
+    # Verify listing is still active
+    raise ActiveRecord::RecordInvalid.new(self) unless listing.active?
+    
+    # Verify gift card hasn't been transferred
+    if gift_card.user_id != seller_id
+      errors.add(:base, "Gift card has already been transferred")
+      raise ActiveRecord::RecordInvalid.new(self)
+    end
+    
+    ActiveRecord::Base.transaction do
+      gift_card.update!(user: buyer, status: "active", acquired_from: "bought_on_cardly")
+      listing.mark_as_sold!
+    end
   end
 
   def complete_trade!
@@ -314,16 +374,32 @@ class Transaction < ApplicationRecord
     seller_card = listing.gift_card
     buyer_card = offered_gift_card
 
-    # Transfer seller's card to buyer
-    seller_card.update!(user: buyer, status: "active", acquired_from: "traded")
+    # Verify listing is still active
+    raise ActiveRecord::RecordInvalid.new(self) unless listing.active?
+    
+    # Verify cards haven't been transferred
+    if seller_card.user_id != seller_id
+      errors.add(:base, "Seller's gift card has already been transferred")
+      raise ActiveRecord::RecordInvalid.new(self)
+    end
+    
+    if buyer_card.user_id != buyer_id
+      errors.add(:base, "Buyer's gift card has already been transferred")
+      raise ActiveRecord::RecordInvalid.new(self)
+    end
 
-    # Transfer buyer's card to seller
-    buyer_card.update!(user: seller, status: "active", acquired_from: "traded")
+    ActiveRecord::Base.transaction do
+      # Transfer seller's card to buyer
+      seller_card.update!(user: buyer, status: "active", acquired_from: "traded")
 
-    listing.mark_as_traded!
+      # Transfer buyer's card to seller
+      buyer_card.update!(user: seller, status: "active", acquired_from: "traded")
 
-    # Cancel the offered card's listing if it was listed
-    buyer_card.listing&.cancel!
+      listing.mark_as_traded!
+
+      # Cancel the offered card's listing if it was listed
+      buyer_card.listing&.cancel!
+    end
   end
 
   def buyer_cannot_be_seller

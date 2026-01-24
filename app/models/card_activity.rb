@@ -59,24 +59,42 @@ class CardActivity < ApplicationRecord
   def calculate_balances
     return unless gift_card
 
-    self.balance_before = gift_card.balance
+    # Use lock to prevent race conditions
+    gift_card.with_lock do
+      self.balance_before = gift_card.balance
 
-    case activity_type
-    when "purchase"
-      self.balance_after = [balance_before - amount, 0].max
-    when "refund"
-      self.balance_after = balance_before + amount
-    when "adjustment"
-      # For adjustments, balance_after should be set explicitly or equal to amount
-      self.balance_after ||= amount
-    when "balance_check"
-      self.balance_after = balance_before
+      case activity_type
+      when "purchase"
+        self.balance_after = [balance_before - amount, 0].max
+      when "refund"
+        self.balance_after = balance_before + amount
+      when "adjustment"
+        # For adjustments, balance_after should be set explicitly or equal to amount
+        self.balance_after ||= amount
+      when "balance_check"
+        self.balance_after = balance_before
+      end
     end
   end
 
   def update_gift_card_balance
     return unless balance_after && gift_card
 
-    gift_card.update_column(:balance, balance_after)
+    # Use lock and update! to ensure data integrity
+    gift_card.with_lock do
+      # Recalculate balance from all activities to ensure accuracy
+      # This prevents race conditions from concurrent activities
+      calculated_balance = gift_card.card_activities
+                                    .where("occurred_at <= ?", occurred_at)
+                                    .sum { |a| a.signed_amount }
+      
+      # Ensure balance doesn't go negative
+      final_balance = [calculated_balance, 0].max
+      
+      gift_card.update!(balance: final_balance)
+    end
+  rescue ActiveRecord::RecordInvalid => e
+    Rails.logger.error("Failed to update gift card balance: #{e.message}")
+    raise
   end
 end

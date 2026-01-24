@@ -85,10 +85,7 @@ class TransactionsController < ApplicationController
   end
 
   def counter
-    counter_amount = params[:counter_amount].to_d
-    counter_message = params[:counter_message]
-
-    if @transaction.counter!(counter_amount, counter_message)
+    if @transaction.counter!(counter_params[:counter_amount], counter_params[:counter_message])
       redirect_to @transaction, notice: "Counteroffer sent! Waiting for buyer's response."
     else
       redirect_to @transaction, alert: "Unable to send counteroffer. Amount must be different from the original offer."
@@ -132,6 +129,10 @@ class TransactionsController < ApplicationController
 
   def transaction_params
     params.require(:transaction).permit(:offered_gift_card_id, :message, :amount)
+  end
+
+  def counter_params
+    params.permit(:counter_amount, :counter_message)
   end
 
   def offer_success_message

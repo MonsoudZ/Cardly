@@ -63,7 +63,7 @@
     <%= text %>
   <% end %>
 <% else %>
-  <button type="<%= type %>" class="<%= classes %>" <%= 'disabled' if disabled %> <%= data.map { |k, v| "data-#{k}=\"#{v}\"" }.join(' ').html_safe %>>
+  <button type="<%= type %>" class="<%= classes %>" <%= 'disabled' if disabled %> <%= tag.attributes(data: data) %>>
     <% if icon %>
       <%= render 'shared/components/icon', name: icon, size: size == :sm ? :xs : :sm %>
     <% end %>
