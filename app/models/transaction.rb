@@ -25,6 +25,7 @@ class Transaction < ApplicationRecord
   validate :offered_card_has_balance, if: :trade?
   validate :listing_must_be_active, on: :create
   validate :counter_amount_differs_from_original, if: :counter_amount
+  validate :expires_at_in_future, if: :expires_at
 
   after_create_commit :send_new_offer_notification
 
@@ -347,6 +348,13 @@ class Transaction < ApplicationRecord
   def counter_amount_differs_from_original
     if counter_amount == amount
       errors.add(:counter_amount, "must be different from the original offer")
+    end
+  end
+
+  def expires_at_in_future
+    return if expires_at.nil?
+    if expires_at <= Time.current
+      errors.add(:expires_at, "must be in the future")
     end
   end
 

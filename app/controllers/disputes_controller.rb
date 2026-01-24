@@ -38,8 +38,7 @@ class DisputesController < ApplicationController
     return redirect_to @dispute, alert: "Cannot add messages to a closed dispute." if @dispute.closed?
 
     @message = @dispute.dispute_messages.new(
-      content: params[:dispute_message][:content],
-      sender: current_user
+      dispute_message_params.merge(sender: current_user)
     )
 
     if @message.save
@@ -75,6 +74,10 @@ class DisputesController < ApplicationController
 
   def dispute_params
     params.require(:dispute).permit(:reason, :description)
+  end
+
+  def dispute_message_params
+    params.require(:dispute_message).permit(:content)
   end
 
   def mark_messages_as_read

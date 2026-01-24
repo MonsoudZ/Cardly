@@ -5,7 +5,7 @@ class EncryptGiftCardSensitiveFields < ActiveRecord::Migration[8.1]
     GiftCard.find_each do |gift_card|
       # Read raw unencrypted values directly from database
       raw_values = GiftCard.connection.select_one(
-        "SELECT card_number, pin FROM gift_cards WHERE id = #{gift_card.id}"
+        "SELECT card_number, pin FROM gift_cards WHERE id = ?", gift_card.id
       )
 
       # Skip if already encrypted (starts with encryption marker) or nil

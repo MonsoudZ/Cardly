@@ -14,6 +14,7 @@ class Listing < ApplicationRecord
   validates :trade_preferences, presence: true, if: :trade?
   validate :gift_card_belongs_to_user
   validate :gift_card_has_balance
+  validate :asking_price_below_balance, if: :sale?
 
   before_save :calculate_discount
   before_save :track_price_change
@@ -114,5 +115,13 @@ class Listing < ApplicationRecord
   def gift_card_has_balance
     return if gift_card.nil?
     errors.add(:gift_card, "must have a balance to list") unless gift_card.balance.positive?
+  end
+
+  def asking_price_below_balance
+    return unless sale?
+    return if asking_price.nil? || gift_card.nil?
+    if asking_price > gift_card.balance
+      errors.add(:asking_price, "cannot exceed the gift card balance")
+    end
   end
 end

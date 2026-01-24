@@ -93,10 +93,18 @@ Rails.application.configure do
   config.active_record.dump_schema_after_migration = false
 
   # Enable DNS rebinding protection and other `Host` header attacks.
-  # config.hosts = [
-  #   "example.com",     # Allow requests from example.com
-  #   /.*\.example\.com/ # Allow requests from subdomains like `www.example.com`
-  # ]
+  # Configure allowed hosts via environment variable or set defaults
+  # Example: ALLOWED_HOSTS="example.com,www.example.com,api.example.com"
+  allowed_hosts = ENV.fetch("ALLOWED_HOSTS", "").split(",").map(&:strip).reject(&:empty?)
+  
+  if allowed_hosts.any?
+    config.hosts = allowed_hosts + allowed_hosts.map { |host| /.*\.#{Regexp.escape(host)}/ }
+  else
+    # In production, you should set ALLOWED_HOSTS environment variable
+    # For now, we'll allow all hosts but log a warning
+    Rails.logger.warn "WARNING: ALLOWED_HOSTS not set. All hosts are allowed. Set ALLOWED_HOSTS environment variable in production."
+  end
+  
   # Skip DNS rebinding protection for the default health check endpoint.
-  # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+  config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
 end

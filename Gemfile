@@ -21,6 +21,12 @@ gem "redis"
 
 gem "devise"
 
+# Pagination
+gem "kaminari"
+
+# Rate limiting
+gem "rack-attack"
+
 # Payment processing
 gem "stripe"
 

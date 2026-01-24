@@ -5,6 +5,7 @@ class GiftCard < ApplicationRecord
   # Encrypt sensitive fields at rest
   encrypts :card_number, deterministic: true
   encrypts :pin
+  encrypts :barcode_data
 
   belongs_to :user, counter_cache: true
   belongs_to :brand
