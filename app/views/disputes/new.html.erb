@@ -1,0 +1,85 @@
+<div class="page-container max-w-2xl">
+  <!-- Back Link -->
+  <div class="mb-6">
+    <%= link_to transaction_path(@transaction), class: "inline-flex items-center text-neutral-500 hover:text-neutral-700" do %>
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+      Back to Transaction
+    <% end %>
+  </div>
+
+  <div class="section-header mb-6">
+    <div>
+      <h1 class="section-title">Open a Dispute</h1>
+      <p class="section-subtitle">Report an issue with your transaction</p>
+    </div>
+  </div>
+
+  <!-- Transaction Summary -->
+  <div class="card p-4 mb-6 bg-neutral-50">
+    <div class="flex items-center space-x-4">
+      <img src="<%= @transaction.gift_card.brand_display_logo %>" alt="" class="w-12 h-8 object-contain rounded bg-white p-1">
+      <div>
+        <p class="font-medium text-neutral-900"><%= @transaction.gift_card.brand_name %> Gift Card</p>
+        <p class="text-sm text-neutral-500">
+          <% if @transaction.sale? %>
+            <%= number_to_currency(@transaction.amount) %> ·
+          <% end %>
+          Transaction with <%= @transaction.other_party(current_user).display_name %>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dispute Form -->
+  <div class="card p-6">
+    <%= form_with model: @dispute, url: transaction_disputes_path(@transaction), method: :post do |f| %>
+      <% if @dispute.errors.any? %>
+        <div class="mb-6 p-4 bg-danger-50 border border-danger-200 rounded-lg">
+          <h3 class="text-sm font-medium text-danger-800 mb-2">Please fix the following errors:</h3>
+          <ul class="list-disc list-inside text-sm text-danger-600">
+            <% @dispute.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="mb-6">
+        <label for="dispute_reason" class="label">Reason for Dispute</label>
+        <%= f.select :reason, Dispute::REASONS.map { |r| [r.titleize.gsub("_", " "), r] },
+            { prompt: "Select a reason..." },
+            class: "input", required: true %>
+        <p class="text-xs text-neutral-500 mt-1">Choose the option that best describes your issue</p>
+      </div>
+
+      <div class="mb-6">
+        <label for="dispute_description" class="label">Description</label>
+        <%= f.text_area :description,
+            class: "input min-h-[150px]",
+            placeholder: "Please describe the issue in detail. Include any relevant information such as what happened, when it occurred, and what resolution you're seeking...",
+            required: true,
+            minlength: 20,
+            maxlength: 2000 %>
+        <p class="text-xs text-neutral-500 mt-1">Minimum 20 characters. Be as specific as possible.</p>
+      </div>
+
+      <!-- Guidelines -->
+      <div class="mb-6 p-4 bg-info-50 border border-info-200 rounded-lg">
+        <h3 class="text-sm font-medium text-info-800 mb-2">Before you submit:</h3>
+        <ul class="text-sm text-info-700 space-y-1">
+          <li>• Make sure you've tried to resolve the issue directly with the other party</li>
+          <li>• Provide accurate and honest information</li>
+          <li>• Include any screenshots or evidence in your description</li>
+          <li>• Our team will review your dispute within 24-48 hours</li>
+        </ul>
+      </div>
+
+      <div class="flex justify-end space-x-3">
+        <%= link_to "Cancel", transaction_path(@transaction), class: "btn-ghost" %>
+        <%= f.submit "Submit Dispute", class: "btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+</div>

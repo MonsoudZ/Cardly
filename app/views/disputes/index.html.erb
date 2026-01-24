@@ -1,0 +1,100 @@
+<div class="page-container max-w-4xl">
+  <div class="section-header">
+    <div>
+      <h1 class="section-title">My Disputes</h1>
+      <p class="section-subtitle">Track and manage disputes for your transactions</p>
+    </div>
+  </div>
+
+  <!-- Open Disputes -->
+  <% if @open_disputes.any? %>
+    <div class="mb-8">
+      <h2 class="text-lg font-semibold text-neutral-900 mb-4 flex items-center">
+        Open Disputes
+        <%= render 'shared/components/badge', text: @open_disputes.count, variant: :warning, size: :sm, class: 'ml-2' %>
+      </h2>
+      <div class="card divide-y divide-neutral-100">
+        <% @open_disputes.each do |dispute| %>
+          <div class="p-4 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+              <div class="w-10 h-10 rounded-full flex items-center justify-center <%= dispute.status == 'open' ? 'bg-warning-100' : 'bg-info-100' %>">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 <%= dispute.status == 'open' ? 'text-warning-600' : 'text-info-600' %>" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <div>
+                <p class="font-medium text-neutral-900">
+                  <%= dispute.reason_display %>
+                </p>
+                <p class="text-sm text-neutral-500">
+                  <%= dispute.card_transaction.gift_card.brand_name %> card ·
+                  <%= dispute.initiator == current_user ? "You opened" : "Opened against you" %> ·
+                  <%= time_ago_in_words(dispute.created_at) %> ago
+                </p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-2">
+              <% if dispute.open? %>
+                <%= render 'shared/components/badge', text: "Open", variant: :warning, size: :sm %>
+              <% else %>
+                <%= render 'shared/components/badge', text: "Under Review", variant: :info, size: :sm %>
+              <% end %>
+              <%= link_to dispute_path(dispute), class: "btn-ghost btn-sm" do %>
+                View
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Resolved Disputes -->
+  <% if @resolved_disputes.any? %>
+    <div class="mb-8">
+      <h2 class="text-lg font-semibold text-neutral-900 mb-4 flex items-center">
+        Resolved Disputes
+        <%= render 'shared/components/badge', text: @resolved_disputes.count, variant: :secondary, size: :sm, class: 'ml-2' %>
+      </h2>
+      <div class="card divide-y divide-neutral-100">
+        <% @resolved_disputes.each do |dispute| %>
+          <div class="p-4 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+              <div class="w-10 h-10 rounded-full flex items-center justify-center bg-success-100">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-success-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <p class="font-medium text-neutral-900">
+                  <%= dispute.reason_display %>
+                </p>
+                <p class="text-sm text-neutral-500">
+                  <%= dispute.card_transaction.gift_card.brand_name %> card ·
+                  <%= dispute.resolution_display %> ·
+                  Resolved <%= time_ago_in_words(dispute.resolved_at) %> ago
+                </p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-2">
+              <%= render 'shared/components/badge', text: "Resolved", variant: :success, size: :sm %>
+              <%= link_to dispute_path(dispute), class: "btn-ghost btn-sm" do %>
+                View
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- No Disputes -->
+  <% if @open_disputes.empty? && @resolved_disputes.empty? %>
+    <%= render 'shared/components/empty_state',
+        icon: 'shield-check',
+        title: 'No disputes',
+        description: 'You have no disputes. If you have an issue with a transaction, you can open a dispute from the transaction page.',
+        action_text: 'View Transactions',
+        action_path: transactions_path %>
+  <% end %>
+</div>

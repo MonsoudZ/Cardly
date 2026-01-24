@@ -1,5 +1,5 @@
 class Message < ApplicationRecord
-  belongs_to :transaction
+  belongs_to :card_transaction, class_name: "Transaction", foreign_key: "transaction_id"
   belongs_to :sender, class_name: "User"
 
   validates :body, presence: true, length: { maximum: 2000 }
@@ -24,22 +24,22 @@ class Message < ApplicationRecord
   end
 
   def recipient
-    sender == transaction.buyer ? transaction.seller : transaction.buyer
+    sender == card_transaction.buyer ? card_transaction.seller : card_transaction.buyer
   end
 
   def from_buyer?
-    sender == transaction.buyer
+    sender == card_transaction.buyer
   end
 
   def from_seller?
-    sender == transaction.seller
+    sender == card_transaction.seller
   end
 
   private
 
   def sender_must_be_participant
-    return if transaction.nil? || sender.nil?
-    unless [ transaction.buyer_id, transaction.seller_id ].include?(sender_id)
+    return if card_transaction.nil? || sender.nil?
+    unless [ card_transaction.buyer_id, card_transaction.seller_id ].include?(sender_id)
       errors.add(:sender, "must be a participant in the transaction")
     end
   end

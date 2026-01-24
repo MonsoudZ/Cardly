@@ -2,7 +2,7 @@ class Rating < ApplicationRecord
   ROLES = %w[buyer seller].freeze
   SCORE_RANGE = (1..5).freeze
 
-  belongs_to :transaction
+  belongs_to :card_transaction, class_name: "Transaction", foreign_key: "transaction_id"
   belongs_to :rater, class_name: "User"
   belongs_to :ratee, class_name: "User"
 
@@ -33,26 +33,26 @@ class Rating < ApplicationRecord
   private
 
   def transaction_must_be_completed
-    return if transaction.nil?
-    errors.add(:transaction, "must be completed before rating") unless transaction.completed?
+    return if card_transaction.nil?
+    errors.add(:card_transaction, "must be completed before rating") unless card_transaction.completed?
   end
 
   def rater_must_be_participant
-    return if transaction.nil? || rater.nil?
-    unless [ transaction.buyer_id, transaction.seller_id ].include?(rater_id)
+    return if card_transaction.nil? || rater.nil?
+    unless [ card_transaction.buyer_id, card_transaction.seller_id ].include?(rater_id)
       errors.add(:rater, "must be a participant in the transaction")
     end
   end
 
   def ratee_must_be_other_participant
-    return if transaction.nil? || ratee.nil? || rater.nil?
+    return if card_transaction.nil? || ratee.nil? || rater.nil?
 
     if rater_id == ratee_id
       errors.add(:ratee, "cannot rate yourself")
       return
     end
 
-    unless [ transaction.buyer_id, transaction.seller_id ].include?(ratee_id)
+    unless [ card_transaction.buyer_id, card_transaction.seller_id ].include?(ratee_id)
       errors.add(:ratee, "must be a participant in the transaction")
     end
   end

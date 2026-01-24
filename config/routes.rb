@@ -15,6 +15,15 @@ Rails.application.routes.draw do
       end
     end
     resources :transactions, only: [ :index, :show ]
+    resources :disputes, only: [ :index, :show ] do
+      member do
+        post :review
+        post :resolve
+        post :close
+        post :reopen
+        post :add_message
+      end
+    end
   end
 
   # Profile routes (current user's own profile)
@@ -80,6 +89,15 @@ Rails.application.routes.draw do
       post :checkout
       get :success
       get :cancel
+    end
+    # Disputes
+    resources :disputes, only: [ :new, :create ]
+  end
+
+  # User disputes
+  resources :disputes, only: [ :index, :show ] do
+    member do
+      post :add_message
     end
   end
 

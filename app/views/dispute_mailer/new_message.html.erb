@@ -1,0 +1,19 @@
+<h2>New message in your dispute</h2>
+
+<p>Hi <%= @user.display_name %>,</p>
+
+<p><strong><%= @sender.display_name %></strong> sent a message regarding dispute #<%= @dispute.id %>.</p>
+
+<div class="card-details">
+  <h3>Message</h3>
+</div>
+
+<blockquote style="border-left: 3px solid #e11d48; padding-left: 16px; margin: 16px 0; color: #4b5563;">
+  <%= @message.content %>
+</blockquote>
+
+<p style="text-align: center;">
+  <%= link_to "View Dispute", dispute_url(@dispute), class: "btn" %>
+</p>
+
+<p>Reply to this message from the dispute page.</p>

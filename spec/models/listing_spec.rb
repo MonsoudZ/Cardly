@@ -136,7 +136,8 @@ RSpec.describe Listing, type: :model do
     let(:seller) { create(:user) }
     let(:watcher1) { create(:user) }
     let(:watcher2) { create(:user) }
-    let(:listing) { create(:listing, :sale, user: seller, asking_price: 90.00) }
+    let(:gift_card) { create(:gift_card, :listed, user: seller) }
+    let(:listing) { create(:listing, :sale, gift_card: gift_card, user: seller, asking_price: 90.00) }
 
     before do
       create(:favorite, user: watcher1, listing: listing)

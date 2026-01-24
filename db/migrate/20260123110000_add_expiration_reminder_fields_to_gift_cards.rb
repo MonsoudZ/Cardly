@@ -4,7 +4,7 @@ class AddExpirationReminderFieldsToGiftCards < ActiveRecord::Migration[8.0]
     add_column :gift_cards, :reminder_7_day_sent_at, :datetime
     add_column :gift_cards, :reminder_1_day_sent_at, :datetime
 
-    add_index :gift_cards, :expiration_date
-    add_index :gift_cards, [:user_id, :expiration_date]
+    add_index :gift_cards, :expiration_date, if_not_exists: true
+    add_index :gift_cards, [:user_id, :expiration_date], if_not_exists: true
   end
 end

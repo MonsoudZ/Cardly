@@ -2,13 +2,13 @@
   Avatar Component
 
   Usage:
-    <%= render 'shared/components/avatar', name: 'John Doe' %>
-    <%= render 'shared/components/avatar', name: 'Jane', image: user.avatar_url, size: :lg %>
-    <%= render 'shared/components/avatar', name: 'User', status: :online %>
+    render 'shared/components/avatar', name: 'John Doe'
+    render 'shared/components/avatar', name: 'Jane', image_url: '...', size: :lg
+    render 'shared/components/avatar', name: 'User', status: :online
 
   Options:
     - name: User name for initials (required)
-    - image: Image URL (optional)
+    - image_url: Image URL (optional)
     - size: :xs, :sm (default), :md, :lg, :xl
     - status: :online, :offline, :away, :busy (optional)
     - rounded: :full (default), :md

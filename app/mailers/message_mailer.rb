@@ -3,7 +3,7 @@ class MessageMailer < ApplicationMailer
     @message = message
     @sender = message.sender
     @recipient = message.recipient
-    @transaction = message.transaction
+    @transaction = message.card_transaction
 
     mail(
       to: @recipient.email,

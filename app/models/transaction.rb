@@ -11,6 +11,7 @@ class Transaction < ApplicationRecord
 
   has_many :ratings, dependent: :destroy
   has_many :messages, dependent: :destroy
+  has_one :dispute, dependent: :destroy
 
   validates :transaction_type, presence: true, inclusion: { in: TYPES }
   validates :status, presence: true, inclusion: { in: STATUSES }
@@ -126,6 +127,16 @@ class Transaction < ApplicationRecord
 
   def can_be_rated_by?(user)
     completed? && [ buyer_id, seller_id ].include?(user.id) && !rated_by?(user)
+  end
+
+  def can_be_disputed_by?(user)
+    %w[completed accepted].include?(status) &&
+      participant?(user) &&
+      !has_open_dispute?
+  end
+
+  def has_open_dispute?
+    dispute.present? && dispute.unresolved?
   end
 
   def participant?(user)

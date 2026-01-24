@@ -3,7 +3,8 @@ require "rails_helper"
 RSpec.describe "Ratings", type: :request do
   let(:buyer) { create(:user) }
   let(:seller) { create(:user) }
-  let(:listing) { create(:listing, :sale, user: seller) }
+  let(:gift_card) { create(:gift_card, :listed, user: seller) }
+  let(:listing) { create(:listing, :sale, user: seller, gift_card: gift_card) }
   let(:completed_transaction) { create(:transaction, :completed, buyer: buyer, seller: seller, listing: listing) }
 
   describe "GET /transactions/:transaction_id/rating/new" do
@@ -42,7 +43,7 @@ RSpec.describe "Ratings", type: :request do
     context "when user already rated" do
       before do
         sign_in buyer
-        create(:rating, transaction: completed_transaction, rater: buyer, ratee: seller, role: "buyer")
+        create(:rating, card_transaction: completed_transaction, rater: buyer, ratee: seller, role: "buyer")
       end
 
       it "redirects with alert" do

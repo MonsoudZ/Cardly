@@ -19,6 +19,10 @@ class User < ApplicationRecord
   # Messages
   has_many :sent_messages, class_name: "Message", foreign_key: :sender_id, dependent: :destroy
 
+  # Disputes
+  has_many :initiated_disputes, class_name: "Dispute", foreign_key: :initiator_id, dependent: :destroy
+  has_many :dispute_messages, class_name: "DisputeMessage", foreign_key: :sender_id, dependent: :destroy
+
   def wallet_balance
     gift_cards.active.with_balance.sum(:balance)
   end
@@ -109,5 +113,14 @@ class User < ApplicationRecord
 
   def total_transactions_count
     completed_sales_count + completed_purchases_count
+  end
+
+  def disputes
+    Dispute.joins(:transaction)
+           .where("transactions.buyer_id = ? OR transactions.seller_id = ?", id, id)
+  end
+
+  def open_disputes_count
+    disputes.unresolved.count
   end
 end

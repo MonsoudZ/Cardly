@@ -3,7 +3,7 @@ class Listing < ApplicationRecord
   STATUSES = %w[active sold traded cancelled].freeze
 
   belongs_to :gift_card
-  belongs_to :user
+  belongs_to :user, counter_cache: true
   has_many :transactions, dependent: :destroy
   has_many :favorites, dependent: :destroy
   has_many :favorited_by, through: :favorites, source: :user
