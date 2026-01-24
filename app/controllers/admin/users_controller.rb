@@ -22,7 +22,7 @@ module Admin
     def show
       @gift_cards = @user.gift_cards.includes(:brand).order(created_at: :desc).limit(10)
       @listings = @user.listings.includes(gift_card: :brand).order(created_at: :desc).limit(10)
-      @transactions = Transaction.where("buyer_id = ? OR seller_id = ?", @user.id, @user.id)
+      @transactions = Transaction.involving_user(@user)
                                   .includes(:buyer, :seller, listing: { gift_card: :brand })
                                   .order(created_at: :desc)
                                   .limit(10)

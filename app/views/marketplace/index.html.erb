@@ -96,7 +96,7 @@
     <nav class="-mb-px flex space-x-8" data-controller="tabs">
       <%= link_to marketplace_path(request.params.except(:controller, :action)), class: "tab #{request.path == marketplace_path ? 'tab-active' : 'tab-inactive'}" do %>
         All Listings
-        <%= render 'shared/components/badge', text: @listings.count, variant: :neutral, size: :sm, class: 'ml-2' %>
+        <%= render 'shared/components/badge', text: @listings.total_count, variant: :neutral, size: :sm, class: 'ml-2' %>
       <% end %>
       <%= link_to marketplace_sales_path(request.params.except(:controller, :action)), class: "tab #{request.path == marketplace_sales_path ? 'tab-active' : 'tab-inactive'}" do %>
         For Sale
@@ -113,6 +113,13 @@
         <%= render "marketplace/listing_card", listing: listing %>
       <% end %>
     </div>
+
+    <!-- Pagination -->
+    <% if @listings.respond_to?(:total_pages) && @listings.total_pages > 1 %>
+      <div class="mt-6 flex justify-center">
+        <%= paginate @listings, params: request.params.except(:controller, :action) %>
+      </div>
+    <% end %>
   <% else %>
     <% if params[:q].present? || params[:brand_id].present? || params[:min_discount].present? || params[:max_price].present? %>
       <%= render 'shared/components/empty_state',

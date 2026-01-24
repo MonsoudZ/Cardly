@@ -42,24 +42,29 @@ class CardActivitiesController < ApplicationController
   end
 
   def destroy
-    # Restore balance if it was a purchase
-    if @card_activity.purchase?
-      @gift_card.update_column(:balance, @gift_card.balance + @card_activity.amount)
-    elsif @card_activity.refund?
-      @gift_card.update_column(:balance, [@gift_card.balance - @card_activity.amount, 0].max)
+    # Restore balance if it was a purchase or refund
+    @gift_card.with_lock do
+      if @card_activity.purchase?
+        @gift_card.update!(balance: @gift_card.balance + @card_activity.amount)
+      elsif @card_activity.refund?
+        @gift_card.update!(balance: [@gift_card.balance - @card_activity.amount, 0].max)
+      end
     end
 
     @card_activity.destroy
     redirect_to gift_card_card_activities_path(@gift_card), notice: "Activity deleted and balance restored."
+  rescue ActiveRecord::RecordInvalid => e
+    Rails.logger.error("Failed to update gift card balance during activity deletion: #{e.message}")
+    redirect_to gift_card_card_activities_path(@gift_card), alert: "Could not delete activity: #{e.message}"
   end
 
   # Quick log purchase from gift card show page
   def quick_purchase
     @card_activity = @gift_card.card_activities.build(
-      activity_type: "purchase",
-      amount: params[:amount],
-      merchant: params[:merchant],
-      occurred_at: Time.current
+      quick_purchase_params.merge(
+        activity_type: "purchase",
+        occurred_at: Time.current
+      )
     )
 
     if @card_activity.save
@@ -84,6 +89,10 @@ class CardActivitiesController < ApplicationController
 
   def card_activity_params
     params.require(:card_activity).permit(:activity_type, :amount, :merchant, :description, :occurred_at, :balance_after)
+  end
+
+  def quick_purchase_params
+    params.permit(:amount, :merchant)
   end
 
   def activity_success_message

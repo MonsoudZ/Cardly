@@ -34,6 +34,7 @@ class Transaction < ApplicationRecord
   scope :active_offers, -> { where(status: %w[pending countered]) }
   scope :for_seller, ->(user) { where(seller: user) }
   scope :for_buyer, ->(user) { where(buyer: user) }
+  scope :involving_user, ->(user) { where("buyer_id = ? OR seller_id = ?", user.id, user.id) }
   scope :not_expired, -> { where("expires_at IS NULL OR expires_at > ?", Time.current) }
   scope :awaiting_payment, -> { where(status: "accepted", payment_status: %w[unpaid pending]) }
   scope :paid, -> { where(payment_status: "completed") }
@@ -217,16 +218,24 @@ class Transaction < ApplicationRecord
     return false unless pending? && sale?
     return false if new_amount == amount
 
-    update!(
-      original_amount: original_amount || amount,
-      counter_amount: new_amount,
-      counter_message: message,
-      countered_at: Time.current,
-      status: "countered",
-      expires_at: 48.hours.from_now
-    )
-    send_counteroffer_notification
-    true
+    with_lock do
+      # Re-check status after acquiring lock to prevent race conditions
+      return false unless pending?
+      
+      update!(
+        original_amount: original_amount || amount,
+        counter_amount: new_amount,
+        counter_message: message,
+        countered_at: Time.current,
+        status: "countered",
+        expires_at: 48.hours.from_now
+      )
+      send_counteroffer_notification
+      true
+    end
+  rescue ActiveRecord::RecordInvalid => e
+    Rails.logger.error("Transaction counter failed: #{e.message}")
+    false
   end
 
   def accept_counter!

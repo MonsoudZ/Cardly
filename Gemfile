@@ -29,6 +29,8 @@ gem "rack-attack"
 
 # Background job processing
 gem "sidekiq"
+# Job scheduling for Sidekiq
+gem "sidekiq-cron"
 
 # Payment processing
 gem "stripe"

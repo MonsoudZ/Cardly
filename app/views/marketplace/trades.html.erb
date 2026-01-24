@@ -15,7 +15,7 @@
       <% end %>
       <%= link_to marketplace_trades_path, class: "pb-4 px-1 border-b-2 font-medium text-sm border-rose-500 text-rose-600" do %>
         For Trade
-        <span class="ml-2 py-0.5 px-2.5 rounded-full text-xs font-medium bg-rose-100 text-rose-600"><%= @listings.count %></span>
+        <span class="ml-2 py-0.5 px-2.5 rounded-full text-xs font-medium bg-rose-100 text-rose-600"><%= @listings.total_count %></span>
       <% end %>
     </nav>
   </div>
@@ -26,6 +26,13 @@
         <%= render "marketplace/listing_card", listing: listing %>
       <% end %>
     </div>
+
+    <!-- Pagination -->
+    <% if @listings.respond_to?(:total_pages) && @listings.total_pages > 1 %>
+      <div class="mt-6 flex justify-center">
+        <%= paginate @listings %>
+      </div>
+    <% end %>
   <% else %>
     <div class="text-center py-16 bg-gray-50 rounded-xl">
       <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
