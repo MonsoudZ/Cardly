@@ -1,0 +1,32 @@
+<h2>Your dispute has been opened</h2>
+
+<p>Hi <%= @user.display_name %>,</p>
+
+<p>Your dispute has been successfully submitted and is now being reviewed by our team.</p>
+
+<div class="card-details">
+  <h3>Dispute Details</h3>
+  <div class="detail-row">
+    <span class="detail-label">Dispute ID:</span>
+    <span class="detail-value">#<%= @dispute.id %></span>
+  </div>
+  <div class="detail-row">
+    <span class="detail-label">Reason:</span>
+    <span class="detail-value"><%= @dispute.reason_display %></span>
+  </div>
+  <div class="detail-row">
+    <span class="detail-label">Transaction:</span>
+    <span class="detail-value"><%= @transaction.gift_card.brand_name %> Gift Card</span>
+  </div>
+</div>
+
+<p><strong>Your description:</strong></p>
+<blockquote style="border-left: 3px solid #e11d48; padding-left: 16px; margin: 16px 0; color: #4b5563;">
+  <%= @dispute.description %>
+</blockquote>
+
+<p style="text-align: center;">
+  <%= link_to "View Dispute", dispute_url(@dispute), class: "btn" %>
+</p>
+
+<p>Our support team typically reviews disputes within 24-48 hours. We'll notify you when there are any updates.</p>

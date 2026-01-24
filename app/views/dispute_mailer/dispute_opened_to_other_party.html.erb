@@ -1,0 +1,27 @@
+<h2>A dispute has been opened for your transaction</h2>
+
+<p>Hi <%= @user.display_name %>,</p>
+
+<p><strong><%= @dispute.initiator.display_name %></strong> has opened a dispute regarding your recent transaction.</p>
+
+<div class="card-details">
+  <h3>Dispute Details</h3>
+  <div class="detail-row">
+    <span class="detail-label">Dispute ID:</span>
+    <span class="detail-value">#<%= @dispute.id %></span>
+  </div>
+  <div class="detail-row">
+    <span class="detail-label">Reason:</span>
+    <span class="detail-value"><%= @dispute.reason_display %></span>
+  </div>
+  <div class="detail-row">
+    <span class="detail-label">Transaction:</span>
+    <span class="detail-value"><%= @transaction.gift_card.brand_name %> Gift Card</span>
+  </div>
+</div>
+
+<p style="text-align: center;">
+  <%= link_to "View Dispute", dispute_url(@dispute), class: "btn" %>
+</p>
+
+<p>Please review the dispute and respond with any relevant information. Our support team will review the case and make a decision.</p>

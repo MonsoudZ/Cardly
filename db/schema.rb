@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_23_201000) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_24_100001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -42,6 +42,45 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_23_201000) do
     t.index ["gift_card_id", "occurred_at"], name: "index_card_activities_on_gift_card_id_and_occurred_at"
     t.index ["gift_card_id"], name: "index_card_activities_on_gift_card_id"
     t.index ["occurred_at"], name: "index_card_activities_on_occurred_at"
+  end
+
+  create_table "dispute_messages", force: :cascade do |t|
+    t.text "content", null: false
+    t.datetime "created_at", null: false
+    t.bigint "dispute_id", null: false
+    t.boolean "is_admin_message", default: false
+    t.datetime "read_at"
+    t.bigint "sender_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["dispute_id", "created_at"], name: "index_dispute_messages_on_dispute_id_and_created_at"
+    t.index ["dispute_id", "read_at"], name: "index_dispute_messages_on_dispute_id_and_read_at"
+    t.index ["dispute_id"], name: "index_dispute_messages_on_dispute_id"
+    t.index ["sender_id"], name: "index_dispute_messages_on_sender_id"
+  end
+
+  create_table "disputes", force: :cascade do |t|
+    t.text "admin_notes"
+    t.datetime "closed_at"
+    t.datetime "created_at", null: false
+    t.text "description", null: false
+    t.bigint "initiator_id", null: false
+    t.string "reason", null: false
+    t.string "resolution"
+    t.text "resolution_notes"
+    t.datetime "resolved_at"
+    t.bigint "resolved_by_id"
+    t.datetime "reviewed_at"
+    t.bigint "reviewed_by_id"
+    t.string "status", default: "open", null: false
+    t.bigint "transaction_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["initiator_id"], name: "index_disputes_on_initiator_id"
+    t.index ["reason"], name: "index_disputes_on_reason"
+    t.index ["resolved_by_id"], name: "index_disputes_on_resolved_by_id"
+    t.index ["reviewed_by_id"], name: "index_disputes_on_reviewed_by_id"
+    t.index ["status"], name: "index_disputes_on_status"
+    t.index ["transaction_id", "status"], name: "index_disputes_on_transaction_id_and_status"
+    t.index ["transaction_id"], name: "index_disputes_on_transaction_id"
   end
 
   create_table "favorites", force: :cascade do |t|
@@ -219,6 +258,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_23_201000) do
   end
 
   add_foreign_key "card_activities", "gift_cards"
+  add_foreign_key "dispute_messages", "disputes"
+  add_foreign_key "dispute_messages", "users", column: "sender_id"
+  add_foreign_key "disputes", "transactions"
+  add_foreign_key "disputes", "users", column: "initiator_id"
+  add_foreign_key "disputes", "users", column: "resolved_by_id"
+  add_foreign_key "disputes", "users", column: "reviewed_by_id"
   add_foreign_key "favorites", "listings"
   add_foreign_key "favorites", "users"
   add_foreign_key "gift_card_tags", "gift_cards"

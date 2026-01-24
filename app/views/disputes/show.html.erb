@@ -1,0 +1,145 @@
+<div class="page-container max-w-3xl">
+  <!-- Back Link -->
+  <div class="mb-6">
+    <%= link_to disputes_path, class: "inline-flex items-center text-neutral-500 hover:text-neutral-700" do %>
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+      Back to Disputes
+    <% end %>
+  </div>
+
+  <!-- Dispute Header -->
+  <div class="card p-6 mb-6">
+    <div class="flex justify-between items-start mb-4">
+      <div>
+        <h1 class="text-xl font-bold text-neutral-900"><%= @dispute.reason_display %></h1>
+        <p class="text-sm text-neutral-500 mt-1">
+          Dispute #<%= @dispute.id %> · Opened <%= @dispute.created_at.strftime("%B %d, %Y") %>
+        </p>
+      </div>
+      <% case @dispute.status %>
+      <% when "open" %>
+        <%= render 'shared/components/badge', text: "Open", variant: :warning %>
+      <% when "under_review" %>
+        <%= render 'shared/components/badge', text: "Under Review", variant: :info %>
+      <% when "resolved" %>
+        <%= render 'shared/components/badge', text: "Resolved", variant: :success %>
+      <% when "closed" %>
+        <%= render 'shared/components/badge', text: "Closed", variant: :secondary %>
+      <% end %>
+    </div>
+
+    <div class="border-t border-neutral-100 pt-4">
+      <h3 class="text-sm font-medium text-neutral-700 mb-2">Description</h3>
+      <p class="text-neutral-600"><%= @dispute.description %></p>
+    </div>
+  </div>
+
+  <!-- Transaction Details -->
+  <div class="card p-6 mb-6">
+    <h2 class="text-lg font-semibold text-neutral-900 mb-4">Transaction Details</h2>
+    <div class="flex items-center space-x-4 mb-4">
+      <img src="<%= @dispute.card_transaction.gift_card.brand_display_logo %>" alt="" class="w-16 h-12 object-contain rounded bg-neutral-50 p-2">
+      <div>
+        <p class="font-medium text-neutral-900"><%= @dispute.card_transaction.gift_card.brand_name %></p>
+        <p class="text-sm text-neutral-500">
+          Card Value: <%= number_to_currency(@dispute.card_transaction.gift_card.balance) %>
+          <% if @dispute.card_transaction.sale? %>
+            · Sold for: <%= number_to_currency(@dispute.card_transaction.amount) %>
+          <% end %>
+        </p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 pt-4 border-t border-neutral-100">
+      <div>
+        <p class="text-sm text-neutral-500">Buyer</p>
+        <p class="font-medium text-neutral-900"><%= @dispute.buyer.display_name %></p>
+        <% if @dispute.initiator == @dispute.buyer %>
+          <span class="text-xs text-warning-600">(Initiator)</span>
+        <% end %>
+      </div>
+      <div>
+        <p class="text-sm text-neutral-500">Seller</p>
+        <p class="font-medium text-neutral-900"><%= @dispute.seller.display_name %></p>
+        <% if @dispute.initiator == @dispute.seller %>
+          <span class="text-xs text-warning-600">(Initiator)</span>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resolution (if resolved) -->
+  <% if @dispute.resolved? || @dispute.closed? %>
+    <div class="card p-6 mb-6 bg-success-50 border-success-200">
+      <h2 class="text-lg font-semibold text-success-800 mb-2">Resolution</h2>
+      <p class="font-medium text-success-700 mb-2"><%= @dispute.resolution_display %></p>
+      <% if @dispute.resolution_notes.present? %>
+        <p class="text-sm text-success-600"><%= @dispute.resolution_notes %></p>
+      <% end %>
+      <p class="text-xs text-success-500 mt-2">
+        Resolved on <%= @dispute.resolved_at&.strftime("%B %d, %Y at %I:%M %p") %>
+      </p>
+    </div>
+  <% end %>
+
+  <!-- Messages -->
+  <div class="card mb-6">
+    <div class="p-4 border-b border-neutral-100">
+      <h2 class="text-lg font-semibold text-neutral-900">Messages</h2>
+      <p class="text-sm text-neutral-500">Communication regarding this dispute</p>
+    </div>
+
+    <div class="divide-y divide-neutral-100 max-h-96 overflow-y-auto">
+      <% if @messages.empty? %>
+        <div class="p-8 text-center text-neutral-500">
+          <p>No messages yet. Start the conversation below.</p>
+        </div>
+      <% else %>
+        <% @messages.each do |message| %>
+          <div class="p-4 <%= message.from_admin? ? 'bg-primary-50' : '' %>">
+            <div class="flex justify-between items-start mb-2">
+              <div class="flex items-center space-x-2">
+                <span class="font-medium text-neutral-900"><%= message.sender.display_name %></span>
+                <% if message.from_admin? %>
+                  <%= render 'shared/components/badge', text: "Admin", variant: :primary, size: :sm %>
+                <% elsif message.sender == @dispute.initiator %>
+                  <%= render 'shared/components/badge', text: "Initiator", variant: :warning, size: :sm %>
+                <% end %>
+              </div>
+              <span class="text-xs text-neutral-400"><%= message.created_at.strftime("%b %d, %I:%M %p") %></span>
+            </div>
+            <p class="text-neutral-600"><%= message.content %></p>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+
+    <% unless @dispute.closed? %>
+      <div class="p-4 border-t border-neutral-100 bg-neutral-50">
+        <%= form_with url: add_message_dispute_path(@dispute), method: :post, class: "flex space-x-2" do |f| %>
+          <%= f.text_area :dispute_message, :content,
+              class: "input flex-1 min-h-[80px]",
+              placeholder: "Type your message...",
+              required: true %>
+          <button type="submit" class="btn-primary self-end">
+            Send
+          </button>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Help Section -->
+  <div class="card p-6 bg-neutral-50">
+    <h3 class="font-medium text-neutral-900 mb-2">Need Help?</h3>
+    <p class="text-sm text-neutral-600 mb-4">
+      Our support team typically reviews disputes within 24-48 hours. Make sure to provide any additional evidence
+      or information that can help resolve this dispute faster.
+    </p>
+    <p class="text-sm text-neutral-500">
+      For urgent matters, contact us at <a href="mailto:support@cardly.com" class="text-primary-600 hover:underline">support@cardly.com</a>
+    </p>
+  </div>
+</div>
