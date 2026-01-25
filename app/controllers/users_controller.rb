@@ -7,7 +7,7 @@ class UsersController < ApplicationController
                             .order(created_at: :desc)
                             .limit(6)
     @recent_ratings = @user.ratings_received
-                           .includes(:rater, :transaction)
+                           .includes(:rater, :card_transaction)
                            .order(created_at: :desc)
                            .limit(5)
   end

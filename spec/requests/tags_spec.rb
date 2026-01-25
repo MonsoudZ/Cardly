@@ -18,6 +18,7 @@ RSpec.describe "Tags", type: :request do
     end
 
     it "shows untagged cards count" do
+      create(:tag, user: user)  # Need at least one tag for the untagged section to show
       brand = create(:brand)
       create(:gift_card, user: user, brand: brand)
 
@@ -111,9 +112,8 @@ RSpec.describe "Tags", type: :request do
     let(:other_tag) { create(:tag, user: other_user) }
 
     it "denies access to edit" do
-      expect {
-        get edit_tag_path(other_tag)
-      }.to raise_error(ActiveRecord::RecordNotFound)
+      get edit_tag_path(other_tag)
+      expect(response).to have_http_status(:not_found)
     end
   end
 end

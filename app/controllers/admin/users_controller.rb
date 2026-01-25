@@ -16,7 +16,7 @@ module Admin
         @users = @users.where(admin: params[:admin] == "true")
       end
 
-      @users = @users.page(params[:page]).per(25)
+      @users = @users.limit(50)
     end
 
     def show

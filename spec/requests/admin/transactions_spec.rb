@@ -62,7 +62,7 @@ RSpec.describe "Admin::Transactions", type: :request do
     end
 
     context "with messages" do
-      let!(:message) { create(:message, transaction: transaction, sender: buyer, body: "Hello seller!") }
+      let!(:message) { create(:message, card_transaction: transaction, sender: buyer, body: "Hello seller!") }
 
       it "displays messages" do
         get admin_transaction_path(transaction)
@@ -74,7 +74,7 @@ RSpec.describe "Admin::Transactions", type: :request do
 
     context "with ratings" do
       let(:completed_transaction) { create(:transaction, :completed, listing: listing, seller: seller, buyer: buyer) }
-      let!(:rating) { create(:rating, :from_buyer, transaction: completed_transaction, rater: buyer, ratee: seller, score: 5, comment: "Great!") }
+      let!(:rating) { create(:rating, :from_buyer, card_transaction: completed_transaction, rater: buyer, ratee: seller, score: 5, comment: "Great!") }
 
       it "displays ratings" do
         get admin_transaction_path(completed_transaction)

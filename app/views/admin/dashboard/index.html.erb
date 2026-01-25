@@ -3,31 +3,24 @@
 <!-- Stats Grid -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
   <%= render 'shared/components/stat_card',
-      title: "Total Users",
+      label: "Total Users",
       value: number_with_delimiter(@total_users),
-      icon: "user",
-      variant: :secondary,
-      subtitle: "+#{@new_users_today} today · +#{@new_users_this_week} this week" %>
+      icon: "user" %>
 
   <%= render 'shared/components/stat_card',
-      title: "Active Listings",
-      value: number_with_delimiter(@active_listings),
-      icon: "tag",
-      variant: :success,
-      subtitle: "#{@total_listings} total · +#{@listings_today} today" %>
+      label: "Total Listings",
+      value: number_with_delimiter(@total_listings),
+      icon: "tag" %>
 
   <%= render 'shared/components/stat_card',
-      title: "Completed Transactions",
-      value: number_with_delimiter(@completed_transactions),
-      icon: "check",
-      subtitle: "#{@pending_transactions} pending · +#{@transactions_today} today" %>
+      label: "Total Transactions",
+      value: number_with_delimiter(@total_transactions),
+      icon: "check" %>
 
   <%= render 'shared/components/stat_card',
-      title: "Total Gift Card Value",
+      label: "Total Gift Card Value",
       value: number_to_currency(@total_gift_card_value),
-      icon: "currency-dollar",
-      variant: :primary,
-      subtitle: "Across #{number_with_delimiter(@total_gift_cards)} cards" %>
+      icon: "currency-dollar" %>
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">

@@ -2,16 +2,16 @@
   Empty State Component
 
   Usage:
-    <%= render 'shared/components/empty_state',
+    render 'shared/components/empty_state',
         title: 'No gift cards yet',
-        description: 'Get started by adding your first gift card.' %>
+        description: 'Get started by adding your first gift card.'
 
-    <%= render 'shared/components/empty_state',
+    render 'shared/components/empty_state',
         icon: 'gift',
         title: 'No cards found',
         description: 'Try adjusting your search filters.',
         action_text: 'Clear filters',
-        action_url: gift_cards_path %>
+        action_url: gift_cards_path
 
   Options:
     - title: Main heading (required)

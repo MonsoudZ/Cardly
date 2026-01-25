@@ -69,6 +69,11 @@ class Listing < ApplicationRecord
     gift_card.balance - asking_price
   end
 
+  # Placeholder for future analytics - returns 0 until tracking is implemented
+  def views_count
+    0
+  end
+
   private
 
   def calculate_discount
@@ -108,6 +113,8 @@ class Listing < ApplicationRecord
 
   def gift_card_belongs_to_user
     return if gift_card.nil? || user.nil?
+    # Only validate ownership for active listings (not when marking as sold/traded)
+    return unless active?
     errors.add(:gift_card, "must belong to you") unless gift_card.user_id == user_id
   end
 

@@ -20,10 +20,10 @@ class Transaction < ApplicationRecord
   validates :payment_status, inclusion: { in: PAYMENT_STATUSES }, allow_nil: true
   validates :payout_status, inclusion: { in: PAYOUT_STATUSES }, allow_nil: true
   validate :buyer_cannot_be_seller
-  validate :offered_card_belongs_to_buyer, if: :trade?
-  validate :offered_card_has_balance, if: :trade?
+  validate :offered_card_belongs_to_buyer, if: -> { trade? && (pending? || countered?) }
+  validate :offered_card_has_balance, if: -> { trade? && (pending? || countered?) }
   validate :listing_must_be_active, on: :create
-  validate :counter_amount_differs_from_original, if: :counter_amount
+  validate :counter_amount_differs_from_original, if: -> { counter_amount.present? && countered? }
 
   after_create_commit :send_new_offer_notification
 
@@ -57,6 +57,16 @@ class Transaction < ApplicationRecord
 
   def completed?
     status == "completed"
+  end
+
+  # Return paid_at as completion timestamp (when payment completed, transaction completes)
+  def completed_at
+    paid_at
+  end
+
+  # Placeholder for cancelled timestamp - not currently tracked
+  def cancelled_at
+    nil
   end
 
   def countered?
@@ -203,17 +213,15 @@ class Transaction < ApplicationRecord
   def accept_counter!
     return false unless countered?
 
-    # Update amount to the counter amount
-    update!(amount: counter_amount)
-
     if sale?
-      # For sales, mark as accepted and await payment
-      update!(status: "accepted")
+      # For sales, update amount and mark as accepted in one call to avoid validation issues
+      update!(amount: counter_amount, status: "accepted")
       send_counter_accepted_notification
       send_payment_request_notification
       true
     else
-      # For trades, complete immediately
+      # For trades, update amount and complete immediately
+      update!(amount: counter_amount)
       ActiveRecord::Base.transaction do
         complete_transaction!
       end

@@ -138,9 +138,8 @@ RSpec.describe "CardActivities", type: :request do
     let(:other_gift_card) { create(:gift_card, user: other_user, brand: brand) }
 
     it "denies access" do
-      expect {
-        get gift_card_card_activities_path(other_gift_card)
-      }.to raise_error(ActiveRecord::RecordNotFound)
+      get gift_card_card_activities_path(other_gift_card)
+      expect(response).to have_http_status(:not_found)
     end
   end
 end

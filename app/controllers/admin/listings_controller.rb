@@ -21,7 +21,7 @@ module Admin
                               .where("brands.name ILIKE ?", "%#{params[:search]}%")
       end
 
-      @listings = @listings.page(params[:page]).per(25)
+      @listings = @listings.limit(50)
     end
 
     def show

@@ -60,7 +60,7 @@ RSpec.describe "Transactions", type: :request do
         post accept_counter_transaction_path(transaction)
 
         expect(response).to redirect_to(transactions_path)
-        expect(transaction.reload.status).to eq("completed")
+        expect(transaction.reload.status).to eq("accepted")
         expect(transaction.amount).to eq(92)
       end
     end

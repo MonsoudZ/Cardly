@@ -24,7 +24,7 @@ module Admin
         @transactions = @transactions.where("created_at <= ?", Date.parse(params[:to]).end_of_day)
       end
 
-      @transactions = @transactions.page(params[:page]).per(25)
+      @transactions = @transactions.limit(50)
 
       # Summary stats
       @total_value = @transactions.where(status: "completed").sum(:amount)

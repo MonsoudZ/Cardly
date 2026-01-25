@@ -1,4 +1,6 @@
 class PriceDropMailer < ApplicationMailer
+  include ActionView::Helpers::NumberHelper
+
   # Notify user when a watched listing drops in price
   def price_drop_alert(user, listing, old_price, new_price)
     @user = user

@@ -2,16 +2,16 @@
   Dropdown Component
 
   Usage:
-    <%= render 'shared/components/dropdown', trigger_text: 'Options' do %>
-      <%= link_to 'Edit', edit_path, class: 'dropdown-item' %>
-      <%= link_to 'Delete', delete_path, class: 'dropdown-item text-danger-600' %>
-    <% end %>
+    render 'shared/components/dropdown', trigger_text: 'Options' do
+      link_to 'Edit', edit_path, class: 'dropdown-item'
+      link_to 'Delete', delete_path, class: 'dropdown-item text-danger-600'
+    end
 
-    <%= render 'shared/components/dropdown', trigger_icon: 'dots-vertical', position: :right do %>
+    render 'shared/components/dropdown', trigger_icon: 'dots-vertical', position: :right do
       <div class="py-1">
-        <%= link_to 'View', view_path, class: 'dropdown-item' %>
+        link_to 'View', view_path, class: 'dropdown-item'
       </div>
-    <% end %>
+    end
 
   Options:
     - trigger_text: Text for trigger button (optional)

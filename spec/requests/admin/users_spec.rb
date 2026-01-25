@@ -31,7 +31,7 @@ RSpec.describe "Admin::Users", type: :request do
 
       expect(response).to have_http_status(:success)
       expect(response.body).to include("Another Admin")
-      expect(response.body).not_to include("Regular User")
+      expect(response.body).not_to include(user.email)  # Check email instead to avoid matching filter dropdown text
     end
   end
 

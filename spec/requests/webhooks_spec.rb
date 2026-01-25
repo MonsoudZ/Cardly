@@ -34,6 +34,9 @@ RSpec.describe "Webhooks", type: :request do
 
     context "checkout.session.completed event" do
       it "completes the payment" do
+        # Ensure transaction exists before webhook is processed
+        transaction
+
         event_payload = {
           id: "evt_test123",
           type: "checkout.session.completed",
@@ -95,6 +98,9 @@ RSpec.describe "Webhooks", type: :request do
 
     context "account.updated event" do
       it "updates user connect account status" do
+        # Ensure seller exists before webhook is processed
+        seller
+
         event_payload = {
           id: "evt_test789",
           type: "account.updated",

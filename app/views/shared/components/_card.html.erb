@@ -2,17 +2,17 @@
   Card Component
 
   Usage:
-    <%= render 'shared/components/card' do %>
+    render 'shared/components/card' do
       Card content here
-    <% end %>
+    end
 
-    <%= render 'shared/components/card', title: 'My Card', subtitle: 'Optional subtitle' do %>
+    render 'shared/components/card', title: 'My Card', subtitle: 'Optional subtitle' do
       Card content
-    <% end %>
+    end
 
-    <%= render 'shared/components/card', variant: :elevated, padding: :lg do %>
+    render 'shared/components/card', variant: :elevated, padding: :lg do
       Premium content
-    <% end %>
+    end
 
   Options:
     - title: Card header title (optional)

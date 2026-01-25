@@ -40,7 +40,7 @@ RSpec.describe "Users", type: :request do
       let!(:gift_card) { create(:gift_card, user: user, brand: brand, balance: 100) }
       let!(:listing) { create(:listing, :for_sale, user: user, gift_card: gift_card, asking_price: 85) }
       let!(:transaction) { create(:transaction, :completed, listing: listing, seller: user, buyer: buyer) }
-      let!(:rating) { create(:rating, :from_buyer, transaction: transaction, rater: buyer, ratee: user, score: 5, comment: "Great seller!") }
+      let!(:rating) { create(:rating, :from_buyer, card_transaction: transaction, rater: buyer, ratee: user, score: 5, comment: "Great seller!") }
 
       it "displays ratings received" do
         get user_path(user)
@@ -73,9 +73,8 @@ RSpec.describe "Users", type: :request do
     end
 
     it "returns 404 for non-existent user" do
-      expect {
-        get user_path(id: 999999)
-      }.to raise_error(ActiveRecord::RecordNotFound)
+      get user_path(id: 999999)
+      expect(response).to have_http_status(:not_found)
     end
   end
 end
