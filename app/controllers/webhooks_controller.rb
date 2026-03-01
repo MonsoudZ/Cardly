@@ -64,7 +64,9 @@ class WebhooksController < ApplicationController
     return unless transaction
 
     if session.payment_status == "paid" && !transaction.payment_completed?
-      transaction.complete_payment!(session.payment_intent)
+      unless transaction.complete_payment!(session.payment_intent)
+        raise "Failed to complete payment for transaction #{transaction.id}"
+      end
       Rails.logger.info "Payment completed for transaction #{transaction.id}"
     elsif transaction.payment_completed?
       Rails.logger.info "Payment already completed for transaction #{transaction.id} (idempotency)"
@@ -76,7 +78,9 @@ class WebhooksController < ApplicationController
     return unless transaction
 
     unless transaction.payment_status == "completed"
-      transaction.complete_payment!(payment_intent.id)
+      unless transaction.complete_payment!(payment_intent.id)
+        raise "Failed to complete payment for transaction #{transaction.id}"
+      end
       Rails.logger.info "Payment intent succeeded for transaction #{transaction.id}"
     else
       Rails.logger.info "Payment already completed for transaction #{transaction.id} (idempotency)"

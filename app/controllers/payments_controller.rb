@@ -1,7 +1,7 @@
 class PaymentsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_transaction, only: [ :checkout, :success, :cancel ]
-  before_action :verify_buyer, only: [ :checkout ]
+  before_action :verify_buyer, only: [ :checkout, :success, :cancel ]
   before_action :verify_payment_eligible, only: [ :checkout ]
 
   # POST /transactions/:transaction_id/checkout
@@ -62,11 +62,10 @@ class PaymentsController < ApplicationController
       # Verify payment with Stripe
       session = Stripe::Checkout::Session.retrieve(session_id)
 
-      if session.payment_status == "paid"
-        @transaction.complete_payment!(session.payment_intent)
+      if session.payment_status == "paid" && @transaction.complete_payment!(session.payment_intent)
         flash[:notice] = "Payment successful! The gift card has been added to your wallet."
       else
-        flash[:alert] = "Payment verification failed. Please contact support."
+        flash[:alert] = "Payment could not be completed. Please contact support."
       end
     else
       flash[:alert] = "Invalid payment session."
@@ -80,8 +79,7 @@ class PaymentsController < ApplicationController
 
   # GET /transactions/:transaction_id/payment/cancel
   def cancel
-    @transaction.update!(payment_status: "cancelled") if @transaction.payment_status == "pending"
-    flash[:notice] = "Payment was cancelled."
+    flash[:notice] = "Checkout was cancelled. No charge was made."
     redirect_to transaction_path(@transaction)
   end
 
@@ -99,13 +97,23 @@ class PaymentsController < ApplicationController
   end
 
   def verify_payment_eligible
-    unless @transaction.accepted? && @transaction.sale?
+    unless @transaction.accepted? && @transaction.sale? && @transaction.listing.active?
       flash[:alert] = "This transaction is not ready for payment."
       redirect_to transaction_path(@transaction)
+      return
     end
 
     if @transaction.payment_status == "completed"
       flash[:notice] = "This transaction has already been paid."
+      redirect_to transaction_path(@transaction)
+      return
+    end
+
+    if @transaction.listing.transactions
+                    .where(status: "accepted")
+                    .where.not(id: @transaction.id)
+                    .exists?
+      flash[:alert] = "Another accepted offer already exists for this listing."
       redirect_to transaction_path(@transaction)
     end
   end

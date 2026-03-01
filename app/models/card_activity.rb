@@ -9,7 +9,7 @@ class CardActivity < ApplicationRecord
 
   before_validation :set_default_occurred_at
   before_save :calculate_balances
-  after_save :update_gift_card_balance, if: :balance_changing_activity?
+  after_commit :recalculate_gift_card_balance!, on: [ :create, :update, :destroy ], if: :balance_changing_activity?
 
   scope :chronological, -> { order(occurred_at: :asc) }
   scope :reverse_chronological, -> { order(occurred_at: :desc) }
@@ -77,21 +77,34 @@ class CardActivity < ApplicationRecord
     end
   end
 
-  def update_gift_card_balance
-    return unless balance_after && gift_card
+  def recalculate_gift_card_balance!
+    return unless gift_card
 
-    # Use lock and update! to ensure data integrity
     gift_card.with_lock do
-      # Recalculate balance from all activities to ensure accuracy
-      # This prevents race conditions from concurrent activities
-      calculated_balance = gift_card.card_activities
-                                    .where("occurred_at <= ?", occurred_at)
-                                    .sum { |a| a.signed_amount }
-      
-      # Ensure balance doesn't go negative
-      final_balance = [calculated_balance, 0].max
-      
-      gift_card.update!(balance: final_balance)
+      activities = gift_card.card_activities.order(:occurred_at, :id).to_a
+
+      if activities.empty?
+        restored_balance = balance_before || gift_card.balance || 0
+        restored_balance = 0 if restored_balance.negative?
+        gift_card.update!(balance: restored_balance)
+        return
+      end
+
+      running_balance = activities.first.balance_before || gift_card.balance || 0
+
+      activities.each do |activity|
+        case activity.activity_type
+        when "purchase"
+          running_balance -= activity.amount
+        when "refund"
+          running_balance += activity.amount
+        when "adjustment"
+          running_balance = activity.balance_after || activity.amount || running_balance
+        end
+      end
+
+      running_balance = 0 if running_balance.negative?
+      gift_card.update!(balance: running_balance)
     end
   rescue ActiveRecord::RecordInvalid => e
     Rails.logger.error("Failed to update gift card balance: #{e.message}")

@@ -7,10 +7,10 @@ class StripeWebhookEvent < ApplicationRecord
   scope :by_type, ->(type) { where(event_type: type) }
 
   def mark_as_processed!
-    update!(processed: true)
+    update!(processed: true, error_message: nil)
   end
 
   def mark_as_failed!(error_message)
-    update!(processed: true, error_message: error_message)
+    update!(processed: false, error_message: error_message)
   end
 end

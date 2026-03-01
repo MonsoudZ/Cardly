@@ -1,29 +1,20 @@
 class EncryptGiftCardSensitiveFields < ActiveRecord::Migration[8.1]
   def up
-    # Encrypt existing plaintext data
-    # This reads raw values and re-saves them through Active Record encryption
+    # Re-save through encrypted attributes so plaintext rows are encrypted at rest.
+    GiftCard.reset_column_information
     GiftCard.find_each do |gift_card|
-      # Read raw unencrypted values directly from database
-      raw_values = GiftCard.connection.select_one(
-        "SELECT card_number, pin FROM gift_cards WHERE id = ?", gift_card.id
-      )
+      next if gift_card.card_number.blank? && gift_card.pin.blank?
 
-      # Skip if already encrypted (starts with encryption marker) or nil
-      next if raw_values["card_number"].nil? && raw_values["pin"].nil?
-      next if raw_values["card_number"]&.start_with?("{")
-
-      # Re-assign to trigger encryption on save
-      gift_card.update_columns(
-        card_number: gift_card.class.encrypt(:card_number, raw_values["card_number"]),
-        pin: gift_card.class.encrypt(:pin, raw_values["pin"])
-      )
+      gift_card.card_number = gift_card.card_number
+      gift_card.pin = gift_card.pin
+      gift_card.save!(validate: false, touch: false)
     end
   end
 
   def down
-    # Decrypt data back to plaintext (for rollback)
+    # Persist decrypted values back to plaintext columns for rollback.
     GiftCard.find_each do |gift_card|
-      gift_card.update_columns(
+      GiftCard.where(id: gift_card.id).update_all(
         card_number: gift_card.card_number,
         pin: gift_card.pin
       )

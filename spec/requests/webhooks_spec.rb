@@ -61,6 +61,38 @@ RSpec.describe "Webhooks", type: :request do
         expect(response).to have_http_status(:ok)
         expect(transaction.reload.payment_status).to eq("completed")
       end
+
+      it "returns 500 and keeps event retryable when fulfillment fails" do
+        event_payload = {
+          id: "evt_retryable123",
+          type: "checkout.session.completed",
+          data: {
+            object: {
+              id: "cs_test123",
+              payment_status: "paid",
+              payment_intent: "pi_test123"
+            }
+          }
+        }.to_json
+
+        allow(Stripe::Webhook).to receive(:construct_event).and_return(
+          Stripe::Event.construct_from(JSON.parse(event_payload))
+        )
+        allow_any_instance_of(Transaction).to receive(:complete_payment!).and_return(false)
+
+        post webhooks_stripe_path,
+          params: event_payload,
+          headers: {
+            "HTTP_STRIPE_SIGNATURE" => generate_signature(event_payload),
+            "CONTENT_TYPE" => "application/json"
+          }
+
+        expect(response).to have_http_status(:internal_server_error)
+        webhook_event = StripeWebhookEvent.find_by(stripe_event_id: "evt_retryable123")
+        expect(webhook_event).to be_present
+        expect(webhook_event.processed).to be false
+        expect(webhook_event.error_message).to be_present
+      end
     end
 
     context "payment_intent.payment_failed event" do

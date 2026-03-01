@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_24_100001) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_24_120002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -119,6 +119,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_24_100001) do
     t.datetime "reminder_7_day_sent_at"
     t.datetime "reminder_sent_at"
     t.string "status", default: "active", null: false
+    t.integer "lock_version", default: 0, null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["brand_id"], name: "index_gift_cards_on_brand_id"
@@ -138,6 +139,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_24_100001) do
     t.bigint "gift_card_id", null: false
     t.string "listing_type", default: "sale", null: false
     t.string "status", default: "active", null: false
+    t.integer "lock_version", default: 0, null: false
     t.text "trade_preferences"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
@@ -189,6 +191,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_24_100001) do
     t.index ["user_id"], name: "index_tags_on_user_id"
   end
 
+  create_table "stripe_webhook_events", force: :cascade do |t|
+    t.string "stripe_event_id", null: false
+    t.string "event_type", null: false
+    t.boolean "processed", default: false, null: false
+    t.text "payload"
+    t.text "error_message"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_type"], name: "index_stripe_webhook_events_on_event_type"
+    t.index ["processed"], name: "index_stripe_webhook_events_on_processed"
+    t.index ["stripe_event_id"], name: "index_stripe_webhook_events_on_stripe_event_id", unique: true
+  end
+
   create_table "transactions", force: :cascade do |t|
     t.decimal "amount", precision: 10, scale: 2
     t.bigint "buyer_id", null: false
@@ -212,8 +227,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_24_100001) do
     t.string "status", default: "pending", null: false
     t.string "stripe_checkout_session_id"
     t.string "stripe_payment_intent_id"
+    t.string "stripe_refund_id"
     t.string "stripe_transfer_id"
     t.string "transaction_type", default: "sale", null: false
+    t.integer "lock_version", default: 0, null: false
     t.datetime "updated_at", null: false
     t.index ["buyer_id", "status"], name: "index_transactions_on_buyer_id_and_status"
     t.index ["buyer_id"], name: "index_transactions_on_buyer_id"
@@ -228,6 +245,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_24_100001) do
     t.index ["status"], name: "index_transactions_on_status"
     t.index ["stripe_checkout_session_id"], name: "index_transactions_on_stripe_checkout_session_id", unique: true
     t.index ["stripe_payment_intent_id"], name: "index_transactions_on_stripe_payment_intent_id", unique: true
+    t.index ["stripe_refund_id"], name: "index_transactions_on_stripe_refund_id", unique: true
     t.index ["transaction_type"], name: "index_transactions_on_transaction_type"
   end
 

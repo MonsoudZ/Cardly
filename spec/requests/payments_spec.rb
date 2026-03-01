@@ -131,6 +131,16 @@ RSpec.describe "Payments", type: :request do
       expect(response).to redirect_to(transaction_path(transaction))
       expect(flash[:alert]).to include("Invalid payment session")
     end
+
+    it "denies access to non-buyer users" do
+      sign_out buyer
+      sign_in seller
+
+      get success_transaction_payment_path(transaction, session_id: "cs_test123")
+
+      expect(response).to redirect_to(transactions_path)
+      expect(flash[:alert]).to include("not authorized")
+    end
   end
 
   describe "GET /transactions/:transaction_id/payment/cancel" do
@@ -139,12 +149,22 @@ RSpec.describe "Payments", type: :request do
       transaction.update!(payment_status: "pending")
     end
 
-    it "cancels the payment" do
+    it "does not mutate payment state from a GET request" do
       get cancel_transaction_payment_path(transaction)
 
       expect(response).to redirect_to(transaction_path(transaction))
-      expect(flash[:notice]).to include("cancelled")
-      expect(transaction.reload.payment_status).to eq("cancelled")
+      expect(flash[:notice]).to include("Checkout was cancelled")
+      expect(transaction.reload.payment_status).to eq("pending")
+    end
+
+    it "denies access to non-buyer users" do
+      sign_out buyer
+      sign_in seller
+
+      get cancel_transaction_payment_path(transaction)
+
+      expect(response).to redirect_to(transactions_path)
+      expect(flash[:alert]).to include("not authorized")
     end
   end
 end

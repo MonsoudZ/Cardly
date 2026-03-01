@@ -42,17 +42,8 @@ class CardActivitiesController < ApplicationController
   end
 
   def destroy
-    # Restore balance if it was a purchase or refund
-    @gift_card.with_lock do
-      if @card_activity.purchase?
-        @gift_card.update!(balance: @gift_card.balance + @card_activity.amount)
-      elsif @card_activity.refund?
-        @gift_card.update!(balance: [@gift_card.balance - @card_activity.amount, 0].max)
-      end
-    end
-
     @card_activity.destroy
-    redirect_to gift_card_card_activities_path(@gift_card), notice: "Activity deleted and balance restored."
+    redirect_to gift_card_card_activities_path(@gift_card), notice: "Activity deleted successfully."
   rescue ActiveRecord::RecordInvalid => e
     Rails.logger.error("Failed to update gift card balance during activity deletion: #{e.message}")
     redirect_to gift_card_card_activities_path(@gift_card), alert: "Could not delete activity: #{e.message}"

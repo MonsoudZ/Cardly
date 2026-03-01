@@ -163,26 +163,27 @@ class Transaction < ApplicationRecord
 
   def accept!
     return false unless pending?
-    
-    # Re-validate listing is still active
-    unless listing.active?
-      errors.add(:listing, "is no longer available")
-      return false
-    end
 
     with_lock do
       # Re-check status after acquiring lock to prevent race conditions
       return false unless pending?
-      
-      # Re-validate listing is still active after lock
-      unless listing.active?
-        errors.add(:listing, "is no longer available")
-        return false
-      end
 
       if sale?
-        # For sales, mark as accepted and await payment
-        update!(status: "accepted")
+        # For sales, only one offer may be accepted at a time for a listing.
+        listing.with_lock do
+          unless listing.active?
+            errors.add(:listing, "is no longer available")
+            return false
+          end
+
+          if competing_accepted_offer_exists?
+            errors.add(:base, "Another offer is already awaiting payment for this listing")
+            return false
+          end
+
+          update!(status: "accepted")
+        end
+
         send_offer_accepted_notification
         send_payment_request_notification
         true
@@ -240,34 +241,38 @@ class Transaction < ApplicationRecord
 
   def accept_counter!
     return false unless countered?
-    
-    # Re-validate listing is still active
-    unless listing.active?
-      errors.add(:listing, "is no longer available")
-      return false
-    end
 
     with_lock do
       # Re-check status after acquiring lock
       return false unless countered?
-      
-      # Re-validate listing is still active after lock
-      unless listing.active?
-        errors.add(:listing, "is no longer available")
-        return false
-      end
-
-      # Update amount to the counter amount
-      update!(amount: counter_amount)
 
       if sale?
         # For sales, mark as accepted and await payment
-        update!(status: "accepted")
+        listing.with_lock do
+          unless listing.active?
+            errors.add(:listing, "is no longer available")
+            return false
+          end
+
+          if competing_accepted_offer_exists?
+            errors.add(:base, "Another offer is already awaiting payment for this listing")
+            return false
+          end
+
+          update!(amount: counter_amount, status: "accepted")
+        end
+
         send_counter_accepted_notification
         send_payment_request_notification
         true
       else
         # For trades, complete immediately
+        unless listing.active?
+          errors.add(:listing, "is no longer available")
+          return false
+        end
+
+        update!(amount: counter_amount)
         ActiveRecord::Base.transaction do
           complete_transaction!
         end
@@ -441,6 +446,10 @@ class Transaction < ApplicationRecord
     if expires_at <= Time.current
       errors.add(:expires_at, "must be in the future")
     end
+  end
+
+  def competing_accepted_offer_exists?
+    listing.transactions.where(status: "accepted").where.not(id: id).exists?
   end
 
   # Email notifications

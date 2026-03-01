@@ -118,6 +118,16 @@ RSpec.describe Transaction, type: :model do
       expect(transaction.accept!).to be true
       expect(transaction.reload.status).to eq("completed")
     end
+
+    it "does not allow a second accepted offer on the same listing" do
+      first_offer = create(:transaction, :sale, buyer: buyer, seller: seller, listing: listing)
+      second_offer = create(:transaction, :sale, buyer: create(:user), seller: seller, listing: listing)
+
+      expect(first_offer.accept!).to be true
+      expect(second_offer.accept!).to be false
+      expect(second_offer.errors[:base]).to include("Another offer is already awaiting payment for this listing")
+      expect(second_offer.reload.status).to eq("pending")
+    end
   end
 
   describe "#reject!" do
@@ -189,6 +199,16 @@ RSpec.describe Transaction, type: :model do
         expect(transaction.amount).to eq(90.00)
         # Card is not transferred until payment is completed
         expect(gift_card.reload.user).to eq(seller)
+      end
+
+      it "does not allow counter acceptance if another accepted offer exists" do
+        accepted_offer = create(:transaction, :sale, :accepted, buyer: create(:user), seller: seller, listing: listing)
+        transaction = create(:transaction, :sale, :countered, buyer: buyer, seller: seller, listing: listing, amount: 80.00, counter_amount: 90.00)
+
+        expect(accepted_offer).to be_accepted
+        expect(transaction.accept_counter!).to be false
+        expect(transaction.errors[:base]).to include("Another offer is already awaiting payment for this listing")
+        expect(transaction.reload.status).to eq("countered")
       end
 
       it "fails for non-countered transactions" do

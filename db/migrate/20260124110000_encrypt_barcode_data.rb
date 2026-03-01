@@ -1,30 +1,19 @@
 class EncryptBarcodeData < ActiveRecord::Migration[8.1]
   def up
-    # Encrypt existing plaintext barcode_data
-    # This reads raw values and re-saves them through Active Record encryption
+    # Re-save through encrypted attribute so plaintext rows are encrypted at rest.
+    GiftCard.reset_column_information
     GiftCard.find_each do |gift_card|
-      # Read raw unencrypted value directly from database
-      raw_value = GiftCard.connection.select_one(
-        "SELECT barcode_data FROM gift_cards WHERE id = ?", gift_card.id
-      )&.dig("barcode_data")
+      next if gift_card.barcode_data.blank?
 
-      # Skip if already encrypted (starts with encryption marker) or nil
-      next if raw_value.nil?
-      next if raw_value.start_with?("{")
-
-      # Re-assign to trigger encryption on save
-      gift_card.update_columns(
-        barcode_data: gift_card.class.encrypt(:barcode_data, raw_value)
-      )
+      gift_card.barcode_data = gift_card.barcode_data
+      gift_card.save!(validate: false, touch: false)
     end
   end
 
   def down
-    # Decrypt data back to plaintext (for rollback)
+    # Persist decrypted values back to plaintext column for rollback.
     GiftCard.find_each do |gift_card|
-      gift_card.update_columns(
-        barcode_data: gift_card.barcode_data
-      )
+      GiftCard.where(id: gift_card.id).update_all(barcode_data: gift_card.barcode_data)
     end
   end
 end
